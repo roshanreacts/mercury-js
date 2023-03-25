@@ -11,14 +11,14 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://your-docusaurus-test-site.com',
+  url: 'https://roshanreacts.github.io/mercury-js',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'MercuyJS', // Usually your GitHub org/user name.
+  organizationName: 'roshanreacts', // Usually your GitHub org/user name.
   projectName: 'mercury-js', // Usually your repo name.
 
   onBrokenLinks: 'throw',
