@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build:core": "nx build core",
+    "build:core": "nx build @mercury-js/core",
     "build:docs": "nx build docs",
     "start:docs": "nx start docs"
   },

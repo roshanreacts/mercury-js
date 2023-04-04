@@ -3,6 +3,9 @@ import mongoose from 'mongoose'
 import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
+import Kareem from 'kareem'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import nconf from 'nconf'
 import Create from './Create'
 import ScalarResolver from './Scalars'
@@ -15,6 +18,7 @@ String.prototype.toProperCase = function () {
 class Mercury {
   private _lists: Array<schemaType> = []
   private _views: Array<ViewType> = []
+  private _hooks = new Kareem()
   private _schema: string[] = [
     `
   scalar DateTime
@@ -169,16 +173,21 @@ class Mercury {
   public get schemaList() {
     return this._lists
   }
-  public package(packages: Array<(mercury: Mercury) => void>) {
-    packages.map((pkg) => pkg(this))
+  createPreHook(
+    name: SupportedPreHooks,
+    method: (next: void, done: void) => void
+  ) {
+    this._hooks.pre(name, method)
   }
-  // public set adminRole(role: string) {
-  //   this._adminRole = role;
-  // }
-
-  // public set roles(rolesArray: Array<string>) {
-  //   this._roles = rolesArray;
-  // }
+  createPostHook(
+    name: SupportedPostHooks,
+    method: (next: void, done: void) => void
+  ) {
+    this._hooks.post(name, method)
+  }
+  public package(packages: Array<(mercury: MercuryTBare) => void>) {
+    packages.map((pkg) => pkg(this as any))
+  }
   connect(path: string) {
     this.path = path
     mongoose.connect(this.path)
@@ -241,7 +250,21 @@ class Mercury {
     if (!_.has(schema, 'public')) {
       schema.public = false
     }
+    // execute prehooks BEFORE_CREATELIST
+    this._hooks.execPre(
+      'BEFORE_CREATELIST',
+      { name: name, schema: schema },
+      (error: { message: string }) => {
+        if (error) {
+          throw new Error(
+            `Pre createlist hook execution has failed: ${error.message}`
+          )
+        }
+        console.log(schema)
+      }
+    )
     this._lists.push({ _model: name, ...schema })
+
     const create = new Create(this)
     const createModel = create.createList({ _model: name, ...schema })
     this._schema.push(createModel.schema)

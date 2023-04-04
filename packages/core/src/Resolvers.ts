@@ -59,7 +59,6 @@ class Resolvers {
             path: item,
             select: parentIntersection.join(' '),
           }
-
           const childPopulate: { path: string; select: string }[] = []
           const childListModel = _.find(this._list, ['_model', findModelName])
 
@@ -221,6 +220,18 @@ class Resolvers {
     }
     return value
   }
+  addExtentType(selectedKey: Array<string | null>): void {
+    // Add extend Keys
+    const extendTypeKeys = this.schema.extendType
+      ?.find((f) => f.type === this.modelName)
+      ?.definition.split('\n')
+      .map((x) => x.split(':').map((y) => y.trim()))
+      .reduce((a: any, x: any) => {
+        a[x[0]] = x[1]
+        return a
+      }, {})
+    Object.keys(extendTypeKeys).map((ext) => selectedKey.push(ext))
+  }
   mapMongoResolver(name: string, Model: any): any {
     // createModel resolver
     switch (name) {
@@ -248,6 +259,7 @@ class Resolvers {
             true
           )
           const selectedKey = _.intersection(parentFields, allowedKey)
+          this.addExtentType(selectedKey)
           const findAll = await Model.paginate(
             this.whereInputCompose(args.where),
             {
@@ -283,6 +295,7 @@ class Resolvers {
             'read'
           )
           const selectedKey = _.intersection(parentFields, allowedKey)
+          this.addExtentType(selectedKey)
           const findOne = await Model.findOne(
             this.whereInputCompose(args.where)
           )
@@ -314,6 +327,7 @@ class Resolvers {
             'create'
           )
           const selectedKey = _.intersection(parentFields, allowedKey)
+          this.addExtentType(selectedKey)
           let stopExecutionState: string | boolean = false
           this.hooks('beforeCreate', {
             root,
@@ -327,17 +341,20 @@ class Resolvers {
           if (stopExecutionState) throw new Error(stopExecutionState)
           const newModel = new Model(args.data)
           await newModel.save()
+          let newRecord = Model.findOne({ _id: newModel._id })
+            .select(selectedKey.join(' '))
+            .populate(populate)
+          const setData = (setRecord: any) => (newRecord = setRecord)
           this.hooks('afterCreate', {
             root,
             args,
             ctx,
             resolveInfo,
             populate,
-            docs: newModel,
+            docs: newRecord,
+            setData,
           })
-          return Model.findOne({ _id: newModel._id })
-            .select(selectedKey.join(' '))
-            .populate(populate)
+          return newRecord
         }
         break
 
@@ -363,6 +380,7 @@ class Resolvers {
             'create'
           )
           const selectedKey = _.intersection(parentFields, allowedKey)
+          this.addExtentType(selectedKey)
           const allRecords: any = []
           await Promise.all(
             _.map(args.data, async (record) => {
@@ -378,16 +396,18 @@ class Resolvers {
               })
               if (stopExecutionState) throw new Error(stopExecutionState)
               const newRecord = await Model.create(record)
-              const fetchRec = await Model.findOne({ _id: newRecord._id })
+              let fetchRec = await Model.findOne({ _id: newRecord._id })
                 .select(selectedKey.join(' '))
                 .populate(populate)
+              const setData = (setRecord: any) => (fetchRec = setRecord)
               this.hooks('afterCreate', {
                 root,
                 args,
                 ctx,
                 resolveInfo,
                 allowedKey,
-                docs: newRecord,
+                docs: fetchRec,
+                setData,
               })
               allRecords.push(fetchRec)
             })
@@ -419,6 +439,7 @@ class Resolvers {
             'update'
           )
           const selectedKey = _.intersection(parentFields, allowedKey)
+          this.addExtentType(selectedKey)
           const findModel = await Model.findById(args.id)
           if (!findModel) {
             throw new Error(`Record with id: ${args.id} not found`)
@@ -438,16 +459,13 @@ class Resolvers {
               (stopExecutionState = err),
           })
           if (stopExecutionState) throw new Error(stopExecutionState)
-          const updateModel = await Model.findByIdAndUpdate(
-            args.id,
-            updateData,
-            {
-              new: true,
-            }
-          )
+          let updateModel = await Model.findByIdAndUpdate(args.id, updateData, {
+            new: true,
+          })
             .select(selectedKey.join(' '))
             .populate(populate)
           await this.createHistoryRecord(findModel, updateModel, 'UPDATE')
+          const setData = (setRecord: any) => (updateModel = setRecord)
           this.hooks('afterUpdate', {
             root,
             args,
@@ -456,6 +474,7 @@ class Resolvers {
             allowedKey,
             prevRecord: updateModel,
             docs: updateModel,
+            setData,
           })
           return updateModel
         }
@@ -483,6 +502,7 @@ class Resolvers {
             'update'
           )
           const selectedKey = _.intersection(parentFields, allowedKey)
+          this.addExtentType(selectedKey)
           const updatedRecords: any[] = []
           await Promise.all(
             _.map(args.data, async (record: any) => {
@@ -507,7 +527,7 @@ class Resolvers {
               })
               if (stopExecutionState) throw new Error(stopExecutionState)
 
-              const updateRecord = await Model.findByIdAndUpdate(
+              let updateRecord = await Model.findByIdAndUpdate(
                 record.id,
                 updateData,
                 { new: true }
@@ -515,7 +535,7 @@ class Resolvers {
                 .select(selectedKey.join(' '))
                 .populate(populate)
               await this.createHistoryRecord(findModel, updateRecord, 'UPDATE')
-              // await findModel.select(selectedKey.join(' ')).populate(populate)
+              const setData = (setRecord: any) => (updateRecord = setRecord)
               this.hooks('afterUpdate', {
                 root,
                 args,
@@ -524,6 +544,7 @@ class Resolvers {
                 allowedKey,
                 prevRecord: findModel,
                 docs: updateRecord,
+                setData,
               })
               updatedRecords.push(updateRecord)
             })

@@ -4,6 +4,7 @@ interface FieldsMap {
     isRequired?: boolean
     default?: any
     ignoreGraphql?: verboseAccessType
+    ignoreModel?: verboseAccessType
     renameGraphql?: string
     updatable?: boolean
     many?: boolean
@@ -77,6 +78,10 @@ interface listSchema {
   hooks?: HookType
   enableHistoryTracking?: boolean
   isHistory?: boolean
+  extendType?: Array<{
+    type: string
+    definition: string
+  }>
 }
 
 interface _model {

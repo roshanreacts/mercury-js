@@ -157,6 +157,15 @@ class Generate {
       }
     )
 
+    // Extend type for model type
+    const ele = _.find(
+      this.schema.extendType,
+      (field) => field.type === this.modelName
+    )
+    if (this.schema.extendType && ele) {
+      this.genSchema.push(ele?.definition)
+    }
+
     // Close type
     this.genSchema.push(`}`)
     this.genSchema.push(``)
