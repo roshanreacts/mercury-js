@@ -1,5 +1,5 @@
 {
-  "name": "@mercury-js/core",
+  "name": "core",
   "version": "1.4.2",
   "description": "Fully automated GrpahQL API generator for your mongoDB models",
   "private": false,
