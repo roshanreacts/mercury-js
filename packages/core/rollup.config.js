@@ -1,10 +1,7 @@
-import multi from '@rollup/plugin-multi-entry';
 import commonjs from 'rollup-plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
-import pkg from './package.json';
 import generatePackageJson from 'rollup-plugin-generate-package-json';
-import dts from 'rollup-plugin-dts';
-import path from 'path';
+import terser from '@rollup/plugin-terser';
 
 const folderBuilds = ['packages/extendModelTypes'].map((folder) => ({
   input: `src/${folder}/index.ts`,
@@ -25,13 +22,14 @@ const folderBuilds = ['packages/extendModelTypes'].map((folder) => ({
     generatePackageJson({
       baseContents: {
         name: '@mercury-js/core/packages/extendModelTypes',
-        private: true,
+        private: false,
         main: '../../dist/cjs/packages/extendModelTypes/index.js',
         module: '../../dist/esm/packages/extendModelTypes/index.js',
-        types: '../../dist/esm/packages/extendModelTypes/index.d.ts',
+        types: './index.d.ts',
       },
       outputFolder: `./${folder}/`,
     }),
+    terser(),
   ],
 }));
 
@@ -49,16 +47,12 @@ export default [
         include: /node_modules/,
         requireReturnsDefault: 'auto', // <---- this solves default issue
       }),
+      terser(),
     ],
     output: [
       { dir: 'dist/cjs/', format: 'cjs' },
       { dir: 'dist/esm/', format: 'es' },
     ],
   },
-  //   {
-  //     input: 'types/mercury.d.ts',
-  //     plugins: [dts()],
-  //     output: [{ file: pkg.types, format: 'es' }],
-  //   },
   ...folderBuilds,
 ];
