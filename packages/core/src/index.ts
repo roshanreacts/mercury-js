@@ -1,1 +1,0 @@
-export { mercury } from './mercury'
