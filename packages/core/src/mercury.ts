@@ -192,6 +192,10 @@ class Mercury {
     this.path = path;
     mongoose.connect(this.path);
   }
+  async disconnect() {
+    await mongoose.disconnect();
+    await mongoose.connection.close();
+  }
   private _createHistory(name: string, schema: listSchema) {
     const historySchema: listSchema = {
       fields: {
@@ -260,7 +264,6 @@ class Mercury {
             `Pre createlist hook execution has failed: ${error.message}`
           );
         }
-        console.log(schema);
       }
     );
     this._lists.push({ _model: name, ...schema });
