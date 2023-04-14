@@ -1,6 +1,11 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import './styles.css';
+import { worker } from '../specs/mocks/browser';
+
+if (process.env.NODE_ENV === 'development') {
+  worker.start();
+}
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (

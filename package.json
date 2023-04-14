@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "build:core": "nx build @mercury-js/core",
-    "dev:ui": "nx dev @mercury-js/core-ui",
+    "dev:ui": "nx run core-ui:serve",
     "build:docs": "nx build docs",
     "start:docs": "nx start docs",
     "test:core": "nx test @mercury-js/core"
@@ -74,6 +74,7 @@
     "husky": "^7.0.2",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.4.1",
+    "msw": "^1.2.1",
     "nx": "15.8.9",
     "pinst": "^2.1.6",
     "prettier": "^2.6.2",
