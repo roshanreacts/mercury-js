@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
-export const Button = styled.button`
+export const Text = styled.p`
   color: pink;
   padding: 10px;
-  border-radius: 5px;
+  font-size: 20px;
 `;
