@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
 import Core from '../../layout/Core';
 import { Box } from 'packages/core-ui/components/Box/Box';
 import { inject, observer } from 'mobx-react';
-const StyledPage = styled.div`
-  .page {
-  }
-`;
+import { useRouter } from 'next/router';
 
-export function Index(props) {
+export function Index({ store: { applications } }) {
+  const router = useRouter();
+  useEffect(() => {
+    applications.setSelectedApp(router.query.service);
+  }, [router.query.service]);
   return (
     <Core>
-      <Box>Hello World</Box>
+      <Box>{applications.selectedApp?.name || 'Hello World'}</Box>
     </Core>
   );
 }

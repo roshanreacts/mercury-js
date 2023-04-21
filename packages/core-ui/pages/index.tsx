@@ -22,7 +22,6 @@ export async function getServerSideProps() {
       }
     `,
   });
-  console.log('data', data);
   return {
     props: { initialState: getSnapshot(store), allServices: data.allServices },
   };
@@ -30,7 +29,7 @@ export async function getServerSideProps() {
 
 function Index(props) {
   const { initialState, store, allServices } = props;
-  store.setApps(props.allServices);
+  store.applications.setApps(props.allServices);
   console.log('store', allServices, initialState, store);
   return (
     <Core>

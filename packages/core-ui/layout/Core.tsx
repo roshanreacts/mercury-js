@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import Head from 'next/head';
 import { inject, observer } from 'mobx-react';
-// import Services from '../containers/Services';
+import Services from '../containers/Services';
 
 function Layout(props) {
   console.log('Store', props);
@@ -9,9 +9,9 @@ function Layout(props) {
   return (
     <>
       <Head>
-        <title>'Hello World'</title>
+        <title>Hello World</title>
       </Head>
-      {/* <Services /> */}
+      <Services />
       <main>{props.children}</main>
     </>
   );
