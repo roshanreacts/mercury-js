@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { types, applySnapshot, onSnapshot } from 'mobx-state-tree';
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { Applications } from './Apps';
+import { Pages } from './Pages';
 import localForage from 'localforage';
 
 let store;
@@ -13,6 +14,7 @@ export const client = new ApolloClient({
 
 export const RootStore = types.model('RootStore', {
   applications: types.maybeNull(Applications),
+  pages: types.maybeNull(Pages),
 });
 
 export const persist = (name, store, options) => {
@@ -36,6 +38,9 @@ export function initializeStore(snapshot = null) {
     RootStore.create({
       applications: {
         apps: [],
+      },
+      pages: {
+        pages: [],
       },
     });
 

@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { inject, observer } from 'mobx-react';
-import { Box } from '../components/Box/Box';
-import { Launcher } from '../components/Launcher/Launcher';
+import { Box } from '../components/Box';
+import { Launcher } from '../components/Launcher';
 
-function Services({ store: { applications } }) {
+function Services(props) {
+  const {
+    store: { applications },
+  } = props;
   const router = useRouter();
   const navtoService = (service) => {
     applications.setSelectedApp(service.id);

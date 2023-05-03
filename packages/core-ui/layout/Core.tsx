@@ -4,7 +4,6 @@ import { inject, observer } from 'mobx-react';
 import Services from '../containers/Services';
 
 function Layout(props) {
-  console.log('Store', props);
   // props.store.addTodo('Hello');
   return (
     <>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { AiFillAppstore } from 'react-icons/ai';
-import { Paper } from '../Paper/Paper';
-import { Box, BoxAnimate } from '../Box/Box';
-import { NavigationMenuDemo } from '../Navigation';
+import { Button } from '../Button';
+import { Paper } from '../Paper';
+import { Box, BoxAnimate } from '../Box';
 
 export const Launcher = ({ children }) => {
   const [panel, setPanel] = useState(false);
@@ -14,7 +14,6 @@ export const Launcher = ({ children }) => {
           css={{
             position: 'relative',
           }}
-          px={0}
         >
           <Box
             fgColor={11}
@@ -35,12 +34,12 @@ export const Launcher = ({ children }) => {
             br={1}
             p={1}
             ml={-1}
-            bgColor="white.0"
             animate={{ scaleX: panel ? 1 : 0, scaleY: panel ? 1 : 0 }}
           >
             {children}
           </BoxAnimate>
         </Box>
+        <Button>Hello</Button>
       </Paper>
     </Box>
   );

@@ -22,15 +22,15 @@ export async function getServerSideProps() {
       }
     `,
   });
+  console.log('dara', data);
   return {
-    props: { initialState: getSnapshot(store), allServices: data.allServices },
+    props: { allServices: data.allServices },
   };
 }
 
 function Index(props) {
-  const { initialState, store, allServices } = props;
-  store.applications.setApps(props.allServices);
-  console.log('store', allServices, initialState, store);
+  const { store, allServices } = props;
+  store.applications.setApps(allServices);
   return (
     <Core>
       <StyledPage>
