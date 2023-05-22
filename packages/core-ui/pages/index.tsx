@@ -9,7 +9,6 @@ import { gql } from '@apollo/client';
 
 const StyledPage = styled.div``;
 export async function getServerSideProps() {
-  const store = initializeStore();
   const { data } = await client.query({
     query: gql`
       query allServices {
@@ -22,7 +21,6 @@ export async function getServerSideProps() {
       }
     `,
   });
-  console.log('dara', data);
   return {
     props: { allServices: data.allServices },
   };

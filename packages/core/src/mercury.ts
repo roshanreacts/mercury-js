@@ -108,6 +108,7 @@ class Mercury {
 
   adapter: DbAdapter;
   path: string;
+  postUpdateCallback: null | Function;
 
   constructor() {
     nconf.argv().env().file({ file: 'mercury.config.json' });
@@ -137,6 +138,7 @@ class Mercury {
         },
       ],
     ]);
+    this.postUpdateCallback = null;
   }
 
   get schema(): any {
@@ -174,14 +176,14 @@ class Mercury {
     return this._lists;
   }
   createPreHook(
-    name: SupportedPreHooks,
-    method: (next: void, done: void) => void
+    name: SupportedHooks,
+    method: (this: any, next: () => void, done: () => void) => void
   ) {
     this._hooks.pre(name, method);
   }
   createPostHook(
-    name: SupportedPostHooks,
-    method: (next: void, done: void) => void
+    name: SupportedHooks,
+    method: (this: any, next: () => void, done: () => void) => void
   ) {
     this._hooks.post(name, method);
   }
@@ -256,7 +258,7 @@ class Mercury {
     }
     // execute prehooks BEFORE_CREATELIST
     this._hooks.execPre(
-      'BEFORE_CREATELIST',
+      'CREATELIST',
       { name: name, schema: schema },
       (error: { message: string }) => {
         if (error) {
@@ -273,6 +275,22 @@ class Mercury {
     this._schema.push(createModel.schema);
     this._resolvers = mergeResolvers([this._resolvers, createModel.resolver]);
     this._dbModels[name] = createModel.models.newModel;
+    // execute posthooks AFTER_CREATELIST
+    this.postUpdateHook();
+    // this._hooks.execPost(
+    //   'CREATELIST',
+    //   { name: name, schema: schema },
+    //   (error: { message: string }) => {
+    //     if (error) {
+    //       throw new Error(
+    //         `Post createlist hook execution has failed: ${error.message}`
+    //       );
+    //     }
+    //   }
+    // );
+  }
+  async postUpdateHook() {
+    if (this.postUpdateCallback) await this.postUpdateCallback();
   }
   createList(name: string, schema: listSchema) {
     if (schema.enableHistoryTracking) {

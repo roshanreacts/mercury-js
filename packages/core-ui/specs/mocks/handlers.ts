@@ -3,7 +3,6 @@ const github = graphql.link('http://localhost:4000/graphql');
 export const handlers = [
   graphql.mutation('Counter', null),
   github.query('allServices', (req, res, ctx) => {
-    console.log('msw allServices', req.variables);
     return res(
       ctx.data({
         allServices: [
@@ -36,7 +35,6 @@ export const handlers = [
     );
   }),
   github.query('allPagesByService', (req, res, ctx) => {
-    console.log('msw allPagesByService', req.variables);
     const allPages = [
       {
         id: 1,

@@ -39,7 +39,6 @@ export const Launcher = ({ children }) => {
             {children}
           </BoxAnimate>
         </Box>
-        <Button>Hello</Button>
       </Paper>
     </Box>
   );

@@ -29,7 +29,7 @@ const folderBuilds = ['packages/extendModelTypes'].map((folder) => ({
       },
       outputFolder: `./${folder}/`,
     }),
-    terser(),
+    // terser(),
   ],
 }));
 
@@ -47,7 +47,7 @@ export default [
         include: /node_modules/,
         requireReturnsDefault: 'auto', // <---- this solves default issue
       }),
-      terser(),
+      // terser(),
     ],
     output: [
       { dir: 'dist/cjs/', format: 'cjs' },
