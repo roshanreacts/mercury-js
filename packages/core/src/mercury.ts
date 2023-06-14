@@ -4,9 +4,6 @@ import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Kareem from 'kareem';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import nconf from 'nconf';
 import Create from './Create';
 import ScalarResolver from './Scalars';
 
@@ -111,20 +108,10 @@ class Mercury {
   postUpdateCallback: null | Function;
 
   constructor() {
-    nconf.argv().env().file({ file: 'mercury.config.json' });
     this.adapter = 'mongoose';
-    this.path = nconf.get('dbPath')
-      ? nconf.get('dbPath')
-      : 'mongodb://localhost:27017/mercuryapp';
-    this._roles = nconf.get('roles')
-      ? nconf.get('roles')
-      : ['SUPERADMIN', 'USER', 'ANONYMOUS'];
-    this._adminRole = nconf.get('adminRole')
-      ? nconf.get('adminRole')
-      : 'SUPERADMIN';
-    if (nconf.get('dbPath')) {
-      this.connect(this.path);
-    }
+    this.path = 'mongodb://localhost:27017/mercuryapp';
+    this._roles = ['SUPERADMIN', 'USER', 'ANONYMOUS'];
+    this._adminRole = 'SUPERADMIN';
 
     this._resolvers = mergeResolvers([
       this._resolvers,
@@ -193,6 +180,7 @@ class Mercury {
   connect(path: string) {
     this.path = path;
     mongoose.connect(this.path);
+    mongoose.set('strictQuery', true);
   }
   async disconnect() {
     await mongoose.disconnect();
