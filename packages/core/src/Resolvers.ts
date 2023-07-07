@@ -331,17 +331,18 @@ class Resolvers {
           const selectedKey = _.intersection(parentFields, allowedKey);
           this.addExtentType(selectedKey);
           let stopExecutionState: string | boolean = false;
+          const newModel = new Model(args.data);
           this.hooks('beforeCreate', {
             root,
             args,
             ctx,
             resolveInfo,
             allowedKey,
+            docs: newModel,
             stopExecution: (err = 'EXECUTION STOPPED') =>
               (stopExecutionState = err),
           });
           if (stopExecutionState) throw new Error(stopExecutionState);
-          const newModel = new Model(args.data);
           await newModel.save();
           let newRecord = Model.findOne({ _id: newModel._id })
             .select(selectedKey.join(' '))
@@ -385,12 +386,13 @@ class Resolvers {
           this.addExtentType(selectedKey);
           const allRecords: any = [];
           await Promise.all(
-            _.map(args.data, async (record) => {
+            _.map(args.data, async (record: any) => {
               let stopExecutionState: string | boolean = false;
               this.hooks('beforeCreate', {
                 root,
                 args,
                 ctx,
+                docs: record,
                 resolveInfo,
                 allowedKey,
                 stopExecution: (err = 'EXECUTION STOPPED') =>
@@ -524,6 +526,7 @@ class Resolvers {
                 allowedKey,
                 prevRecord: findModel,
                 setUpdateData,
+                docs: record,
                 stopExecution: (err = 'EXECUTION STOPPED') =>
                   (stopExecutionState = err),
               });

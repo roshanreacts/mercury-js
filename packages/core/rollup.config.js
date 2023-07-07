@@ -3,7 +3,7 @@ import typescript from 'rollup-plugin-typescript2';
 import generatePackageJson from 'rollup-plugin-generate-package-json';
 import terser from '@rollup/plugin-terser';
 
-const folderBuilds = ['packages/extendModelTypes'].map((folder) => ({
+const folderBuilds = ['packages/extendModelTypes','packages/rateLimiter'].map((folder) => ({
   input: `src/${folder}/index.ts`,
   output: [
     {
@@ -21,10 +21,10 @@ const folderBuilds = ['packages/extendModelTypes'].map((folder) => ({
     typescript({ useTsconfigDeclarationDir: true }),
     generatePackageJson({
       baseContents: {
-        name: '@mercury-js/core/packages/extendModelTypes',
+        name: `@mercury-js/core/${folder}`,
         private: false,
-        main: '../../dist/cjs/packages/extendModelTypes/index.js',
-        module: '../../dist/esm/packages/extendModelTypes/index.js',
+        main: `../../dist/cjs/${folder}/index.js`,
+        module: `../../dist/esm/${folder}/index.js`,
         types: './index.d.ts',
       },
       outputFolder: `./${folder}/`,
