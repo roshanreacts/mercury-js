@@ -18,6 +18,7 @@ interface FieldsMap {
     localField?: string;
     foreignField?: string;
     history?: boolean;
+    directive?: string;
   };
 }
 

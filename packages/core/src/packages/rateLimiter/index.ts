@@ -1,44 +1,40 @@
 import { createRateLimitRule } from 'graphql-rate-limit';
 import { shield } from 'graphql-shield';
-import { merge } from 'lodash';
+import _ from 'lodash';
 
+export const createRateLimitRuleContext = createRateLimitRule;
 // Creating a rate limit rule function using graphql-rate-limit package
-const rateLimitRuleFunc = createRateLimitRule({
+export const rateLimitRule: Function = createRateLimitRule({
   identifyContext: (ctx) => ctx?.request?.ipAddress || ctx?.id,
 });
 
 // Defining a rate limiter function that takes in a permission map and options object
 export const rateLimiter = (
   permissionMap: {} = {},
-  options:
-    | {
-        window: string;
-        max: number;
-        rateLimitRule: any;
-        ignoreDefault: boolean;
-      }
-    | undefined = {
-    window: '1s',
-    max: 5,
-    rateLimitRule: rateLimitRuleFunc,
-    ignoreDefault: false,
+  {
+    window = '30s',
+    max = 5,
+    rateLimitRuleFunc = rateLimitRule,
+    ignoreDefault = false,
+  }: {
+    window?: string;
+    max?: number;
+    rateLimitRuleFunc?: typeof rateLimitRule | Function;
+    ignoreDefault?: boolean;
   }
 ) => {
-  // Extracting options from the options object
-  const { window, max, rateLimitRule } = options;
-
   // Defining default permissions for Query and Mutation
   const defaultPermissions = {
     Query: {
-      '*': rateLimitRule({ window, max }),
+      '*': rateLimitRuleFunc({ window, max }),
     },
     Mutation: {
-      '*': rateLimitRule({ window, max }),
+      '*': rateLimitRuleFunc({ window, max }),
     },
   };
 
   // Merging default permissions with the permission map passed in
-  const permissionMapOutput = merge(defaultPermissions, permissionMap);
+  const permissionMapOutput = _.merge(defaultPermissions, permissionMap);
 
   // Returning a shield middleware with the final permission map
   return shield(permissionMapOutput);

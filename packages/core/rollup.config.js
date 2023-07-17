@@ -3,35 +3,37 @@ import typescript from 'rollup-plugin-typescript2';
 import generatePackageJson from 'rollup-plugin-generate-package-json';
 import terser from '@rollup/plugin-terser';
 
-const folderBuilds = ['packages/extendModelTypes','packages/rateLimiter'].map((folder) => ({
-  input: `src/${folder}/index.ts`,
-  output: [
-    {
-      file: `dist/cjs/${folder}/index.js`,
-      sourcemap: true,
-      format: 'cjs',
-    },
-    {
-      file: `dist/esm/${folder}/index.js`,
-      sourcemap: true,
-      format: 'es',
-    },
-  ],
-  plugins: [
-    typescript({ useTsconfigDeclarationDir: true }),
-    generatePackageJson({
-      baseContents: {
-        name: `@mercury-js/core/${folder}`,
-        private: false,
-        main: `../../dist/cjs/${folder}/index.js`,
-        module: `../../dist/esm/${folder}/index.js`,
-        types: './index.d.ts',
+const folderBuilds = ['packages/extendModelTypes', 'packages/rateLimiter'].map(
+  (folder) => ({
+    input: `src/${folder}/index.ts`,
+    output: [
+      {
+        file: `dist/cjs/${folder}/index.js`,
+        sourcemap: true,
+        format: 'cjs',
       },
-      outputFolder: `./${folder}/`,
-    }),
-    // terser(),
-  ],
-}));
+      {
+        file: `dist/esm/${folder}/index.js`,
+        sourcemap: true,
+        format: 'es',
+      },
+    ],
+    plugins: [
+      typescript({ useTsconfigDeclarationDir: true }),
+      generatePackageJson({
+        baseContents: {
+          name: `@mercury-js/core/${folder}`,
+          private: false,
+          main: `../../dist/cjs/${folder}/index.js`,
+          module: `../../dist/esm/${folder}/index.js`,
+          types: './index.d.ts',
+        },
+        outputFolder: `./${folder}/`,
+      }),
+      // terser(),
+    ],
+  })
+);
 
 export default [
   {

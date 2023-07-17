@@ -7,7 +7,8 @@
     "dev:ui": "nx run core-ui:serve",
     "build:docs": "nx build docs",
     "start:docs": "nx start docs",
-    "test:core": "nx test @mercury-js/core"
+    "test:core": "nx test @mercury-js/core",
+    "gend": "tsc -d ./packages/core/src/packages/**/*.ts"
   },
   "private": true,
   "dependencies": {
