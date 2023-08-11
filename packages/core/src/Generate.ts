@@ -180,7 +180,7 @@ class Generate {
         : this.getGraphqlField(fieldObj, fieldName, 'create');
       if (fieldType) {
         this.genSchema.push(
-          `  ${fieldName}: ${fieldType}${fieldObj.isRequired ? '!' : ''}${fieldObj.directive ?? fieldObj.directive}`
+          `  ${fieldName}: ${fieldType}${fieldObj.isRequired ? '!' : ''}`
         );
       }
     });
@@ -194,7 +194,7 @@ class Generate {
         ? fieldObj.graphqlType
         : this.getGraphqlField(fieldObj, fieldName, 'update');
       if (fieldType) {
-        this.genSchema.push(`  ${fieldName}: ${fieldType}${fieldObj.directive ?? fieldObj.directive}`);
+        this.genSchema.push(`  ${fieldName}: ${fieldType}`);
       }
     });
     // Close input type
