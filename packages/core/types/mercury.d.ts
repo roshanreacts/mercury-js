@@ -1,6 +1,7 @@
 declare type TModel = {
   fields: TFields;
   name: string;
+  options?: TOptions;
 };
 
 declare type TFields = {
@@ -17,4 +18,5 @@ declare type TField = {
 
 declare type TOptions = {
   historyTracking: boolean;
+  private?: boolean;
 };

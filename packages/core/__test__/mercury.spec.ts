@@ -1,7 +1,9 @@
+import hook from '../src/hooks';
 import mercury from '../src/mercury';
 
 describe('Mercury', () => {
   it('should create a model', () => {
+    const mockBeforeFn = jest.fn();
     const name = 'User';
     const fields = {
       name: {
@@ -16,13 +18,16 @@ describe('Mercury', () => {
     const options = {
       historyTracking: true,
     };
+    hook.before('CREATE_MODEL', mockBeforeFn);
     mercury.createModel(name, fields, options);
     expect(mercury.list.length).toBe(2);
     expect(mercury.list[0].name).toBe('User');
     expect(mercury.list[1].name).toBe('UserHistory');
+    expect(mockBeforeFn).toBeCalledTimes(1);
   });
 
   it('should create a model without history', () => {
+    const mockBeforeFn = jest.fn();
     const name = 'Customer';
     const fields = {
       name: {
@@ -37,11 +42,20 @@ describe('Mercury', () => {
     const options = {
       historyTracking: false,
     };
+    hook.before('CREATE_MODEL', function (this: any) {
+      this.fields.isActive = {
+        type: 'boolean',
+        default: true,
+      };
+      mockBeforeFn();
+    });
     mercury.createModel(name, fields, options);
     expect(mercury.list[2].name).toBe('Customer');
+    expect(mercury.list[2].fields.isActive).toBeDefined();
     expect(
       mercury.list.find((model) => model.name === 'CustomerHistory')
     ).toBeUndefined();
+    expect(mockBeforeFn).toBeCalledTimes(1);
   });
 
   it('should add db instance', () => {
@@ -63,5 +77,25 @@ describe('Mercury', () => {
     mercury.db[name].create();
     expect(mercury.db[name]).toBeDefined();
     expect(mercury.db[name].create).toBeDefined();
+  });
+  it("shouldn't add to list if set as private", () => {
+    const name = 'Private';
+    const fields = {
+      name: {
+        type: 'string',
+        isRequired: true,
+      },
+      age: {
+        type: 'number',
+        isRequired: true,
+      },
+    };
+    const options = {
+      historyTracking: false,
+      private: true,
+    };
+    mercury.createModel(name, fields, options);
+    expect(mercury.list.length).toBe(4);
+    expect(mercury.db[name]).toBeUndefined();
   });
 });

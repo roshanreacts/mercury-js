@@ -28,4 +28,5 @@ class Hook {
 }
 
 // Export an instance of the Hook class
-export const hook = new Hook();
+const hook = new Hook();
+export default hook;
