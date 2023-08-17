@@ -1,8 +1,6 @@
-declare interface THookType {
-  CREATE_MODEL: 'CREATE_MODEL';
-}
+declare type THookType = string | 'CREATE_MODEL' | 'CREATE_RECORD';
 
 declare interface Kareem {
-  pre: (type: keyof THookType, fn: Function) => void;
-  before: (type: keyof THookType, fn: Function) => void;
+  pre: (type: THookType, fn: Function) => void;
+  before: (type: THookType, fn: Function) => void;
 }

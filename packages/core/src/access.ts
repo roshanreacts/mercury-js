@@ -2,9 +2,7 @@ import { keyBy, mapKeys } from 'lodash';
 
 class Access {
   profiles: Profile[] = [];
-  constructor() {
-    console.log('Access');
-  }
+  constructor() {}
   validateAccess<T>(
     modelName: string,
     action: TAction,
@@ -32,6 +30,14 @@ class Access {
   }
   createProfile(name: string, rules: Rule[]) {
     this.profiles.push({ name, rules });
+  }
+
+  extendProfile(name: string, rules: Rule[]) {
+    const profile = this.profiles.find((profile) => profile.name === name);
+    if (!profile) {
+      throw new Error(`Profile ${name} does not exist.`);
+    }
+    profile.rules = profile.rules.concat(rules);
   }
 }
 

@@ -74,7 +74,6 @@ describe('Mercury', () => {
       historyTracking: false,
     };
     mercury.createModel(name, fields, options);
-    mercury.db[name].create();
     expect(mercury.db[name]).toBeDefined();
     expect(mercury.db[name].create).toBeDefined();
   });
@@ -94,7 +93,11 @@ describe('Mercury', () => {
       historyTracking: false,
       private: true,
     };
-    mercury.createModel(name, fields, options);
+    mercury.createModel<{ name: string; fields: typeof fields }>(
+      name,
+      fields,
+      options
+    );
     expect(mercury.list.length).toBe(4);
     expect(mercury.db[name]).toBeUndefined();
   });

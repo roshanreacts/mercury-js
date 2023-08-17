@@ -7,22 +7,22 @@ class Hook {
   private kareemHookInstance = new Kareem();
 
   // Add a function to be executed before a hook
-  public before = (type: keyof THookType, fn: Function) => {
+  public before = (type: THookType, fn: Function) => {
     this.kareemHookInstance.pre(type, fn);
   };
 
   // Add a function to be executed after a hook
-  public after = (type: keyof THookType, fn: Function) => {
+  public after = (type: THookType, fn: Function) => {
     this.kareemHookInstance.post(type, fn);
   };
 
   // Execute all functions added to be executed before a hook
-  public execBefore = (type: keyof THookType, ...args: any) => {
+  public execBefore = (type: THookType, ...args: any) => {
     this.kareemHookInstance.execPre(type, ...args);
   };
 
   // Execute all functions added to be executed after a hook
-  public execAfter = (type: keyof THookType, ...args: any) => {
+  public execAfter = (type: THookType, ...args: any) => {
     this.kareemHookInstance.execPost(type, ...args);
   };
 }

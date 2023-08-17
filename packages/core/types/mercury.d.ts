@@ -11,7 +11,7 @@ declare type TFields = {
 declare type TField = {
   type: string;
   ref?: string;
-  enum?: string[];
+  enum?: Array<string | number>;
   enumType?: string;
   isRequired?: boolean;
 };

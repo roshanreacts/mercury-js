@@ -107,4 +107,68 @@ describe('Access', () => {
     const result = access.validateAccess('User', 'read', user, ['name', 'age']);
     expect(result).toBe(false);
   });
+
+  it('should extend a profile', () => {
+    const name = 'SuperAdmin';
+    const rules = [
+      {
+        modelName: 'User',
+        access: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
+        },
+        fields: {
+          name: {
+            create: true,
+            read: true,
+            update: true,
+            delete: true,
+          },
+        },
+      },
+    ];
+    access.createProfile(name, rules);
+    const accessCheck = access.validateAccess(
+      'Account',
+      'create',
+      { id: '1', profile: 'SuperAdmin' },
+      ['name', 'age']
+    );
+    expect(accessCheck).toBe(false);
+    const rules2 = [
+      {
+        modelName: 'Account',
+        access: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
+        },
+        fields: {
+          name: {
+            create: true,
+            read: true,
+            update: true,
+            delete: true,
+          },
+        },
+      },
+    ];
+    access.extendProfile(name, rules2);
+    expect(
+      access.profiles.find((profile) => profile.name === name)
+    ).toBeDefined();
+    expect(
+      access.profiles.find((profile) => profile.name === name)?.rules.length
+    ).toBe(2);
+    const accessCheckPostExtend = access.validateAccess(
+      'Account',
+      'create',
+      { id: '1', profile: 'SuperAdmin' },
+      ['name', 'age']
+    );
+    expect(accessCheckPostExtend).toBe(true);
+  });
 });
