@@ -14,6 +14,7 @@ declare type TField = {
   enum?: Array<string | number>;
   enumType?: string;
   isRequired?: boolean;
+  many?: boolean;
 };
 
 declare type TOptions = {
