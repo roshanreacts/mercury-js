@@ -100,6 +100,7 @@ class Mercury {
   ];
   private _resolvers: any = ScalarResolver;
   private _dbModels: { [key: string]: any } = {};
+  private _dbSchema: { [key: string]: any } = {};
   private _roles: Array<string> = [];
   private _adminRole = '';
 
@@ -138,6 +139,10 @@ class Mercury {
 
   get db() {
     return this._dbModels;
+  }
+
+  get dbschema() {
+    return this._dbSchema;
   }
 
   getView(path: string) {
@@ -263,6 +268,7 @@ class Mercury {
     this._schema.push(createModel.schema);
     this._resolvers = mergeResolvers([this._resolvers, createModel.resolver]);
     this._dbModels[name] = createModel.models.newModel;
+    this._dbSchema[name] = createModel.models.newSchema;
     // execute posthooks AFTER_CREATELIST
     this.postUpdateHook();
     // this._hooks.execPost(

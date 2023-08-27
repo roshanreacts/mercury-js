@@ -198,7 +198,12 @@ class Resolvers {
             dataType = this.modelFields[fieldName].ref || 'UNKNOWN';
             newValue = typeof newValue === 'object' ? newValue.id : newValue;
           }
-
+          if (
+            this.ifStringAndNotNull(newValue) ===
+            this.ifStringAndNotNull(prevObj[fieldName])
+          ) {
+            return;
+          }
           await historyModel.create({
             recordId: prevRecord._id,
             operationType: opType,
