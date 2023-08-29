@@ -4,8 +4,8 @@ import hook from './hooks';
 
 export class Model {
   private model: TModel;
-  private mongoSchema: any;
-  private mongoModel: any;
+  public mongoSchema: any;
+  public mongoModel: any;
   // schema type map
   private fieldMongooseTyepMap: { [type: string]: any } = {
     string: Schema.Types.String,
@@ -22,7 +22,11 @@ export class Model {
     this.mongoSchema = this.createSchema();
     this.mongoModel = mongooseModel(model.name, this.mongoSchema);
   }
-  public async create(fields: any, user: CtxUser, options = {}) {
+  public async create(
+    fields: any,
+    user: CtxUser,
+    options: any = { internal: true }
+  ) {
     // validate the access
     const hasAccess = access.validateAccess(
       this.model.name,

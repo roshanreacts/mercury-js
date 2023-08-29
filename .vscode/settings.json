@@ -1,3 +1,4 @@
 {
-    "jest.rootPath": "./packages/core"
+    "jest.rootPath": "./packages/core",
+    "jest.jestCommandLine": "./packages/core/node-modules/bin/jest --watch"
 }

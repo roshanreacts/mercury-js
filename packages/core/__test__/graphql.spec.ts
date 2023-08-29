@@ -2,7 +2,7 @@ import { Mgraphql } from '../src/graphql';
 
 describe('Generate graphql Schema', () => {
   it('should generate the query for the fields', () => {
-    const query = new Mgraphql().genQuery('User', {
+    const query = Mgraphql.genQuery('User', {
       name: {
         type: 'string',
       },
@@ -40,7 +40,7 @@ enum UserProfileEnumType {
   });
 
   it('should generate the input for the fields', () => {
-    const query = new Mgraphql().genInput('User', {
+    const query = Mgraphql.genInput('User', {
       name: {
         type: 'string',
       },
@@ -74,7 +74,7 @@ enum UserProfileEnumType {
   });
 
   it('should generate model schema', () => {
-    const query = new Mgraphql().genModel(
+    const query = Mgraphql.genModel(
       'User',
       {
         name: {
@@ -109,6 +109,7 @@ type Query {
 
 type Mutation {
     createUser(input: UserInput!): User
+    createUsers(input: [UserInput!]!): [User]
     updateUser(id: ID!, input: UserInput!): User
     deleteUser(id: ID!): User
 }
