@@ -58,6 +58,7 @@
     "@graphql-tools/merge": "^8.3.18",
     "graphql-fields": "^2.0.3",
     "graphql-scalars": "^1.20.1",
+    "jest": "^29.6.4",
     "kareem": "^2.5.1",
     "lodash": "^4.17.21",
     "mongoose": "^6.9.1",

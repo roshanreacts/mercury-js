@@ -1,0 +1,30 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "core",
+			"path": "packages/core"
+		},
+		{
+			"name": "extendModelTypes",
+			"path": "packages/core/packages/extendModelTypes"
+		},
+		{
+			"name": "rateLimiter",
+			"path": "packages/core/packages/rateLimiter"
+		},
+		{
+			"name": "docs",
+			"path": "packages/docs"
+		}
+	],
+	"settings": {
+		"jest.disabledWorkspaceFolders": [
+			"extendModelTypes",
+			"rateLimiter",
+			"docs"
+		]
+	}
+}
