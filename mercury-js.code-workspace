@@ -1,6 +1,7 @@
 {
 	"folders": [
 		{
+			"name": "mercury-js",
 			"path": "."
 		},
 		{
@@ -22,6 +23,7 @@
 	],
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
+			"mercury-js",
 			"extendModelTypes",
 			"rateLimiter",
 			"docs"
