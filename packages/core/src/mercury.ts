@@ -51,6 +51,12 @@ class Mercury {
   scalar USCurrency
   scalar JSON
   scalar JSONObject
+
+  enum sort {
+    asc
+    desc
+  }
+
   input whereID {
     is: ID
     isNot: ID

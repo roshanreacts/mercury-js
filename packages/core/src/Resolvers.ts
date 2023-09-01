@@ -196,7 +196,8 @@ class Resolvers {
           }
           if (dataType === 'relationship' && !hasMany) {
             dataType = this.modelFields[fieldName].ref || 'UNKNOWN';
-            newValue = typeof newValue === 'object' ? newValue.id : newValue;
+            newValue =
+              newValue && typeof newValue === 'object' ? newValue.id : newValue;
           }
           if (
             this.ifStringAndNotNull(newValue) ===
@@ -218,11 +219,11 @@ class Resolvers {
     }
   }
   ifStringAndNotNull(value: any): string {
-    if (typeof value !== 'string') {
-      value = value.toString();
-    }
     if (value == null || value.length == 0) {
       value = 'UNKNOWN';
+    }
+    if (typeof value !== 'string') {
+      value = value.toString();
     }
     return value;
   }
@@ -246,7 +247,12 @@ class Resolvers {
       case `all${this.modelName}s`:
         return async (
           root: any,
-          args: { where: any; offset: number; limit: number },
+          args: {
+            where: any;
+            sort: { [key: string]: 'asc' | 'desc' };
+            offset: number;
+            limit: number;
+          },
           ctx: any,
           resolveInfo: any
         ) => {
@@ -274,6 +280,7 @@ class Resolvers {
               populate: populate,
               offset: args.offset,
               limit: args.limit,
+              sort: args.sort,
             }
           );
 

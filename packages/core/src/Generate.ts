@@ -66,12 +66,34 @@ class Generate {
     this.genSchema.push(`type Query {`);
     // get All of the Model
     this.genSchema.push(
-      `  all${this.modelName}s(where: where${this.modelName}Input, offset: Int! = 0, limit: Int! = 10): ${this.modelName}Pagination`
+      `  all${this.modelName}s(where: where${this.modelName}Input, sort: sort${this.modelName}Input = {},offset: Int! = 0, limit: Int! = 10): ${this.modelName}Pagination`
     );
     // get one item from the model
     this.genSchema.push(
       `  get${this.modelName}(where: where${this.modelName}Input): ${this.modelName}`
     );
+    this.genSchema.push(`}`);
+    this.genSchema.push(``);
+
+    // Queries sortInput types
+    this.genSchema.push(`input sort${this.modelName}Input {`);
+    _.mapKeys(this.modelFields, (fieldObj, fieldName) => {
+      const isRead = fieldObj.ignoreGraphql
+        ? fieldObj.ignoreGraphql.read
+        : false;
+      if (!isRead) {
+        const allowedSortKeyTypes = [
+          'string',
+          'number',
+          'date',
+          'enum',
+          'boolean',
+        ];
+        if (allowedSortKeyTypes.includes(fieldObj.type)) {
+          this.genSchema.push(`  ${fieldName}: sort`);
+        }
+      }
+    });
     this.genSchema.push(`}`);
     this.genSchema.push(``);
 
