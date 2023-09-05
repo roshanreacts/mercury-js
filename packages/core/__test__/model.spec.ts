@@ -1,9 +1,11 @@
 import { Model } from '../src/models';
 import access from '../src/access';
 import hook from '../src/hooks';
+import * as db from './db';
 
 describe('Model create', () => {
-  beforeAll(() => {
+  let modelInstance: Model;
+  beforeAll(async () => {
     const name = 'Admin';
     const rules = [
       {
@@ -59,6 +61,14 @@ describe('Model create', () => {
       },
     ];
     access.createProfile(name, rules);
+    await db.setUp();
+  });
+  // afterEach(async () => {
+  //   await db.dropCollections();
+  // });
+
+  afterAll(async () => {
+    await db.dropDatabase();
   });
   it('should throw an error as access is blocked for create', async () => {
     const model: TModel = {
@@ -105,12 +115,14 @@ describe('Model create', () => {
       profile: 'Admin',
     };
 
-    const modelInstance = new Model(model);
+    modelInstance = new Model(model);
     try {
       hook.before(
         `CREATE_${model.name.toUpperCase()}_RECORD`,
         function (this: any) {
-          this.record.name = 'test 2';
+          if (this.record.name === 'test') {
+            this.record.name = 'test 2';
+          }
         }
       );
       hook.after(
@@ -148,8 +160,9 @@ describe('Model create', () => {
       hook.before(
         `CREATE_${model.name.toUpperCase()}_RECORD`,
         function (this: any) {
-          this.record.name = 'test 2';
-          throw new Error('test');
+          if (this.record.name === 'test 2') {
+            throw new Error('test');
+          }
         }
       );
       hook.after(
@@ -158,11 +171,43 @@ describe('Model create', () => {
           expect(this.record.name).toBe('test 2');
         }
       );
-      const create = await modelInstance.create({ name: 'test' }, userCtx);
-      expect(modelInstance).toBeDefined();
+      const create = await modelInstance.create({ name: 'test 2' }, userCtx);
+      expect(create).toBeDefined();
     } catch (error: any) {
       expect(error).toBeDefined();
       expect(error.message).toBe('test');
+    }
+  });
+
+  it('should update the record and trigger both before and after hooks for the model', async () => {
+    try {
+      hook.before(`UPDATE_PRICEBOOK_RECORD`, function (this: any) {
+        this.fields.name = 'test 2';
+      });
+      hook.after(`UPDATE_PRICEBOOK_RECORD`, function (this: any) {
+        expect(this.record.name).toBe('test 3');
+      });
+      const userCtx = {
+        id: '1',
+        profile: 'Admin',
+      };
+
+      const createRecord = await modelInstance.create(
+        { name: 'test 1' },
+        userCtx
+      );
+      const getRecord = await modelInstance.get({ name: 'test 1' }, userCtx);
+      const update = await modelInstance.update(
+        getRecord.id,
+        { name: 'test 3' },
+        userCtx
+      );
+      expect(createRecord).toBeDefined();
+      expect(getRecord).toBeDefined();
+      expect(update).toBeDefined();
+      expect(update.name).toBe('test 3');
+    } catch (error: any) {
+      expect(error).toBeUndefined();
     }
   });
 });

@@ -54,7 +54,7 @@ export class Model {
         }
       }
     );
-    // record = await record.save();
+    record = await record.save();
     hook.execAfter(
       `CREATE_${this.model.name.toUpperCase()}_RECORD`,
       null,
@@ -68,6 +68,223 @@ export class Model {
     );
     return record;
   }
+
+  public async update(
+    id: string,
+    fields: any,
+    user: CtxUser,
+    options: any = { internal: true }
+  ) {
+    // validate the access
+    const hasAccess = access.validateAccess(
+      this.model.name,
+      'update',
+      user,
+      Object.keys(fields)
+    );
+    if (!hasAccess) {
+      throw new Error(
+        'You does not have access to perform this action on this record/ field.'
+      );
+    }
+    let record = await this.mongoModel.findById(id);
+    if (!record) {
+      throw new Error('Record not found');
+    }
+    hook.execBefore(
+      `UPDATE_${this.model.name.toUpperCase()}_RECORD`,
+      {
+        name: this.model.name,
+        record,
+        fields,
+        user,
+        options,
+      },
+      function (error: any) {
+        if (error) {
+          throw error;
+        }
+      }
+    );
+    record = await this.mongoModel
+      .findByIdAndUpdate(id, fields, { new: true })
+      .exec();
+    hook.execAfter(
+      `UPDATE_${this.model.name.toUpperCase()}_RECORD`,
+      null,
+      {
+        name: this.model.name,
+        record,
+        user,
+        options,
+      },
+      function () {}
+    );
+    return record;
+  }
+
+  public async delete(id: string, user: CtxUser, options: any = {}) {
+    // validate the access
+    const hasAccess = access.validateAccess(
+      this.model.name,
+      'delete',
+      user,
+      []
+    );
+    if (!hasAccess) {
+      throw new Error(
+        'You does not have access to perform this action on this record/ field.'
+      );
+    }
+    let record = await this.mongoModel.findById(id);
+    if (!record) {
+      throw new Error('Record not found');
+    }
+    hook.execBefore(
+      `DELETE_${this.model.name.toUpperCase()}_RECORD`,
+      {
+        name: this.model.name,
+        record,
+        user,
+        options,
+      },
+      function (error: any) {
+        if (error) {
+          throw error;
+        }
+      }
+    );
+    record = await record.deleteOne();
+    hook.execAfter(
+      `DELETE_${this.model.name.toUpperCase()}_RECORD`,
+      null,
+      {
+        name: this.model.name,
+        record,
+        user,
+        options,
+      },
+      function () {}
+    );
+    return record;
+  }
+
+  public async get(query: Object, user: CtxUser, options: any = {}) {
+    // validate the access
+    const hasAccess = access.validateAccess(this.model.name, 'read', user, []);
+    if (!hasAccess) {
+      throw new Error(
+        'You does not have access to perform this action on this record/ field.'
+      );
+    }
+    let record = await this.mongoModel.findOne(query).exec();
+    if (!record) {
+      throw new Error('Record not found');
+    }
+    hook.execBefore(
+      `GET_${this.model.name.toUpperCase()}_RECORD`,
+      {
+        name: this.model.name,
+        record,
+        user,
+        options,
+      },
+      function (error: any) {
+        if (error) {
+          throw error;
+        }
+      }
+    );
+    hook.execAfter(
+      `GET_${this.model.name.toUpperCase()}_RECORD`,
+      null,
+      {
+        name: this.model.name,
+        record,
+        user,
+        options,
+      },
+      function () {}
+    );
+    return record;
+  }
+
+  public async list(query: Object, user: CtxUser, options: any = {}) {
+    // validate the access
+    const hasAccess = access.validateAccess(this.model.name, 'read', user, []);
+    if (!hasAccess) {
+      throw new Error(
+        'You does not have access to perform this action on this record/ field.'
+      );
+    }
+    let records = await this.mongoModel.find(query);
+    hook.execBefore(
+      `LIST_${this.model.name.toUpperCase()}_RECORD`,
+
+      {
+        name: this.model.name,
+        records,
+        user,
+        options,
+      },
+      function (error: any) {
+        if (error) {
+          throw error;
+        }
+      }
+    );
+    hook.execAfter(
+      `LIST_${this.model.name.toUpperCase()}_RECORD`,
+      null,
+      {
+        name: this.model.name,
+        records,
+        user,
+        options,
+      },
+      function () {}
+    );
+    return records;
+  }
+
+  public async count(user: CtxUser, options: any = {}) {
+    // validate the access
+    const hasAccess = access.validateAccess(this.model.name, 'read', user, []);
+    if (!hasAccess) {
+      throw new Error(
+        'You does not have access to perform this action on this record/ field.'
+      );
+    }
+    let count = await this.mongoModel.countDocuments();
+    hook.execBefore(
+      `COUNT_${this.model.name.toUpperCase()}_RECORD`,
+      {
+        name: this.model.name,
+        count,
+        user,
+        options,
+      },
+      function (error: any) {
+        if (error) {
+          throw error;
+        }
+      }
+    );
+    hook.execAfter(
+      `COUNT_${this.model.name.toUpperCase()}_RECORD`,
+      null,
+      {
+        name: this.model.name,
+        count,
+        user,
+        options,
+      },
+      function () {}
+    );
+    return count;
+  }
+
+  // Mogoose schema generator
   private createSchema() {
     return new Schema(
       Object.keys(this.model.fields).map((key) => {

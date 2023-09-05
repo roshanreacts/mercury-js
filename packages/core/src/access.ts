@@ -14,7 +14,7 @@ class Access {
     );
     if (profile) {
       const rule = profile.rules.find((rule) => rule.modelName === modelName);
-      if (rule?.fieldLevelAccess) {
+      if (action != 'delete' && rule?.fieldLevelAccess) {
         // check for all the fields in the fields array
         const allFields: boolean[] = [];
         mapKeys(rule.fields, (value, key) =>
