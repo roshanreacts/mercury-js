@@ -94,6 +94,8 @@ class Generate {
         }
       }
     });
+    this.genSchema.push(`  createdOn: sort`);
+    this.genSchema.push(`  updatedOn: sort`);
     this.genSchema.push(`}`);
     this.genSchema.push(``);
 

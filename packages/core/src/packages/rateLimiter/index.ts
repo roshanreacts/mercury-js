@@ -34,8 +34,10 @@ export const rateLimiter = (
   };
 
   // Merging default permissions with the permission map passed in
-  const permissionMapOutput = _.merge(defaultPermissions, permissionMap);
+  const permissionMapOutput = ignoreDefault
+    ? permissionMap
+    : _.merge(defaultPermissions, permissionMap);
 
   // Returning a shield middleware with the final permission map
-  return shield(permissionMapOutput);
+  return shield(permissionMapOutput as any);
 };
