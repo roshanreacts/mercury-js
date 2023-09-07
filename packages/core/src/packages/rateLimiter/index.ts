@@ -1,7 +1,8 @@
-import { createRateLimitRule } from 'graphql-rate-limit';
+import { createRateLimitRule, RedisStore } from 'graphql-rate-limit';
 import { shield } from 'graphql-shield';
 import _ from 'lodash';
 
+export const Redis = RedisStore;
 export const createRateLimitRuleContext = createRateLimitRule;
 // Creating a rate limit rule function using graphql-rate-limit package
 export const rateLimitRule: Function = createRateLimitRule({
@@ -39,5 +40,5 @@ export const rateLimiter = (
     : _.merge(defaultPermissions, permissionMap);
 
   // Returning a shield middleware with the final permission map
-  return shield(permissionMapOutput as any);
+  return shield(permissionMapOutput as any, { allowExternalErrors: true });
 };

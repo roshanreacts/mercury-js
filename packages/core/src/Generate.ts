@@ -420,11 +420,18 @@ class Generate {
         justOne: item.fieldObj.justOne,
       });
     });
-
+    if (this.schema.indexes && this.schema.indexes.length > 0) {
+      this.schema.indexes.map((index: any) => {
+        newSchema.index(index.fields, index.options);
+      });
+    }
     // Add option to include custom plugins
     newSchema.plugin(mongooseBcrypt.default);
     newSchema.plugin(mongoosePaginateV2.default);
     const newModel = model(this.modelName, newSchema);
+    if (this.schema.indexes && this.schema.indexes.length > 0) {
+      newModel.ensureIndexes();
+    }
     return {
       newSchema,
       newModel,
