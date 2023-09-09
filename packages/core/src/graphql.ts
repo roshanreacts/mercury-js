@@ -1,11 +1,12 @@
 import { mapKeys, startCase } from 'lodash';
 import { Model } from './models';
 
-const fieldTypeMap: { [key: string]: string } = {
+export const fieldTypeMap: { [key: string]: string } = {
   string: 'String',
   number: 'Int',
   boolean: 'Boolean',
   enum: 'enum',
+  relationship: 'relationship',
 };
 export class Mgraphql {
   public static genQuery(name: string, fields: TFields) {

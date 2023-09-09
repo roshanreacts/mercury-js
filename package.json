@@ -35,6 +35,7 @@
     "kareem": "^2.5.1",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
+    "majestic": "^1.8.1",
     "mobx": "^6.9.0",
     "mobx-react": "^7.6.0",
     "mobx-state-tree": "^5.1.8",

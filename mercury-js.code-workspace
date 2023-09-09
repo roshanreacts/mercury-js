@@ -5,6 +5,10 @@
 			"path": "."
 		},
 		{
+			"name": "docs",
+			"path": "packages/docs"
+		},
+		{
 			"name": "core",
 			"path": "packages/core"
 		},
@@ -15,18 +19,14 @@
 		{
 			"name": "rateLimiter",
 			"path": "packages/core/packages/rateLimiter"
-		},
-		{
-			"name": "docs",
-			"path": "packages/docs"
 		}
 	],
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
 			"mercury-js",
+			"docs",
 			"extendModelTypes",
-			"rateLimiter",
-			"docs"
+			"rateLimiter"
 		]
 	}
 }
