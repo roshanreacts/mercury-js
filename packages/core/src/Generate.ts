@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import * as mongooseBcrypt from 'mongoose-bcrypt';
@@ -428,7 +428,7 @@ class Generate {
     // Add option to include custom plugins
     newSchema.plugin(mongooseBcrypt.default);
     newSchema.plugin(mongoosePaginateV2.default);
-    const newModel = model(this.modelName, newSchema);
+    const newModel = models[this.modelName] || model(this.modelName, newSchema);
     if (this.schema.indexes && this.schema.indexes.length > 0) {
       newModel.ensureIndexes();
     }
