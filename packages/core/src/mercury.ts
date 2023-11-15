@@ -35,11 +35,6 @@ class Mercury {
     // Create a new model object with the specified name, fields, and options
     const model: TModel = { name, fields, options };
 
-    // If the model is private, do not add it to the list of models
-    if (options.private) {
-      return;
-    }
-
     // Execute the CREATE_MODEL hook before creating the model
     hook.execBefore('CREATE_MODEL', model, (error: any) => {
       if (error) {
@@ -53,8 +48,11 @@ class Mercury {
     // Create a new Model instance for the model and add it to the database
     this.db[name] = new Model(model);
 
-    // Create graphql typedefs
-    this.typeDefsArr.push(Mgraphql.genModel(name, fields, options));
+    // If the model is private, do not add graphql typedefs
+    if (!options.private) {
+      // Create graphql typedefs
+      this.typeDefsArr.push(Mgraphql.genModel(name, fields, options));
+    }
 
     // If historyTracking is true, create a history model for the model
     if (options.historyTracking) {
@@ -68,9 +66,13 @@ class Mercury {
         fields: historyModel.fields,
         options: { historyTracking: false },
       });
-      this.typeDefsArr.push(
-        Mgraphql.genModel(historyModel.name, historyModel.fields)
-      );
+
+      // If the model is private, do not add history graphql typedefs
+      if (!options.private) {
+        this.typeDefsArr.push(
+          Mgraphql.genModel(historyModel.name, historyModel.fields)
+        );
+      }
     }
   }
 }

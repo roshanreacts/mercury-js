@@ -5,7 +5,7 @@ describe('Mercury', () => {
   it('should create a model', () => {
     const mockBeforeFn = jest.fn();
     const name = 'User';
-    const fields = {
+    const fields: TFields = {
       name: {
         type: 'string',
         isRequired: true,
@@ -29,7 +29,7 @@ describe('Mercury', () => {
   it('should create a model without history', () => {
     const mockBeforeFn = jest.fn();
     const name = 'Customer';
-    const fields = {
+    const fields: TFields = {
       name: {
         type: 'string',
         isRequired: true,
@@ -60,7 +60,7 @@ describe('Mercury', () => {
 
   it('should add db instance', () => {
     const name = 'Test';
-    const fields = {
+    const fields: TFields = {
       name: {
         type: 'string',
         isRequired: true,
@@ -77,9 +77,9 @@ describe('Mercury', () => {
     expect(mercury.db[name]).toBeDefined();
     expect(mercury.db[name].create).toBeDefined();
   });
-  it("shouldn't add to list if set as private", () => {
+  it('should add to list if set as private but no graphql typeDefs are generated', () => {
     const name = 'Private';
-    const fields = {
+    const fields: TFields = {
       name: {
         type: 'string',
         isRequired: true,
@@ -98,7 +98,7 @@ describe('Mercury', () => {
       fields,
       options
     );
-    expect(mercury.list.length).toBe(4);
-    expect(mercury.db[name]).toBeUndefined();
+    expect(mercury.list.length).toBe(5);
+    expect(mercury.db[name]).toBeDefined();
   });
 });

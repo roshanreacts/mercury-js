@@ -18,6 +18,19 @@ describe('Model create', () => {
     },
   });
 
+  const productDetailModel: TModel = {
+    name: 'ProductDetail',
+    fields: {
+      name: {
+        type: 'string',
+      },
+    },
+    options: {
+      historyTracking: false,
+    },
+  };
+  const productDetailModelInstance = new Model(productDetailModel);
+
   beforeAll(async () => {
     const name = 'Admin';
     const rules = [
@@ -132,7 +145,7 @@ describe('Model create', () => {
           expect(this.record.name).toBe('test 2');
         }
       );
-      const create = await modelInstance.create({ name: 'rename' }, userCtx);
+      await modelInstance.create({ name: 'rename' }, userCtx);
       expect(modelInstance).toBeDefined();
     } catch (error: any) {
       expect(error).toBeUndefined();
@@ -140,26 +153,14 @@ describe('Model create', () => {
   });
 
   it('should be stop the create if before hook throws error', async () => {
-    const model: TModel = {
-      name: 'ProductDetail',
-      fields: {
-        name: {
-          type: 'string',
-        },
-      },
-      options: {
-        historyTracking: false,
-      },
-    };
     const userCtx = {
       id: '1',
       profile: 'Admin',
     };
 
-    const modelInstance = new Model(model);
     try {
       hook.before(
-        `CREATE_${model.name.toUpperCase()}_RECORD`,
+        `CREATE_${productDetailModel.name.toUpperCase()}_RECORD`,
         function (this: any) {
           if (this.record.name === 'test 2') {
             throw new Error('test');
@@ -167,12 +168,15 @@ describe('Model create', () => {
         }
       );
       hook.after(
-        `CREATE_${model.name.toUpperCase()}_RECORD`,
+        `CREATE_${productDetailModel.name.toUpperCase()}_RECORD`,
         function (this: any) {
           expect(this.record.name).toBe('test 2');
         }
       );
-      const create = await modelInstance.create({ name: 'test 2' }, userCtx);
+      const create = await productDetailModelInstance.create(
+        { name: 'test 2' },
+        userCtx
+      );
       expect(create).toBeDefined();
     } catch (error: any) {
       expect(error).toBeDefined();
@@ -220,7 +224,7 @@ describe('Model create', () => {
         id: '1',
         profile: 'Admin',
       };
-      const get = await modelInstance.get({ name: 'not found' }, userCtx);
+      await modelInstance.get({ name: 'not found' }, userCtx);
     } catch (error: any) {
       expect(error).toBeDefined();
       expect(error.message).toBe('Record not found');
@@ -286,12 +290,32 @@ describe('Model create', () => {
         id: '1',
         profile: 'Admin',
       };
-      const update = await productModel.delete('testId', userCtx);
+      await productModel.delete('testId', userCtx);
     } catch (error: any) {
       expect(error).toBeDefined();
       expect(error.message).toBe(
         'You does not have access to perform this action on this record/ field.'
       );
     }
+  });
+
+  it('should return list pagination with pagination', async () => {
+    const userCtx = {
+      id: '1',
+      profile: 'Admin',
+    };
+    // test 2 will be rejected by before create hook in above testx
+    await Promise.all(
+      ['test 1', 'test 3', 'test 4'].map(
+        async (name) =>
+          await productDetailModelInstance.create({ name }, userCtx)
+      )
+    );
+    const getAllProducts = await productDetailModelInstance.paginate(
+      {},
+      {},
+      userCtx
+    );
+    expect(getAllProducts.docs.length).toBe(3);
   });
 });

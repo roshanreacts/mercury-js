@@ -1,4 +1,5 @@
 import { Mgraphql } from '../src/graphql';
+import { Model } from '../src/models';
 
 describe('Generate graphql Schema', () => {
   it('should generate the query for the fields', () => {
@@ -103,15 +104,17 @@ enum UserProfileEnumType {
     expect(query).toEqual(
       `
 type Query {
-    getUser(id: ID!): User
-    listUser(limit: Int, offset: Int, where: whereUserInput): [User]
+    getUser(where: whereUserInput!): User
+    listUsers(where: whereUserInput, sort: sortUserInput = {},offset: Int! = 0, limit: Int! = 10): [User]
 }
 
 type Mutation {
     createUser(input: UserInput!): User
     createUsers(input: [UserInput!]!): [User]
-    updateUser(id: ID!, input: UserInput!): User
+    updateUser(input: updateUserInput!): User
+    updateUsers(input: [updateUserInput!]!): [User]
     deleteUser(id: ID!): User
+    deleteUsers(ids: [ID!]): User
 }
 
 type User {
@@ -135,6 +138,15 @@ input UserInput {
     account: [String]
 }
 
+input updateUserInput {
+    id: String
+    name: String
+    age: Int!
+    active: Boolean
+    profile: UserProfileEnumType
+    account: [String]
+}
+
 input whereUserInput {
     name: whereString
     age: whereInt
@@ -142,7 +154,81 @@ input whereUserInput {
     profile: UserProfileEnumType
     account: whereID
 }
+
+input sortUserInput {
+    name: sort
+    age: sort
+    active: sort
+    profile: sort
+    createdOn: sort
+    updatedOn: sort
+}
     `
     );
+  });
+  it('should generate model resolvers', () => {
+    const userModel = new Model({
+      name: 'User',
+      fields: {
+        name: {
+          type: 'string',
+        },
+        age: {
+          type: 'number',
+          isRequired: true,
+        },
+        active: {
+          type: 'boolean',
+        },
+        profile: {
+          type: 'enum',
+          enum: ['admin', 'user'],
+          enumType: 'string',
+        },
+        account: {
+          type: 'relationship',
+          ref: 'Account',
+          many: true,
+        },
+      },
+      options: { historyTracking: false },
+    });
+    const resolvers = Mgraphql.genResolvers('User', userModel);
+    expect(Object.keys(resolvers.Query).length).toBe(2);
+    expect(Object.keys(resolvers.Mutation).length).toBe(6);
+  });
+});
+
+describe('resolvers crud test cases', () => {
+  it('should create a record', () => {
+    const userModel = new Model({
+      name: 'UserOne',
+      fields: {
+        name: {
+          type: 'string',
+        },
+        age: {
+          type: 'number',
+          isRequired: true,
+        },
+        active: {
+          type: 'boolean',
+        },
+        profile: {
+          type: 'enum',
+          enum: ['admin', 'user'],
+          enumType: 'string',
+        },
+        account: {
+          type: 'relationship',
+          ref: 'Account',
+          many: true,
+        },
+      },
+      options: { historyTracking: false },
+    });
+    const resolvers = Mgraphql.genResolvers('User', userModel);
+    expect(Object.keys(resolvers.Query).length).toBe(2);
+    expect(Object.keys(resolvers.Mutation).length).toBe(6);
   });
 });

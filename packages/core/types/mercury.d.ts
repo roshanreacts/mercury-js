@@ -9,7 +9,14 @@ declare type TFields = {
 };
 
 declare type TField = {
-  type: string;
+  type:
+    | 'string'
+    | 'password'
+    | 'number'
+    | 'float'
+    | 'boolean'
+    | 'relationship'
+    | 'enum';
   ref?: string;
   enum?: Array<string | number>;
   enumType?: string;

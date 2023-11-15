@@ -110,6 +110,11 @@ input whereDateTime {
   in: [String]
   notIn: [String]
 }
+
+enum sort {
+  asc
+  desc
+}
 `;
 
 export const whereInputCompose = (input: any, modelFields: TFields) => {
@@ -221,3 +226,11 @@ export const whereInputMap = (input: any, modelFields: TFields) => {
   });
   return querySchema;
 };
+
+export const allowedSortFieldTypes = [
+  'string',
+  'number',
+  'date',
+  'enum',
+  'boolean',
+];

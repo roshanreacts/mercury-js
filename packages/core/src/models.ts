@@ -1,4 +1,10 @@
-import { Schema, model as mongooseModel } from 'mongoose';
+import { Schema, model as mongooseModel, models } from 'mongoose';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import * as mongooseBcrypt from 'mongoose-bcrypt';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import * as mongoosePaginateV2 from 'mongoose-paginate-v2';
 import access from './access';
 import hook from './hooks';
 
@@ -20,7 +26,14 @@ export class Model {
     this.model = model;
     // create mongo schema from fields
     this.mongoSchema = this.createSchema();
-    this.mongoModel = mongooseModel(model.name, this.mongoSchema);
+    this.mongoSchema.plugin(mongooseBcrypt.default);
+    this.mongoSchema.plugin(mongoosePaginateV2.default);
+    this.mongoModel =
+      models[this.model.name] ||
+      mongooseModel(this.model.name, this.mongoSchema);
+    if (this.mongoSchema.indexes && this.mongoSchema.indexes.length > 0) {
+      this.mongoModel.ensureIndexes();
+    }
   }
   public async create(
     fields: any,
@@ -218,6 +231,49 @@ export class Model {
       );
     }
     let records = await this.mongoModel.find(query);
+    hook.execBefore(
+      `LIST_${this.model.name.toUpperCase()}_RECORD`,
+
+      {
+        name: this.model.name,
+        records,
+        user,
+        options,
+      },
+      function (error: any) {
+        if (error) {
+          throw error;
+        }
+      }
+    );
+    hook.execAfter(
+      `LIST_${this.model.name.toUpperCase()}_RECORD`,
+      null,
+      {
+        name: this.model.name,
+        records,
+        user,
+        options,
+      },
+      function () {}
+    );
+    return records;
+  }
+
+  public async paginate(
+    query: Object,
+    filters: Object,
+    user: CtxUser,
+    options: any = {}
+  ) {
+    // validate the access
+    const hasAccess = access.validateAccess(this.model.name, 'read', user, []);
+    if (!hasAccess) {
+      throw new Error(
+        'You does not have access to perform this action on this record/ field.'
+      );
+    }
+    let records = await this.mongoModel.paginate(query, filters);
     hook.execBefore(
       `LIST_${this.model.name.toUpperCase()}_RECORD`,
 

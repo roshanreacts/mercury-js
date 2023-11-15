@@ -21,7 +21,7 @@ describe('Utility', () => {
         },
       ],
     };
-    const modelFields = {
+    const modelFields: TFields = {
       name: {
         type: 'string',
       },
@@ -57,7 +57,7 @@ describe('Utility', () => {
         is: 'test',
       },
     };
-    const modelFields = {
+    const modelFields: TFields = {
       name: {
         type: 'string',
       },
