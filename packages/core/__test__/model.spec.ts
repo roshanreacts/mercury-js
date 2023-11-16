@@ -5,7 +5,6 @@ import * as db from './db';
 import mongoose from 'mongoose';
 
 describe('Model create', () => {
-  let modelInstance: Model;
   let productModel: Model = new Model({
     name: 'Product',
     fields: {
@@ -17,12 +16,38 @@ describe('Model create', () => {
       historyTracking: false,
     },
   });
-
+  const model: TModel = {
+    name: 'PriceBook',
+    fields: {
+      name: {
+        type: 'string',
+        unique: true,
+      },
+      testPassword: {
+        type: 'string',
+        bcrypt: true,
+      },
+      product: {
+        type: 'virtual',
+        ref: 'Product',
+        localField: 'name',
+        foreignField: 'name',
+        justOne: true,
+      },
+    },
+    options: {
+      historyTracking: false,
+    },
+  };
+  const modelInstance = new Model(model);
   const productDetailModel: TModel = {
     name: 'ProductDetail',
     fields: {
       name: {
         type: 'string',
+      },
+      price: {
+        type: 'float',
       },
     },
     options: {
@@ -113,23 +138,11 @@ describe('Model create', () => {
   });
 
   it('should create the record and trigger both before and after hooks for the model', async () => {
-    const model: TModel = {
-      name: 'PriceBook',
-      fields: {
-        name: {
-          type: 'string',
-        },
-      },
-      options: {
-        historyTracking: false,
-      },
-    };
     const userCtx = {
       id: '1',
       profile: 'Admin',
     };
 
-    modelInstance = new Model(model);
     try {
       hook.before(
         `CREATE_${model.name.toUpperCase()}_RECORD`,
@@ -149,6 +162,43 @@ describe('Model create', () => {
       expect(modelInstance).toBeDefined();
     } catch (error: any) {
       expect(error).toBeUndefined();
+    }
+  });
+
+  it('should encrpt the password and allow verify', async () => {
+    const userCtx = {
+      id: '1',
+      profile: 'Admin',
+    };
+    try {
+      const record = await modelInstance.create(
+        { name: 'test', testPassword: 'test123' },
+        userCtx
+      );
+      expect(record).toBeDefined();
+      expect(record.testPassword).toBeDefined();
+      expect(record.testPassword).not.toBe('test123');
+      const verify = await modelInstance.verifyBcryptField(
+        record,
+        'testPassword',
+        'test123',
+        userCtx
+      );
+      expect(verify).toBeDefined();
+      expect(verify).toBe(true);
+    } catch (error: any) {
+      expect(error).toBeUndefined();
+    }
+  });
+  it('should throw error for duplicate record', async () => {
+    const userCtx = {
+      id: '1',
+      profile: 'Admin',
+    };
+    try {
+      await modelInstance.create({ name: 'test 2' }, userCtx);
+    } catch (error: any) {
+      expect(error).toBeDefined();
     }
   });
 
@@ -308,7 +358,10 @@ describe('Model create', () => {
     await Promise.all(
       ['test 1', 'test 3', 'test 4'].map(
         async (name) =>
-          await productDetailModelInstance.create({ name }, userCtx)
+          await productDetailModelInstance.create(
+            { name, price: 1.23 },
+            userCtx
+          )
       )
     );
     const getAllProducts = await productDetailModelInstance.paginate(

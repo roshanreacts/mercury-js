@@ -1,6 +1,6 @@
 import { mapKeys, startCase } from 'lodash';
 import { Model } from './models';
-import { allowedSortFieldTypes } from './utility';
+import { allowedSortFieldTypes, whereInputCompose } from './utility';
 
 export const fieldTypeMap: { [key: string]: string } = {
   string: 'String',
@@ -16,7 +16,10 @@ export class Mgraphql {
     const additionalTypes: string[] = [];
     querySchema.push(`type ${name} {`);
     mapKeys(fields, (value, key) => {
-      if (value.type === 'password') {
+      if (
+        ('bcrypt' in value && value.bcrypt) ||
+        ('ignoreGraphQL' in value && value.ignoreGraphQL)
+      ) {
         return;
       }
       let fieldType: string =
@@ -25,7 +28,7 @@ export class Mgraphql {
           : value.type === 'relationship' && value.ref
           ? value.ref
           : fieldTypeMap[value.type];
-      if (value.isRequired) {
+      if (value.required) {
         fieldType += '!';
       }
       if (value.many) {
@@ -43,6 +46,8 @@ export class Mgraphql {
       }
       querySchema.push(`    ${key}: ${fieldType}`);
     });
+    querySchema.push('    createdOn: DateTime');
+    querySchema.push('    updatedOn: DateTime');
     querySchema.push('}');
     return querySchema.join('\n') + additionalTypes.join('\n');
   }
@@ -51,13 +56,16 @@ export class Mgraphql {
     const inputSchema: string[] = [];
     inputSchema.push(`input ${name}Input {`);
     mapKeys(fields, (value, key) => {
+      if ('ignoreGraphQL' in value && value.ignoreGraphQL) {
+        return;
+      }
       let fieldType: string =
         value.type == 'enum' && value.enumType
           ? `${name}${startCase(key)}EnumType`
           : value.type === 'relationship' && value.ref
           ? 'String'
           : fieldTypeMap[value.type];
-      if (value.isRequired) {
+      if (value.required) {
         fieldType += '!';
       }
       if (value.many) {
@@ -74,13 +82,16 @@ export class Mgraphql {
     inputSchema.push(`input update${name}Input {`);
     inputSchema.push(`    id: String`);
     mapKeys(fields, (value, key) => {
+      if ('ignoreGraphQL' in value && value.ignoreGraphQL) {
+        return;
+      }
       let fieldType: string =
         value.type == 'enum' && value.enumType
           ? `${name}${startCase(key)}EnumType`
           : value.type === 'relationship' && value.ref
           ? 'String'
           : fieldTypeMap[value.type];
-      if (value.isRequired) {
+      if (value.required) {
         fieldType += '!';
       }
       if (value.many) {
@@ -96,8 +107,18 @@ export class Mgraphql {
     const whereInputSchema: string[] = [];
     whereInputSchema.push(`input where${name}Input {`);
     mapKeys(fields, (value, key) => {
+      if (
+        ('bcrypt' in value && value.bcrypt) ||
+        ('ignoreGraphQL' in value && value.ignoreGraphQL)
+      ) {
+        return;
+      }
       whereInputSchema.push(this.generateWhereInput(name, key, value.type));
     });
+    whereInputSchema.push('    createdOn: whereDateTime');
+    whereInputSchema.push('    updatedOn: whereDateTime');
+    whereInputSchema.push(`    AND: [where${name}Input!]`);
+    whereInputSchema.push(`    OR: [where${name}Input!]`);
     whereInputSchema.push('}');
     return whereInputSchema.join('\n');
   }
@@ -106,6 +127,12 @@ export class Mgraphql {
     const sortSchema: string[] = [];
     sortSchema.push(`input sort${name}Input {`);
     mapKeys(fields, (value, key) => {
+      if (
+        ('bcrypt' in value && value.bcrypt) ||
+        ('ignoreGraphQL' in value && value.ignoreGraphQL)
+      ) {
+        return;
+      }
       if (allowedSortFieldTypes.includes(value.type)) {
         sortSchema.push(`    ${key}: sort`);
       }
@@ -179,7 +206,8 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
       Query: {
         // get the record by where clause
         [`get${name}`]: async (root: any, args: { where: any }, ctx: any) => {
-          return await model.get(args.where, ctx.user, {
+          const whereInput = whereInputCompose(args.where, model.model.fields);
+          return await model.get(whereInput, ctx.user, {
             root,
             args,
             ctx,
@@ -192,8 +220,10 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
           args: { where: object; sort: object; offset: number; limit: number },
           ctx: any
         ) => {
+          const whereInput = whereInputCompose(args.where, model.model.fields);
+
           return await model.paginate(
-            args.where,
+            whereInput,
             { sort: args.sort, offset: args.offset, limit: args.limit },
             ctx.user,
             {

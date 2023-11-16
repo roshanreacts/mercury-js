@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 let mongo: any = undefined;
 
@@ -7,9 +7,7 @@ export const setUp = async () => {
   mongo = await MongoMemoryServer.create();
   const url = mongo.getUri();
 
-  await mongoose.connect(url, {
-    useNewUrlParser: true,
-  });
+  await mongoose.connect(url);
 };
 
 export const dropDatabase = async () => {

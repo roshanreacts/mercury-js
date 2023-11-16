@@ -9,7 +9,7 @@ describe('Generate graphql Schema', () => {
       },
       age: {
         type: 'number',
-        isRequired: true,
+        required: true,
       },
       active: {
         type: 'boolean',
@@ -31,6 +31,8 @@ describe('Generate graphql Schema', () => {
     active: Boolean
     profile: UserProfileEnumType
     account: Account
+    createdOn: DateTime
+    updatedOn: DateTime
 }
 
 enum UserProfileEnumType {
@@ -47,7 +49,7 @@ enum UserProfileEnumType {
       },
       age: {
         type: 'number',
-        isRequired: true,
+        required: true,
       },
       active: {
         type: 'boolean',
@@ -83,7 +85,12 @@ enum UserProfileEnumType {
         },
         age: {
           type: 'number',
-          isRequired: true,
+          required: true,
+        },
+        password: {
+          type: 'string',
+          bcrypt: true,
+          rounds: 10,
         },
         active: {
           type: 'boolean',
@@ -97,6 +104,10 @@ enum UserProfileEnumType {
           type: 'relationship',
           ref: 'Account',
           many: true,
+        },
+        test: {
+          type: 'string',
+          ignoreGraphQL: true,
         },
       },
       { historyTracking: false }
@@ -123,6 +134,8 @@ type User {
     active: Boolean
     profile: UserProfileEnumType
     account: [Account]
+    createdOn: DateTime
+    updatedOn: DateTime
 }
 
 enum UserProfileEnumType {
@@ -133,6 +146,7 @@ enum UserProfileEnumType {
 input UserInput {
     name: String
     age: Int!
+    password: String
     active: Boolean
     profile: UserProfileEnumType
     account: [String]
@@ -142,6 +156,7 @@ input updateUserInput {
     id: String
     name: String
     age: Int!
+    password: String
     active: Boolean
     profile: UserProfileEnumType
     account: [String]
@@ -153,6 +168,10 @@ input whereUserInput {
     active: Boolean
     profile: UserProfileEnumType
     account: whereID
+    createdOn: whereDateTime
+    updatedOn: whereDateTime
+    AND: [whereUserInput!]
+    OR: [whereUserInput!]
 }
 
 input sortUserInput {
@@ -175,7 +194,7 @@ input sortUserInput {
         },
         age: {
           type: 'number',
-          isRequired: true,
+          required: true,
         },
         active: {
           type: 'boolean',
@@ -209,7 +228,7 @@ describe('resolvers crud test cases', () => {
         },
         age: {
           type: 'number',
-          isRequired: true,
+          required: true,
         },
         active: {
           type: 'boolean',

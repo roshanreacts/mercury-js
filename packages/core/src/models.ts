@@ -7,25 +7,33 @@ import * as mongooseBcrypt from 'mongoose-bcrypt';
 import * as mongoosePaginateV2 from 'mongoose-paginate-v2';
 import access from './access';
 import hook from './hooks';
+import { startCase } from 'lodash';
+import { whereInputCompose } from './utility';
 
 export class Model {
-  private model: TModel;
+  public model: TModel;
   public mongoSchema: any;
   public mongoModel: any;
   // schema type map
   private fieldMongooseTyepMap: { [type: string]: any } = {
     string: Schema.Types.String,
     number: Schema.Types.Number,
+    float: Schema.Types.Number,
     boolean: Schema.Types.Boolean,
     date: Schema.Types.Date,
     relationship: Schema.Types.ObjectId,
     enum: 'enum',
+    mixed: Schema.Types.Mixed,
+    objectId: Schema.Types.ObjectId,
+    decimal: Schema.Types.Decimal128,
+    bigint: Schema.Types.BigInt,
   };
 
   constructor(model: TModel) {
     this.model = model;
     // create mongo schema from fields
     this.mongoSchema = this.createSchema();
+    this.addVirtualFields();
     this.mongoSchema.plugin(mongooseBcrypt.default);
     this.mongoSchema.plugin(mongoosePaginateV2.default);
     this.mongoModel =
@@ -190,6 +198,7 @@ export class Model {
         'You does not have access to perform this action on this record/ field.'
       );
     }
+    // compose query from where input
     let record = await this.mongoModel.findOne(query).exec();
     if (!record) {
       throw new Error('Record not found');
@@ -343,24 +352,84 @@ export class Model {
   // Mogoose schema generator
   private createSchema() {
     return new Schema(
-      Object.keys(this.model.fields).map((key) => {
-        const value = this.model.fields[key];
-        const fieldSchema: {
-          type: any;
-          ref?: string;
-          enum?: Array<string | number>;
-        } = {
-          type: this.fieldMongooseTyepMap[value.type],
-        };
-        if ('ref' in value) {
-          fieldSchema['ref'] = value.ref;
-        }
-        if ('enum' in value && value.enumType) {
-          fieldSchema.type = this.fieldMongooseTyepMap[value.enumType];
-          fieldSchema.enum = value.enum;
-        }
-        return { [key]: fieldSchema };
-      })
+      Object.keys(this.model.fields)
+        .map((key) => {
+          const value = this.model.fields[key];
+          // ignore the virtual fields
+          if (value.type === 'virtual') {
+            return;
+          }
+          const fieldSchema: {
+            type: any;
+            ref?: string;
+            enum?: Array<string | number>;
+            bcrypt?: boolean;
+            rounds?: number;
+            unique?: boolean;
+            required?: boolean;
+          } = {
+            type: this.fieldMongooseTyepMap[value.type],
+          };
+          if ('required' in value) {
+            fieldSchema['required'] = value.required;
+          }
+          if ('unique' in value) {
+            fieldSchema['unique'] = value.unique;
+          }
+          if ('ref' in value) {
+            fieldSchema['ref'] = value.ref;
+          }
+          if ('enum' in value && value.enumType) {
+            fieldSchema.type = this.fieldMongooseTyepMap[value.enumType];
+            fieldSchema.enum = value.enum;
+          }
+          if ('bcrypt' in value) {
+            fieldSchema.bcrypt = value.bcrypt;
+          }
+          return { [key]: fieldSchema };
+        })
+        .filter((item) => {
+          if (item !== null) {
+            return item;
+          }
+        }),
+      {
+        timestamps: { createdAt: 'createdOn', updatedAt: 'updatedOn' },
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true },
+      }
     );
+  }
+
+  public verifyBcryptField(
+    model: any,
+    fieldName: string,
+    password: string,
+    user: CtxUser
+  ) {
+    const hasAccess = access.validateAccess(this.model.name, 'read', user, []);
+    if (!hasAccess) {
+      throw new Error(
+        'You does not have access to perform this action on this record/ field.'
+      );
+    }
+    const methodName = `verify${startCase(fieldName)}`.replace(/\s/g, '');
+    return model[methodName](password);
+  }
+
+  private addVirtualFields() {
+    Object.entries(this.model.fields)
+      .filter(
+        ([fieldName, fieldObj]: [fieldName: string, fieldObj: TField]) =>
+          fieldObj.type === 'virtual'
+      )
+      .forEach(([fieldName, fieldObj]) =>
+        this.mongoSchema.virtual(fieldName, {
+          ref: fieldObj.ref, // the model to use
+          localField: fieldObj.localField, // find children where 'localField'
+          foreignField: fieldObj.foreignField, // is equal to foreignField
+          justOne: fieldObj.justOne,
+        })
+      );
   }
 }

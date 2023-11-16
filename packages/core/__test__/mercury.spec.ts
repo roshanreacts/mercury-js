@@ -8,11 +8,11 @@ describe('Mercury', () => {
     const fields: TFields = {
       name: {
         type: 'string',
-        isRequired: true,
+        required: true,
       },
       age: {
         type: 'number',
-        isRequired: true,
+        required: true,
       },
     };
     const options = {
@@ -32,11 +32,11 @@ describe('Mercury', () => {
     const fields: TFields = {
       name: {
         type: 'string',
-        isRequired: true,
+        required: true,
       },
       age: {
         type: 'number',
-        isRequired: true,
+        required: true,
       },
     };
     const options = {
@@ -63,11 +63,11 @@ describe('Mercury', () => {
     const fields: TFields = {
       name: {
         type: 'string',
-        isRequired: true,
+        required: true,
       },
       age: {
         type: 'number',
-        isRequired: true,
+        required: true,
       },
     };
     const options = {
@@ -82,11 +82,11 @@ describe('Mercury', () => {
     const fields: TFields = {
       name: {
         type: 'string',
-        isRequired: true,
+        required: true,
       },
       age: {
         type: 'number',
-        isRequired: true,
+        required: true,
       },
     };
     const options = {

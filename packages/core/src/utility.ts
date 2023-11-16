@@ -10,27 +10,27 @@ export const historySchema = (name: string): TFields => {
       type: 'enum',
       enum: ['UPDATE', 'DELETE'],
       enumType: 'string',
-      isRequired: true,
+      required: true,
     },
     instanceId: {
       type: 'string',
-      isRequired: true,
+      required: true,
     },
     dataType: {
       type: 'string',
-      isRequired: true,
+      required: true,
     },
     fieldName: {
       type: 'string',
-      isRequired: true,
+      required: true,
     },
     newValue: {
-      type: 'string',
-      isRequired: true,
+      type: 'mixed',
+      required: true,
     },
     oldValue: {
-      type: 'string',
-      isRequired: true,
+      type: 'mixed',
+      required: true,
     },
   };
 };

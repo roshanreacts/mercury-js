@@ -11,17 +11,25 @@ declare type TFields = {
 declare type TField = {
   type:
     | 'string'
-    | 'password'
     | 'number'
     | 'float'
     | 'boolean'
     | 'relationship'
-    | 'enum';
+    | 'enum'
+    | 'virtual'
+    | 'mixed';
   ref?: string;
   enum?: Array<string | number>;
   enumType?: string;
-  isRequired?: boolean;
+  required?: boolean;
+  unique?: boolean;
   many?: boolean;
+  localField?: string;
+  foreignField?: string;
+  justOne?: boolean;
+  bcrypt?: boolean;
+  rounds?: number;
+  ignoreGraphQL?: boolean;
 };
 
 declare type TOptions = {

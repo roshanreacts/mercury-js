@@ -48,6 +48,30 @@ describe('Utility', () => {
       ],
     });
   });
+  it('whereInputCompose without and', () => {
+    const input = {
+      id: {
+        is: '123',
+      },
+      name: {
+        is: 'test',
+      },
+    };
+    const modelFields: TFields = {
+      name: {
+        type: 'string',
+      },
+    };
+    const result = whereInputCompose(input, modelFields);
+    expect(result).toEqual({
+      _id: {
+        $eq: '123',
+      },
+      name: {
+        $eq: 'test',
+      },
+    });
+  });
   it('whereInputMap', () => {
     const input = {
       id: {
