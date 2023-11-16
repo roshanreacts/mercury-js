@@ -26,13 +26,21 @@ describe('Generate graphql Schema', () => {
     });
     expect(query).toEqual(
       `type User {
+    id: ID!
     name: String
-    age: Int!
+    age: Int
     active: Boolean
     profile: UserProfileEnumType
     account: Account
     createdOn: DateTime
     updatedOn: DateTime
+}
+
+type UserPagination {
+    docs: [User]
+    offset: Int
+    limit: Int
+    totalDocs: Int
 }
 
 enum UserProfileEnumType {
@@ -116,7 +124,7 @@ enum UserProfileEnumType {
       `
 type Query {
     getUser(where: whereUserInput!): User
-    listUsers(where: whereUserInput, sort: sortUserInput = {},offset: Int! = 0, limit: Int! = 10): [User]
+    listUsers(where: whereUserInput, sort: sortUserInput = {},offset: Int! = 0, limit: Int! = 10): UserPagination
 }
 
 type Mutation {
@@ -124,18 +132,26 @@ type Mutation {
     createUsers(input: [UserInput!]!): [User]
     updateUser(input: updateUserInput!): User
     updateUsers(input: [updateUserInput!]!): [User]
-    deleteUser(id: ID!): User
-    deleteUsers(ids: [ID!]): User
+    deleteUser(id: ID!): Boolean
+    deleteUsers(ids: [ID!]): [Boolean]
 }
 
 type User {
+    id: ID!
     name: String
-    age: Int!
+    age: Int
     active: Boolean
     profile: UserProfileEnumType
     account: [Account]
     createdOn: DateTime
     updatedOn: DateTime
+}
+
+type UserPagination {
+    docs: [User]
+    offset: Int
+    limit: Int
+    totalDocs: Int
 }
 
 enum UserProfileEnumType {
@@ -153,9 +169,9 @@ input UserInput {
 }
 
 input updateUserInput {
-    id: String
+    id: String!
     name: String
-    age: Int!
+    age: Int
     password: String
     active: Boolean
     profile: UserProfileEnumType

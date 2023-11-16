@@ -42,8 +42,7 @@ export default [
     plugins: [
       typescript({
         declaration: true,
-        declarationDir: 'dist/types',
-        rootDir: 'src/',
+        rootDir: 'types/',
       }), // so Rollup can convert TypeScript to JavaScript
       commonjs({
         include: /node_modules/,
@@ -56,5 +55,5 @@ export default [
       { dir: 'dist/esm/', format: 'es' },
     ],
   },
-  ...folderBuilds,
+  // ...folderBuilds,
 ];

@@ -8,7 +8,7 @@
   "types": "dist/esm/src/mercury.d.ts",
   "type": "module",
   "scripts": {
-    "build": "rollup -c",
+    "build": "rm -rf dist && rollup -c",
     "dev": "rollup -c -w",
     "test": "jest --watch"
   },
@@ -16,7 +16,7 @@
     ".": {
       "require": "./dist/esm/mercury.js",
       "import": "./dist/esm/mercury.js",
-      "types": "./dist/esm/mercury.d.ts"
+      "types": "./dist/esm/src/mercury.d.ts"
     },
     "./packages/extendModelTypes": {
       "require": "./dist/cjs/packages/extendModelTypes/index.js",

@@ -15,6 +15,7 @@ export class Mgraphql {
     const querySchema: string[] = [];
     const additionalTypes: string[] = [];
     querySchema.push(`type ${name} {`);
+    querySchema.push(`    id: ID!`);
     mapKeys(fields, (value, key) => {
       if (
         ('bcrypt' in value && value.bcrypt) ||
@@ -28,9 +29,6 @@ export class Mgraphql {
           : value.type === 'relationship' && value.ref
           ? value.ref
           : fieldTypeMap[value.type];
-      if (value.required) {
-        fieldType += '!';
-      }
       if (value.many) {
         fieldType = `[${fieldType}]`;
       }
@@ -49,6 +47,15 @@ export class Mgraphql {
     querySchema.push('    createdOn: DateTime');
     querySchema.push('    updatedOn: DateTime');
     querySchema.push('}');
+    querySchema.push('');
+
+    // Add Model Pagination
+    querySchema.push(`type ${name}Pagination {`);
+    querySchema.push(`    docs: [${name}]`);
+    querySchema.push(`    offset: Int`);
+    querySchema.push(`    limit: Int`);
+    querySchema.push(`    totalDocs: Int`);
+    querySchema.push(`}`);
     return querySchema.join('\n') + additionalTypes.join('\n');
   }
 
@@ -80,7 +87,7 @@ export class Mgraphql {
   public static genUpdateInput(name: string, fields: TFields) {
     const inputSchema: string[] = [];
     inputSchema.push(`input update${name}Input {`);
-    inputSchema.push(`    id: String`);
+    inputSchema.push(`    id: String!`);
     mapKeys(fields, (value, key) => {
       if ('ignoreGraphQL' in value && value.ignoreGraphQL) {
         return;
@@ -91,9 +98,7 @@ export class Mgraphql {
           : value.type === 'relationship' && value.ref
           ? 'String'
           : fieldTypeMap[value.type];
-      if (value.required) {
-        fieldType += '!';
-      }
+
       if (value.many) {
         fieldType = `[${fieldType}]`;
       }
@@ -152,7 +157,7 @@ export class Mgraphql {
     return `
 type Query {
     get${name}(where: where${name}Input!): ${name}
-    list${name}s(where: where${name}Input, sort: sort${name}Input = {},offset: Int! = 0, limit: Int! = 10): [${name}]
+    list${name}s(where: where${name}Input, sort: sort${name}Input = {},offset: Int! = 0, limit: Int! = 10): ${name}Pagination
 }
 
 type Mutation {
@@ -160,8 +165,8 @@ type Mutation {
     create${name}s(input: [${name}Input!]!): [${name}]
     update${name}(input: update${name}Input!): ${name}
     update${name}s(input: [update${name}Input!]!): [${name}]
-    delete${name}(id: ID!): ${name}
-    delete${name}s(ids: [ID!]): ${name}
+    delete${name}(id: ID!): Boolean
+    delete${name}s(ids: [ID!]): [Boolean]
 }
 
 ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
@@ -270,10 +275,10 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
         // update a record, resolver
         [`update${name}`]: async (
           root: any,
-          args: { id: string; input: any },
+          args: { input: { id: string; [x: string]: any } },
           ctx: any
         ) => {
-          return await model.update(args.id, args.input, ctx.user, {
+          return await model.update(args.input.id, args.input, ctx.user, {
             root,
             args,
             ctx,
@@ -283,7 +288,7 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
         // update mutilple records, resolver
         [`update${name}s`]: async (
           root: any,
-          args: { input: any },
+          args: { input: { id: string; [x: string]: any } },
           ctx: any
         ) => {
           return await Promise.all(

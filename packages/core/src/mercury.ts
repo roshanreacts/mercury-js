@@ -1,31 +1,53 @@
 import { merge } from 'lodash';
-import { historySchema, defaultTypeDefs } from './utility';
+import { historySchema, defaultTypeDefs, defaultResolvers } from './utility';
 import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
+import mongoose from 'mongoose';
 import { Model } from './models';
 import { Mgraphql } from './graphql';
 import hook from './hooks';
+import access from './access';
 
 // Define a class for the Mercury ORM
 class Mercury {
   // Initialize an empty array for storing models
   list: Array<TModel> = [];
   private typeDefsArr: string[] = [defaultTypeDefs];
+  private resolversArr: any = defaultResolvers;
   // Initialize an empty object for storing models by name
   db: {
     [modelName: string]: Model;
   } = {};
-  get typeDef() {
+  get typeDefs() {
     return mergeTypeDefs(this.typeDefsArr);
+  }
+
+  get resolvers() {
+    return mergeResolvers(this.resolversArr);
+  }
+
+  public createProfile(name: string, rules: Rule[]): void {
+    access.createProfile(name, rules);
+  }
+
+  public package(packages: Array<(mercury: Mercury) => void>) {
+    packages.map((pkg) => pkg(this as any));
+  }
+  public connect(path: string) {
+    mongoose.connect(path);
+  }
+  public async disconnect() {
+    await mongoose.disconnect();
+    await mongoose.connection.close();
   }
   // Create a new model with the specified name, fields, and options
   public createModel<ModelType>(
     name: string,
     fields: TFields,
-    options: TOptions
+    options?: TOptions
   ): void {
     // Define default options for the model
     const defaultOptions = {
-      historyTracking: true,
+      historyTracking: false,
       private: false,
     };
 
@@ -52,6 +74,8 @@ class Mercury {
     if (!options.private) {
       // Create graphql typedefs
       this.typeDefsArr.push(Mgraphql.genModel(name, fields, options));
+      const createResolvers = Mgraphql.genResolvers(name, this.db[name]);
+      this.resolversArr = mergeResolvers([this.resolversArr, createResolvers]);
     }
 
     // If historyTracking is true, create a history model for the model
@@ -72,6 +96,14 @@ class Mercury {
         this.typeDefsArr.push(
           Mgraphql.genModel(historyModel.name, historyModel.fields)
         );
+        const createHistoryResolvers = Mgraphql.genResolvers(
+          name,
+          this.db[name]
+        );
+        this.resolversArr = mergeResolvers([
+          this.resolversArr,
+          createHistoryResolvers,
+        ]);
       }
     }
   }

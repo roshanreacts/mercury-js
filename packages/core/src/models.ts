@@ -187,7 +187,7 @@ export class Model {
       },
       function () {}
     );
-    return record;
+    return true;
   }
 
   public async get(query: Object, user: CtxUser, options: any = {}) {
