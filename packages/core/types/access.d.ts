@@ -11,7 +11,7 @@ declare type Rule = {
     [TAction: string]: boolean;
   };
   fieldLevelAccess?: boolean;
-  fields: {
+  fields?: {
     [fieldName: string]: {
       [TAction: string]: boolean;
     };

@@ -28,7 +28,27 @@ class Access {
     }
     return false;
   }
+  validateDeepAccess<T>(
+    select: Array<{ model: string; select: string[] }>,
+    action: TAction,
+    user: CtxUser
+  ) {
+    const profile = this.profiles.find(
+      (profile) => profile.name === user.profile
+    );
+    if (profile) {
+      const allAccess = select.map((val) => {
+        return this.validateAccess(val.model, action, user, val.select);
+      });
+      return allAccess.every((field) => field);
+    }
+    return false;
+  }
   createProfile(name: string, rules: Rule[]) {
+    const profile = this.profiles.find((profile) => profile.name === name);
+    if (profile) {
+      throw new Error(`Profile ${name} already exist.`);
+    }
     this.profiles.push({ name, rules });
   }
 

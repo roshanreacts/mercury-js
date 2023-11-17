@@ -127,7 +127,7 @@ export class Model {
         }
       }
     );
-    record = await this.mongoModel
+    const updateRecord = await this.mongoModel
       .findByIdAndUpdate(id, fields, { new: true })
       .exec();
     hook.execAfter(
@@ -135,13 +135,14 @@ export class Model {
       null,
       {
         name: this.model.name,
-        record,
+        prevRecord: record,
+        record: updateRecord,
         user,
         options,
       },
       function () {}
     );
-    return record;
+    return updateRecord;
   }
 
   public async delete(id: string, user: CtxUser, options: any = {}) {
