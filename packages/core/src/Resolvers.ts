@@ -488,7 +488,7 @@ class Resolvers {
             ctx,
             resolveInfo,
             allowedKey,
-            prevRecord: updateModel,
+            prevRecord: findModel,
             docs: updateModel,
             setData,
           });
