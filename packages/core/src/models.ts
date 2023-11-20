@@ -61,30 +61,32 @@ export class Model {
       );
     }
     let record = new this.mongoModel(fields);
-    hook.execBefore(
-      `CREATE_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        record,
-        user,
-        options,
-      },
-      function (error: any) {
-        if (error) {
-          throw error;
+
+    await new Promise((resolve, reject) => {
+      hook.execBefore(
+        `CREATE_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          record,
+          user,
+          options,
+        },
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
         }
-      }
-    );
+      );
+    });
     record = await record.save();
     hook.execAfter(
       `CREATE_${this.model.name.toUpperCase()}_RECORD`,
-      null,
-      {
-        name: this.model.name,
-        record,
-        user,
-        options,
-      },
+      { name: this.model.name, record, user, options },
+      [],
       function () {}
     );
     return record;
@@ -112,27 +114,30 @@ export class Model {
     if (!record) {
       throw new Error('Record not found');
     }
-    hook.execBefore(
-      `UPDATE_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        record,
-        fields,
-        user,
-        options,
-      },
-      function (error: any) {
-        if (error) {
-          throw error;
+    await new Promise((resolve, reject) => {
+      hook.execBefore(
+        `UPDATE_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          record,
+          fields,
+          user,
+          options,
+        },
+        function (error: any) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(true);
+          }
         }
-      }
-    );
+      );
+    });
     const updateRecord = await this.mongoModel
       .findByIdAndUpdate(id, fields, { new: true })
       .exec();
     hook.execAfter(
       `UPDATE_${this.model.name.toUpperCase()}_RECORD`,
-      null,
       {
         name: this.model.name,
         prevRecord: record,
@@ -140,6 +145,7 @@ export class Model {
         user,
         options,
       },
+      [],
       function () {}
     );
     return updateRecord;
@@ -162,30 +168,34 @@ export class Model {
     if (!record) {
       throw new Error('Record not found');
     }
-    hook.execBefore(
-      `DELETE_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        record,
-        user,
-        options,
-      },
-      function (error: any) {
-        if (error) {
-          throw error;
+    await new Promise((resolve, reject) => {
+      hook.execBefore(
+        `DELETE_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          record,
+          user,
+          options,
+        },
+        function (error: any) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(true);
+          }
         }
-      }
-    );
+      );
+    });
     record = await record.deleteOne();
     hook.execAfter(
       `DELETE_${this.model.name.toUpperCase()}_RECORD`,
-      null,
       {
         name: this.model.name,
         record,
         user,
         options,
       },
+      [],
       function () {}
     );
     return true;
@@ -204,29 +214,33 @@ export class Model {
     if (!record) {
       throw new Error('Record not found');
     }
-    hook.execBefore(
-      `GET_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        record,
-        user,
-        options,
-      },
-      function (error: any) {
-        if (error) {
-          throw error;
+    await new Promise((resolve, reject) => {
+      hook.execBefore(
+        `GET_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          record,
+          user,
+          options,
+        },
+        function (error: any) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(true);
+          }
         }
-      }
-    );
+      );
+    });
     hook.execAfter(
       `GET_${this.model.name.toUpperCase()}_RECORD`,
-      null,
       {
         name: this.model.name,
         record,
         user,
         options,
       },
+      [],
       function () {}
     );
     return record;
@@ -241,30 +255,34 @@ export class Model {
       );
     }
     let records = await this.mongoModel.find(query);
-    hook.execBefore(
-      `LIST_${this.model.name.toUpperCase()}_RECORD`,
+    await new Promise((resolve, reject) => {
+      hook.execBefore(
+        `LIST_${this.model.name.toUpperCase()}_RECORD`,
 
-      {
-        name: this.model.name,
-        records,
-        user,
-        options,
-      },
-      function (error: any) {
-        if (error) {
-          throw error;
+        {
+          name: this.model.name,
+          records,
+          user,
+          options,
+        },
+        function (error: any) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(true);
+          }
         }
-      }
-    );
+      );
+    });
     hook.execAfter(
       `LIST_${this.model.name.toUpperCase()}_RECORD`,
-      null,
       {
         name: this.model.name,
         records,
         user,
         options,
       },
+      [],
       function () {}
     );
     return records;
@@ -284,30 +302,34 @@ export class Model {
       );
     }
     let records = await this.mongoModel.paginate(query, filters);
-    hook.execBefore(
-      `LIST_${this.model.name.toUpperCase()}_RECORD`,
+    await new Promise((resolve, reject) => {
+      hook.execBefore(
+        `LIST_${this.model.name.toUpperCase()}_RECORD`,
 
-      {
-        name: this.model.name,
-        records,
-        user,
-        options,
-      },
-      function (error: any) {
-        if (error) {
-          throw error;
+        {
+          name: this.model.name,
+          records,
+          user,
+          options,
+        },
+        function (error: any) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(true);
+          }
         }
-      }
-    );
+      );
+    });
     hook.execAfter(
       `LIST_${this.model.name.toUpperCase()}_RECORD`,
-      null,
       {
         name: this.model.name,
         records,
         user,
         options,
       },
+      [],
       function () {}
     );
     return records;
@@ -322,29 +344,33 @@ export class Model {
       );
     }
     let count = await this.mongoModel.countDocuments();
-    hook.execBefore(
-      `COUNT_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        count,
-        user,
-        options,
-      },
-      function (error: any) {
-        if (error) {
-          throw error;
+    await new Promise((resolve, reject) => {
+      hook.execBefore(
+        `COUNT_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          count,
+          user,
+          options,
+        },
+        function (error: any) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(true);
+          }
         }
-      }
-    );
+      );
+    });
     hook.execAfter(
       `COUNT_${this.model.name.toUpperCase()}_RECORD`,
-      null,
       {
         name: this.model.name,
         count,
         user,
         options,
       },
+      [],
       function () {}
     );
     return count;

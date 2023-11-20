@@ -111,4 +111,5 @@ class Mercury {
 
 // Create a new instance of the Mercury class and export it
 const mercury: Mercury = new Mercury();
+export { hook, access };
 export default mercury;

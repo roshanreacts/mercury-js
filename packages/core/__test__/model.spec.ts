@@ -3,7 +3,16 @@ import access from '../src/access';
 import hook from '../src/hooks';
 import * as db from './db';
 import mongoose from 'mongoose';
-
+hook.before(`CREATE_PRODUCTDETAIL_RECORD`, function (this: any) {
+  if (this.record.name === 'test 2') {
+    // next(Error('test'));
+    throw new Error('test');
+  }
+  // next();
+});
+// hook.after(`CREATE_PRODUCTDETAIL_RECORD`, function (this: any) {
+//   expect(this.record.name).toBe('test 2');
+// });
 describe('Model create', () => {
   let productModel: Model = new Model({
     name: 'Product',
@@ -154,11 +163,11 @@ describe('Model create', () => {
       );
       hook.after(
         `CREATE_${model.name.toUpperCase()}_RECORD`,
-        function (this: any) {
+        function (this: any, args: any) {
           expect(this.record.name).toBe('test 2');
         }
       );
-      await modelInstance.create({ name: 'rename' }, userCtx);
+      await modelInstance.create({ name: 'rename' }, userCtx, { test: 1 });
       expect(modelInstance).toBeDefined();
     } catch (error: any) {
       expect(error).toBeUndefined();
@@ -209,20 +218,6 @@ describe('Model create', () => {
     };
 
     try {
-      hook.before(
-        `CREATE_${productDetailModel.name.toUpperCase()}_RECORD`,
-        function (this: any) {
-          if (this.record.name === 'test 2') {
-            throw new Error('test');
-          }
-        }
-      );
-      hook.after(
-        `CREATE_${productDetailModel.name.toUpperCase()}_RECORD`,
-        function (this: any) {
-          expect(this.record.name).toBe('test 2');
-        }
-      );
       const create = await productDetailModelInstance.create(
         { name: 'test 2' },
         userCtx
@@ -355,14 +350,27 @@ describe('Model create', () => {
       profile: 'Admin',
     };
     // test 2 will be rejected by before create hook in above testx
-    await Promise.all(
-      ['test 1', 'test 3', 'test 4'].map(
-        async (name) =>
-          await productDetailModelInstance.create(
-            { name, price: 1.23 },
-            userCtx
-          )
-      )
+    // await Promise.all(
+    //   ['test 1', 'test 3', 'test 4'].map(
+    //     async (name) =>
+    //       await productDetailModelInstance.create(
+    //         { name, price: 1.23 },
+    //         userCtx
+    //       )
+    //   )
+    // );
+
+    const test1 = await productDetailModelInstance.create(
+      { name: 'test 1', price: 1.23 },
+      userCtx
+    );
+    const test4 = await productDetailModelInstance.create(
+      { name: 'test 4', price: 1.23 },
+      userCtx
+    );
+    const test3 = await productDetailModelInstance.create(
+      { name: 'test 3', price: 1.23 },
+      userCtx
     );
     const getAllProducts = await productDetailModelInstance.paginate(
       {},
