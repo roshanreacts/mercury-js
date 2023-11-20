@@ -21,6 +21,9 @@ jobs:
   publish-gpr:
     needs: build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app
     permissions:
       contents: read
       packages: write
@@ -30,7 +33,6 @@ jobs:
         with:
           node-version: 18
           registry-url: https://npm.pkg.github.com/
-      - working-directory: ./packages/core
       - run: ls
       - run: npm publish
         env:
