@@ -22,11 +22,11 @@ declare class MercuryTBare extends Mercury {
   private _roles: Array<string>;
   private _adminRole: string;
   createPreHook: (
-    name: SupportedPreHooks,
+    name: SupportedHooks,
     method: (this: any, next: () => void, done: () => void) => void
   ) => void;
   createPostHook: (
-    name: SupportedPostHooks,
+    name: SupportedHooks,
     method: (this: any, next: () => void, done: () => void) => void
   ) => void;
 }
@@ -65,5 +65,4 @@ declare interface ViewType {
   };
 }
 
-type SupportedPreHooks = 'BEFORE_CREATELIST';
-type SupportedPostHooks = 'AFTER_CREATELIST';
+type SupportedHooks = 'CREATELIST';

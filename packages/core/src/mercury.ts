@@ -4,9 +4,6 @@ import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Kareem from 'kareem';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import nconf from 'nconf';
 import Create from './Create';
 import ScalarResolver from './Scalars';
 
@@ -54,6 +51,12 @@ class Mercury {
   scalar USCurrency
   scalar JSON
   scalar JSONObject
+
+  enum sort {
+    asc
+    desc
+  }
+
   input whereID {
     is: ID
     isNot: ID
@@ -103,27 +106,19 @@ class Mercury {
   ];
   private _resolvers: any = ScalarResolver;
   private _dbModels: { [key: string]: any } = {};
+  private _dbSchema: { [key: string]: any } = {};
   private _roles: Array<string> = [];
   private _adminRole = '';
 
   adapter: DbAdapter;
   path: string;
+  postUpdateCallback: null | Function;
 
   constructor() {
-    nconf.argv().env().file({ file: 'mercury.config.json' });
     this.adapter = 'mongoose';
-    this.path = nconf.get('dbPath')
-      ? nconf.get('dbPath')
-      : 'mongodb://localhost:27017/mercuryapp';
-    this._roles = nconf.get('roles')
-      ? nconf.get('roles')
-      : ['SUPERADMIN', 'USER', 'ANONYMOUS'];
-    this._adminRole = nconf.get('adminRole')
-      ? nconf.get('adminRole')
-      : 'SUPERADMIN';
-    if (nconf.get('dbPath')) {
-      this.connect(this.path);
-    }
+    this.path = 'mongodb://localhost:27017/mercuryapp';
+    this._roles = ['SUPERADMIN', 'USER', 'ANONYMOUS'];
+    this._adminRole = 'SUPERADMIN';
 
     this._resolvers = mergeResolvers([
       this._resolvers,
@@ -137,6 +132,7 @@ class Mercury {
         },
       ],
     ]);
+    this.postUpdateCallback = null;
   }
 
   get schema(): any {
@@ -149,6 +145,10 @@ class Mercury {
 
   get db() {
     return this._dbModels;
+  }
+
+  get dbschema() {
+    return this._dbSchema;
   }
 
   getView(path: string) {
@@ -174,14 +174,14 @@ class Mercury {
     return this._lists;
   }
   createPreHook(
-    name: SupportedPreHooks,
-    method: (next: void, done: void) => void
+    name: SupportedHooks,
+    method: (this: any, next: () => void, done: () => void) => void
   ) {
     this._hooks.pre(name, method);
   }
   createPostHook(
-    name: SupportedPostHooks,
-    method: (next: void, done: void) => void
+    name: SupportedHooks,
+    method: (this: any, next: () => void, done: () => void) => void
   ) {
     this._hooks.post(name, method);
   }
@@ -191,6 +191,7 @@ class Mercury {
   connect(path: string) {
     this.path = path;
     mongoose.connect(this.path);
+    mongoose.set('strictQuery', true);
   }
   async disconnect() {
     await mongoose.disconnect();
@@ -256,7 +257,7 @@ class Mercury {
     }
     // execute prehooks BEFORE_CREATELIST
     this._hooks.execPre(
-      'BEFORE_CREATELIST',
+      'CREATELIST',
       { name: name, schema: schema },
       (error: { message: string }) => {
         if (error) {
@@ -273,6 +274,23 @@ class Mercury {
     this._schema.push(createModel.schema);
     this._resolvers = mergeResolvers([this._resolvers, createModel.resolver]);
     this._dbModels[name] = createModel.models.newModel;
+    this._dbSchema[name] = createModel.models.newSchema;
+    // execute posthooks AFTER_CREATELIST
+    this.postUpdateHook();
+    // this._hooks.execPost(
+    //   'CREATELIST',
+    //   { name: name, schema: schema },
+    //   (error: { message: string }) => {
+    //     if (error) {
+    //       throw new Error(
+    //         `Post createlist hook execution has failed: ${error.message}`
+    //       );
+    //     }
+    //   }
+    // );
+  }
+  async postUpdateHook() {
+    if (this.postUpdateCallback) await this.postUpdateCallback();
   }
   createList(name: string, schema: listSchema) {
     if (schema.enableHistoryTracking) {

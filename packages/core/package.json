@@ -2,11 +2,10 @@
   "name": "@mercury-js/core",
   "description": "Fully automated GrpahQL API generator for your mongoDB models",
   "private": false,
-  "version": "1.5.1",
+  "version": "1.5.11",
   "main": "dist/cjs/mercury.js",
   "module": "dist/esm/mercury.js",
-  "types": "dist/esm/mercury.d.ts",
-  "browser": "dist/mercury.umd.js",
+  "types": "dist/esm/src/mercury.d.ts",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
@@ -15,7 +14,7 @@
   },
   "exports": {
     ".": {
-      "require": "./dist/cjs/mercury.js",
+      "require": "./dist/esm/mercury.js",
       "import": "./dist/esm/mercury.js",
       "types": "./dist/esm/mercury.d.ts"
     },
@@ -23,6 +22,11 @@
       "require": "./dist/cjs/packages/extendModelTypes/index.js",
       "import": "./dist/esm/packages/extendModelTypes/index.js",
       "types": "./dist/esm/packages/extendModelTypes/index.d.ts"
+    },
+    "./packages/rateLimiter": {
+      "require": "./dist/cjs/packages/rateLimiter/index.js",
+      "import": "./dist/esm/packages/rateLimiter/index.js",
+      "types": "./dist/esm/packages/rateLimiter/index.d.ts"
     }
   },
   "files": [

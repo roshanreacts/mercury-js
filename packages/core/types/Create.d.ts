@@ -1,3 +1,5 @@
+/// <reference types="mongoose" />
+
 interface FieldsMap {
   [name: string]: {
     type: string;
@@ -18,6 +20,7 @@ interface FieldsMap {
     localField?: string;
     foreignField?: string;
     history?: boolean;
+    directive?: string;
   };
 }
 
@@ -69,6 +72,11 @@ interface HookType {
   beforeDelete?: Function;
   afterDelete?: Function;
 }
+
+interface TIndexMap {
+  fields: any;
+  options: any;
+}
 interface listSchema {
   access?: AccessType;
   fields: FieldsMap;
@@ -82,6 +90,7 @@ interface listSchema {
     type: string;
     definition: string;
   }>;
+  indexes?: Array<TIndexMap>;
 }
 
 interface _model {
