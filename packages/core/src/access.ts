@@ -29,7 +29,7 @@ class Access {
     return false;
   }
   validateDeepAccess<T>(
-    select: Array<{ model: string; select: string[] }>,
+    select: PopulateSchema,
     action: TAction,
     user: CtxUser
   ) {
@@ -37,8 +37,14 @@ class Access {
       (profile) => profile.name === user.profile
     );
     if (profile) {
-      const allAccess = select.map((val) => {
-        return this.validateAccess(val.model, action, user, val.select);
+      const allAccess: boolean[] = select.map((val) => {
+        const childPopulate: boolean = val.populate
+          ? this.validateDeepAccess(val.populate, action, user)
+          : true;
+        return (
+          childPopulate &&
+          this.validateAccess(val.path, action, user, val.select)
+        );
       });
       return allAccess.every((field) => field);
     }

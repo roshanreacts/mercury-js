@@ -6,6 +6,7 @@ import { Model } from './models';
 import { Mgraphql } from './graphql';
 import hook from './hooks';
 import access from './access';
+import { DocumentNode } from 'graphql';
 
 // Define a class for the Mercury ORM
 class Mercury {
@@ -17,7 +18,7 @@ class Mercury {
   db: {
     [modelName: string]: Model;
   } = {};
-  get typeDefs() {
+  get typeDefs(): DocumentNode {
     return mergeTypeDefs(this.typeDefsArr);
   }
 
@@ -27,6 +28,11 @@ class Mercury {
 
   public createProfile(name: string, rules: Rule[]): void {
     access.createProfile(name, rules);
+  }
+
+  public addGraphqlSchema(typeDefs: string, resolvers: any) {
+    this.typeDefsArr.push(typeDefs);
+    this.resolversArr = mergeResolvers([this.resolversArr, resolvers]);
   }
 
   public package(packages: Array<(mercury: Mercury) => void>) {

@@ -74,7 +74,7 @@ describe('Access', () => {
         modelName: 'User',
         access: {
           create: true,
-          read: false,
+          read: true,
           update: true,
           delete: true,
         },
@@ -99,13 +99,16 @@ describe('Access', () => {
     };
     const result = access.validateDeepAccess(
       [
-        { model: 'User', select: ['name', 'age'] },
-        { model: 'Account', select: ['name', 'age'] },
+        {
+          path: 'User',
+          select: ['name', 'age'],
+          populate: [{ path: 'Account', select: ['name'] }], //as no age is selected it is true
+        },
       ],
       'read',
       user
     );
-    expect(result).toBe(false);
+    expect(result).toBe(true);
   });
 
   it('should extend a profile', () => {

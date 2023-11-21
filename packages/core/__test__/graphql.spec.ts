@@ -179,6 +179,7 @@ input updateUserInput {
 }
 
 input whereUserInput {
+    id: whereString
     name: whereString
     age: whereInt
     active: Boolean

@@ -8,7 +8,6 @@ import * as mongoosePaginateV2 from 'mongoose-paginate-v2';
 import access from './access';
 import hook from './hooks';
 import { startCase } from 'lodash';
-import { whereInputCompose } from './utility';
 
 export class Model {
   public model: TModel;
@@ -26,7 +25,6 @@ export class Model {
     mixed: Schema.Types.Mixed,
     objectId: Schema.Types.ObjectId,
     decimal: Schema.Types.Decimal128,
-    bigint: Schema.Types.BigInt,
   };
 
   constructor(model: TModel) {
@@ -44,7 +42,7 @@ export class Model {
     }
   }
   public async create(
-    fields: any,
+    data: any,
     user: CtxUser,
     options: any = { internal: true }
   ) {
@@ -53,21 +51,20 @@ export class Model {
       this.model.name,
       'create',
       user,
-      Object.keys(fields)
+      Object.keys(data)
     );
     if (!hasAccess) {
       throw new Error(
         'You does not have access to perform this action on this record/ field.'
       );
     }
-    let record = new this.mongoModel(fields);
 
     await new Promise((resolve, reject) => {
       hook.execBefore(
         `CREATE_${this.model.name.toUpperCase()}_RECORD`,
         {
           name: this.model.name,
-          record,
+          data,
           user,
           options,
         },
@@ -82,6 +79,7 @@ export class Model {
         }
       );
     });
+    let record = new this.mongoModel(data);
     record = await record.save();
     hook.execAfter(
       `CREATE_${this.model.name.toUpperCase()}_RECORD`,
@@ -94,7 +92,7 @@ export class Model {
 
   public async update(
     id: string,
-    fields: any,
+    data: any,
     user: CtxUser,
     options: any = { internal: true }
   ) {
@@ -103,7 +101,7 @@ export class Model {
       this.model.name,
       'update',
       user,
-      Object.keys(fields)
+      Object.keys(data)
     );
     if (!hasAccess) {
       throw new Error(
@@ -120,7 +118,7 @@ export class Model {
         {
           name: this.model.name,
           record,
-          fields,
+          data,
           user,
           options,
         },
@@ -134,7 +132,9 @@ export class Model {
       );
     });
     const updateRecord = await this.mongoModel
-      .findByIdAndUpdate(id, fields, { new: true })
+      .findByIdAndUpdate(id, data, { new: true })
+      .populate(options.populate || [])
+      .select(options.select || [])
       .exec();
     hook.execAfter(
       `UPDATE_${this.model.name.toUpperCase()}_RECORD`,
@@ -203,23 +203,35 @@ export class Model {
 
   public async get(query: Object, user: CtxUser, options: any = {}) {
     // validate the access
-    const hasAccess = access.validateAccess(this.model.name, 'read', user, []);
+    const hasAccess = access.validateAccess(
+      this.model.name,
+      'read',
+      user,
+      options.select || []
+    );
+    if (options.populate) {
+      const hasDeepAccess = access.validateDeepAccess(
+        options.populate,
+        'read',
+        user
+      );
+      if (!hasDeepAccess) {
+        throw new Error(
+          'You does not have access to perform this action on this record/ field.'
+        );
+      }
+    }
     if (!hasAccess) {
       throw new Error(
         'You does not have access to perform this action on this record/ field.'
       );
-    }
-    // compose query from where input
-    let record = await this.mongoModel.findOne(query).exec();
-    if (!record) {
-      throw new Error('Record not found');
     }
     await new Promise((resolve, reject) => {
       hook.execBefore(
         `GET_${this.model.name.toUpperCase()}_RECORD`,
         {
           name: this.model.name,
-          record,
+          query,
           user,
           options,
         },
@@ -232,10 +244,20 @@ export class Model {
         }
       );
     });
+    // compose query from where input
+    let record = await this.mongoModel
+      .findOne(query)
+      .populate(options.populate || [])
+      .select(options.select || [])
+      .exec();
+    if (!record) {
+      throw new Error('Record not found');
+    }
     hook.execAfter(
       `GET_${this.model.name.toUpperCase()}_RECORD`,
       {
         name: this.model.name,
+        query,
         record,
         user,
         options,
@@ -254,14 +276,14 @@ export class Model {
         'You does not have access to perform this action on this record/ field.'
       );
     }
-    let records = await this.mongoModel.find(query);
+
     await new Promise((resolve, reject) => {
       hook.execBefore(
         `LIST_${this.model.name.toUpperCase()}_RECORD`,
 
         {
           name: this.model.name,
-          records,
+          query,
           user,
           options,
         },
@@ -274,10 +296,16 @@ export class Model {
         }
       );
     });
+    let records = await this.mongoModel
+      .find(query)
+      .populate(options.populate || [])
+      .select(options.select || [])
+      .exec();
     hook.execAfter(
       `LIST_${this.model.name.toUpperCase()}_RECORD`,
       {
         name: this.model.name,
+        query,
         records,
         user,
         options,
@@ -301,14 +329,14 @@ export class Model {
         'You does not have access to perform this action on this record/ field.'
       );
     }
-    let records = await this.mongoModel.paginate(query, filters);
     await new Promise((resolve, reject) => {
       hook.execBefore(
-        `LIST_${this.model.name.toUpperCase()}_RECORD`,
+        `PAGINATE_${this.model.name.toUpperCase()}_RECORD`,
 
         {
           name: this.model.name,
-          records,
+          query,
+          filters,
           user,
           options,
         },
@@ -321,10 +349,22 @@ export class Model {
         }
       );
     });
+    console.log('filters', {
+      ...filters,
+      populate: options.populate || [],
+      select: options.select || [],
+    });
+    let records = await this.mongoModel.paginate(query, {
+      ...filters,
+      populate: options.populate || [],
+      select: options.select || [],
+    });
     hook.execAfter(
-      `LIST_${this.model.name.toUpperCase()}_RECORD`,
+      `PAGINATE_${this.model.name.toUpperCase()}_RECORD`,
       {
         name: this.model.name,
+        query,
+        filters,
         records,
         user,
         options,
@@ -343,13 +383,11 @@ export class Model {
         'You does not have access to perform this action on this record/ field.'
       );
     }
-    let count = await this.mongoModel.countDocuments();
     await new Promise((resolve, reject) => {
       hook.execBefore(
         `COUNT_${this.model.name.toUpperCase()}_RECORD`,
         {
           name: this.model.name,
-          count,
           user,
           options,
         },
@@ -362,6 +400,7 @@ export class Model {
         }
       );
     });
+    let count = await this.mongoModel.countDocuments();
     hook.execAfter(
       `COUNT_${this.model.name.toUpperCase()}_RECORD`,
       {

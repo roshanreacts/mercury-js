@@ -23,3 +23,9 @@ declare type Profile = {
   name: string;
   rules: Rule[];
 };
+
+declare type PopulateSchema = Array<{
+  path: string;
+  select: string[];
+  populate?: PopulateSchema;
+}>;

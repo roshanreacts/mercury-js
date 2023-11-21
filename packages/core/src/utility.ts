@@ -33,6 +33,7 @@ import {
   JSONResolver,
   JSONObjectResolver,
 } from 'graphql-scalars';
+import { isEmpty } from 'lodash';
 
 export const defaultResolvers = {
   DateTime: DateTimeResolver,
@@ -308,3 +309,25 @@ export const allowedSortFieldTypes = [
   'enum',
   'boolean',
 ];
+
+export const composePopulateQuery = (
+  fields: any,
+  deep: number,
+  max: number
+): any => {
+  deep++;
+  if (deep >= max) {
+    return [];
+  }
+  return Object.keys(fields)
+    .map((key) => {
+      if (!isEmpty(fields[key])) {
+        return {
+          path: key,
+          select: Object.keys(fields[key]),
+          populate: composePopulateQuery(fields[key], deep, max),
+        };
+      }
+    })
+    .filter((item) => item != null);
+};

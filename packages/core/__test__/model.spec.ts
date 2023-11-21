@@ -4,7 +4,7 @@ import hook from '../src/hooks';
 import * as db from './db';
 import mongoose from 'mongoose';
 hook.before(`CREATE_PRODUCTDETAIL_RECORD`, function (this: any) {
-  if (this.record.name === 'test 2') {
+  if (this.data.name === 'test 2') {
     // next(Error('test'));
     throw new Error('test');
   }
@@ -156,8 +156,8 @@ describe('Model create', () => {
       hook.before(
         `CREATE_${model.name.toUpperCase()}_RECORD`,
         function (this: any) {
-          if (this.record.name === 'rename') {
-            this.record.name = 'test 2';
+          if (this.data.name === 'rename') {
+            this.data.name = 'test 2';
           }
         }
       );
@@ -232,8 +232,8 @@ describe('Model create', () => {
   it('should update the record and trigger both before and after hooks for the model', async () => {
     try {
       hook.before(`UPDATE_PRICEBOOK_RECORD`, function (this: any) {
-        if (this.fields.name === 'test 3') {
-          this.fields.name = 'Hook Updated Me';
+        if (this.data.name === 'test 3') {
+          this.data.name = 'Hook Updated Me';
         }
       });
       hook.after(`UPDATE_PRICEBOOK_RECORD`, function (this: any) {

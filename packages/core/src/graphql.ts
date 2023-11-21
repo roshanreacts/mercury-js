@@ -1,6 +1,11 @@
 import { mapKeys, startCase } from 'lodash';
+import graphqlFields from 'graphql-fields';
 import { Model } from './models';
-import { allowedSortFieldTypes, whereInputCompose } from './utility';
+import {
+  allowedSortFieldTypes,
+  whereInputCompose,
+  composePopulateQuery,
+} from './utility';
 
 export const fieldTypeMap: { [key: string]: string } = {
   string: 'String',
@@ -111,6 +116,7 @@ export class Mgraphql {
   public static genWhereInput(name: string, fields: TFields) {
     const whereInputSchema: string[] = [];
     whereInputSchema.push(`input where${name}Input {`);
+    whereInputSchema.push('    id: whereString');
     mapKeys(fields, (value, key) => {
       if (
         ('bcrypt' in value && value.bcrypt) ||
@@ -210,23 +216,43 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
     return {
       Query: {
         // get the record by where clause
-        [`get${name}`]: async (root: any, args: { where: any }, ctx: any) => {
+        [`get${name}`]: async (
+          root: any,
+          args: { where: any },
+          ctx: any,
+          resolveInfo: any
+        ) => {
           const whereInput = whereInputCompose(args.where, model.model.fields);
+          const fields = graphqlFields(resolveInfo);
+          const deep = 0;
+          const requestedFields = composePopulateQuery(fields, deep, 5);
+          const select = Object.keys(fields).map((key) => key);
           return await model.get(whereInput, ctx.user, {
             root,
             args,
             ctx,
             internal: false,
+            populate: requestedFields,
+            select,
           });
         },
         // list records by where clause
         [`list${name}s`]: async (
           root: any,
           args: { where: object; sort: object; offset: number; limit: number },
-          ctx: any
+          ctx: any,
+          resolveInfo: any
         ) => {
           const whereInput = whereInputCompose(args.where, model.model.fields);
-
+          const fields = graphqlFields(resolveInfo);
+          const deep = 0;
+          const requestedFields = fields.docs
+            ? composePopulateQuery(fields.docs, deep, 5)
+            : [];
+          const select = fields.docs
+            ? Object.keys(fields.docs).map((key) => key)
+            : [];
+          console.log('whereInput', whereInput);
           return await model.paginate(
             whereInput,
             { sort: args.sort, offset: args.offset, limit: args.limit },
@@ -236,6 +262,8 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
               args,
               ctx,
               internal: false,
+              populate: requestedFields,
+              select,
             }
           );
         },
@@ -245,21 +273,33 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
         [`create${name}`]: async (
           root: any,
           args: { input: any },
-          ctx: any
+          ctx: any,
+          resolveInfo: any
         ) => {
+          const fields = graphqlFields(resolveInfo);
+          const deep = 0;
+          const requestedFields = composePopulateQuery(fields, deep, 5);
+          const select = Object.keys(fields).map((key) => key);
           return await model.create(args.input, ctx.user, {
             root,
             args,
             ctx,
             internal: false,
+            populate: requestedFields,
+            select,
           });
         },
         // create multiple record resolver
         [`create${name}s`]: async (
           root: any,
           args: { input: any[] },
-          ctx: any
+          ctx: any,
+          resolveInfo: any
         ) => {
+          const fields = graphqlFields(resolveInfo);
+          const deep = 0;
+          const requestedFields = composePopulateQuery(fields, deep, 5);
+          const select = Object.keys(fields).map((key) => key);
           return await Promise.all(
             args.input.map(
               async (item) =>
@@ -268,6 +308,8 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
                   args: item,
                   ctx,
                   internal: false,
+                  populate: requestedFields,
+                  select,
                 })
             )
           );
@@ -276,21 +318,33 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
         [`update${name}`]: async (
           root: any,
           args: { input: { id: string; [x: string]: any } },
-          ctx: any
+          ctx: any,
+          resolveInfo: any
         ) => {
+          const fields = graphqlFields(resolveInfo);
+          const deep = 0;
+          const requestedFields = composePopulateQuery(fields, deep, 5);
+          const select = Object.keys(fields).map((key) => key);
           return await model.update(args.input.id, args.input, ctx.user, {
             root,
             args,
             ctx,
             internal: false,
+            populate: requestedFields,
+            select,
           });
         },
         // update mutilple records, resolver
         [`update${name}s`]: async (
           root: any,
           args: { input: { id: string; [x: string]: any } },
-          ctx: any
+          ctx: any,
+          resolveInfo: any
         ) => {
+          const fields = graphqlFields(resolveInfo);
+          const deep = 0;
+          const requestedFields = composePopulateQuery(fields, deep, 5);
+          const select = Object.keys(fields).map((key) => key);
           return await Promise.all(
             args.input.map(
               async (item: any) =>
@@ -299,6 +353,8 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
                   args,
                   ctx,
                   internal: false,
+                  populate: requestedFields,
+                  select,
                 })
             )
           );
