@@ -28,7 +28,7 @@ describe('Generate graphql Schema', () => {
         ref: 'Account',
         localField: 'account',
         foreignField: '_id',
-        justOne: true,
+        many: false,
       },
     });
     expect(query).toEqual(
@@ -111,7 +111,7 @@ enum UserProfileStatusEnumType {
         active: {
           type: 'boolean',
         },
-        profile: {
+        profileStatus: {
           type: 'enum',
           enum: ['admin', 'user'],
           enumType: 'string',
@@ -130,7 +130,7 @@ enum UserProfileStatusEnumType {
           ref: 'Account',
           localField: 'account',
           foreignField: '_id',
-          justOne: true,
+          many: true,
         },
       },
       { historyTracking: false }
@@ -156,9 +156,9 @@ type User {
     name: String
     age: Int
     active: Boolean
-    profile: UserProfileEnumType
+    profileStatus: UserProfileStatusEnumType
     account: [Account]
-    accVirtual: Account
+    accVirtual: [Account]
     createdOn: DateTime
     updatedOn: DateTime
 }
@@ -170,7 +170,7 @@ type UserPagination {
     totalDocs: Int
 }
 
-enum UserProfileEnumType {
+enum UserProfileStatusEnumType {
     admin
     user
 }
@@ -180,7 +180,7 @@ input UserInput {
     age: Int!
     password: String
     active: Boolean
-    profile: UserProfileEnumType
+    profileStatus: UserProfileStatusEnumType
     account: [String]
 }
 
@@ -190,7 +190,7 @@ input updateUserInput {
     age: Int
     password: String
     active: Boolean
-    profile: UserProfileEnumType
+    profileStatus: UserProfileStatusEnumType
     account: [String]
 }
 
@@ -199,7 +199,7 @@ input whereUserInput {
     name: whereString
     age: whereInt
     active: Boolean
-    profile: UserProfileEnumType
+    profileStatus: UserProfileStatusEnumType
     account: whereID
     createdOn: whereDateTime
     updatedOn: whereDateTime
@@ -211,7 +211,7 @@ input sortUserInput {
     name: sort
     age: sort
     active: sort
-    profile: sort
+    profileStatus: sort
     createdOn: sort
     updatedOn: sort
 }

@@ -41,7 +41,7 @@ describe('Model create', () => {
         ref: 'Product',
         localField: 'name',
         foreignField: 'name',
-        justOne: true,
+        many: false,
       },
     },
     options: {

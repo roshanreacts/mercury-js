@@ -96,7 +96,7 @@ export const User = mercury.createModel(
       ref: 'Account',
       localField: 'account',
       foreignField: '_id',
-      justOne: true,
+      many: false,
     },
   },
   {}

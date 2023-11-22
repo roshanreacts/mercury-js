@@ -26,7 +26,6 @@ declare type TField = {
   many?: boolean;
   localField?: string;
   foreignField?: string;
-  justOne?: boolean;
   bcrypt?: boolean;
   rounds?: number;
   ignoreGraphQL?: boolean;

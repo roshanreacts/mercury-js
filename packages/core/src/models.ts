@@ -554,7 +554,7 @@ export class Model {
           ref: fieldObj.ref, // the model to use
           localField: fieldObj.localField, // find children where 'localField'
           foreignField: fieldObj.foreignField, // is equal to foreignField
-          justOne: fieldObj.justOne,
+          justOne: !fieldObj.many,
         })
       );
   }

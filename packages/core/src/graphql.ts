@@ -219,7 +219,10 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
         break;
 
       case 'enum':
-        return `    ${Field}: ${name}${startCase(Field)}EnumType`;
+        return `    ${Field}: ${name}${startCase(Field).replace(
+          / /g,
+          ''
+        )}EnumType`;
         break;
 
       default:
