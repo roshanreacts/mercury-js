@@ -58,7 +58,19 @@ export class Model {
         'You does not have access to perform this action on this record/ field.'
       );
     }
-
+    if (options.populate) {
+      const hasDeepAccess = access.validateDeepAccess(
+        this.model.name,
+        options.populate,
+        'create',
+        user
+      );
+      if (!hasDeepAccess) {
+        throw new Error(
+          'You does not have access to perform this action on this record/ field.'
+        );
+      }
+    }
     await new Promise((resolve, reject) => {
       hook.execBefore(
         `CREATE_${this.model.name.toUpperCase()}_RECORD`,
@@ -108,6 +120,21 @@ export class Model {
         'You does not have access to perform this action on this record/ field.'
       );
     }
+
+    if (options.populate) {
+      const hasDeepAccess = access.validateDeepAccess(
+        this.model.name,
+        options.populate,
+        'update',
+        user
+      );
+      if (!hasDeepAccess) {
+        throw new Error(
+          'You does not have access to perform this action on this record/ field.'
+        );
+      }
+    }
+
     let record = await this.mongoModel.findById(id);
     if (!record) {
       throw new Error('Record not found');
@@ -164,6 +191,7 @@ export class Model {
         'You does not have access to perform this action on this record/ field.'
       );
     }
+
     let record = await this.mongoModel.findById(id);
     if (!record) {
       throw new Error('Record not found');
@@ -211,6 +239,7 @@ export class Model {
     );
     if (options.populate) {
       const hasDeepAccess = access.validateDeepAccess(
+        this.model.name,
         options.populate,
         'read',
         user
@@ -270,7 +299,25 @@ export class Model {
 
   public async list(query: Object, user: CtxUser, options: any = {}) {
     // validate the access
-    const hasAccess = access.validateAccess(this.model.name, 'read', user, []);
+    const hasAccess = access.validateAccess(
+      this.model.name,
+      'read',
+      user,
+      options.select || []
+    );
+    if (options.populate) {
+      const hasDeepAccess = access.validateDeepAccess(
+        this.model.name,
+        options.populate,
+        'read',
+        user
+      );
+      if (!hasDeepAccess) {
+        throw new Error(
+          'You does not have access to perform this action on this record/ field.'
+        );
+      }
+    }
     if (!hasAccess) {
       throw new Error(
         'You does not have access to perform this action on this record/ field.'
@@ -323,7 +370,25 @@ export class Model {
     options: any = {}
   ) {
     // validate the access
-    const hasAccess = access.validateAccess(this.model.name, 'read', user, []);
+    const hasAccess = access.validateAccess(
+      this.model.name,
+      'read',
+      user,
+      options.select || []
+    );
+    if (options.populate) {
+      const hasDeepAccess = access.validateDeepAccess(
+        this.model.name,
+        options.populate,
+        'read',
+        user
+      );
+      if (!hasDeepAccess) {
+        throw new Error(
+          'You does not have access to perform this action on this record/ field.'
+        );
+      }
+    }
     if (!hasAccess) {
       throw new Error(
         'You does not have access to perform this action on this record/ field.'
@@ -348,11 +413,6 @@ export class Model {
           }
         }
       );
-    });
-    console.log('filters', {
-      ...filters,
-      populate: options.populate || [],
-      select: options.select || [],
     });
     let records = await this.mongoModel.paginate(query, {
       ...filters,

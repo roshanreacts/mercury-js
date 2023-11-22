@@ -1,45 +1,234 @@
-# rollup-starter-lib
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/rollup/rollup-starter-lib.svg)](https://greenkeeper.io/)
-
-This repo contains a bare-bones example of how to create a library using Rollup, including importing a module from `node_modules` and converting it from CommonJS.
-
-We're creating a library called `how-long-till-lunch`, which usefully tells us how long we have to wait until lunch, using the [ms](https://github.com/zeit/ms) package:
-
-```js
-console.log('it will be lunchtime in ' + howLongTillLunch());
-```
+# @mercury-js/core
 
 ## Getting started
 
-Clone this repository and install its dependencies:
-
 ```bash
-git clone https://github.com/rollup/rollup-starter-lib
-cd rollup-starter-lib
-npm install
+npm install @mercury-js/core
 ```
 
-`npm run build` builds the library to `dist`, generating three files:
+## Usage
 
-* `dist/how-long-till-lunch.cjs.js`
-    A CommonJS bundle, suitable for use in Node.js, that `require`s the external dependency. This corresponds to the `"main"` field in package.json
-* `dist/how-long-till-lunch.esm.js`
-    an ES module bundle, suitable for use in other people's libraries and applications, that `import`s the external dependency. This corresponds to the `"module"` field in package.json
-* `dist/how-long-till-lunch.umd.js`
-    a UMD build, suitable for use in any environment (including the browser, as a `<script>` tag), that includes the external dependency. This corresponds to the `"browser"` field in package.json
+```typescript
+// route.ts for nextJS
+// for express you can directly use apollo server setup
+import { startServerAndCreateNextHandler } from '@as-integrations/next';
+import mercury from '@mercury-js/core';
+import { ApolloServer } from '@apollo/server';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { applyMiddleware } from 'graphql-middleware';
+import './models';
+import './profiles';
+import './hooks';
 
-`npm run dev` builds the library, then keeps rebuilding it whenever the source files change using [rollup-watch](https://github.com/rollup/rollup-watch).
+mercury.connect(process.env.DB_URL || 'mongodb://localhost:27017/mercury');
 
-`npm test` builds the library, then tests it.
+mercury.addGraphqlSchema(
+  `
+  type Query {
+    hello: String
+  }
+`,
+  {
+    Query: {
+      hello: (root: any, args: any, ctx: any, resolveInfo: any) => {
+        return 'Hello World!';
+      },
+    },
+  }
+);
 
-## Variations
+const schema = applyMiddleware(
+  makeExecutableSchema({
+    typeDefs: mercury.typeDefs,
+    resolvers: mercury.resolvers as unknown as IResolvers<
+      any,
+      GraphQLResolveInfo
+    >[],
+  })
+);
 
-* [babel](https://github.com/rollup/rollup-starter-lib/tree/babel) — illustrates writing the source code in ES2015 and transpiling it for older environments with [Babel](https://babeljs.io/)
-* [buble](https://github.com/rollup/rollup-starter-lib/tree/buble) — similar, but using [Bublé](https://buble.surge.sh/) which is a faster alternative with less configuration
-* [TypeScript](https://github.com/rollup/rollup-starter-lib/tree/typescript) — uses [TypeScript](https://www.typescriptlang.org/) for type-safe code and transpiling
+const server = new ApolloServer({
+  schema,
+});
 
+const handler = startServerAndCreateNextHandler(server, {
+  context: async (req, res) => ({
+    ...req,
+    user: {
+      id: '1',
+      profile: 'Admin',
+    },
+  }),
+});
 
+export const mercuryInstance = mercury;
+
+export async function GET(request: any) {
+  return handler(request);
+}
+
+export async function POST(request: any) {
+  return handler(request);
+}
+```
+
+## Models
+
+```typescript
+// User.model.ts
+import mercury from '@mercury-js/core';
+
+export const User = mercury.createModel(
+  'User',
+  {
+    name: {
+      type: 'string',
+    },
+    account: {
+      type: 'relationship',
+      ref: 'Account',
+    },
+    test: {
+      type: 'string',
+    },
+    testv: {
+      type: 'virtual',
+      ref: 'Account',
+      localField: 'account',
+      foreignField: '_id',
+      justOne: true,
+    },
+  },
+  {}
+);
+
+// Account.model.ts
+import mercury from '@mercury-js/core';
+export const AccountSchema = {
+  name: {
+    type: 'string',
+  },
+  user: {
+    type: 'relationship',
+    ref: 'User',
+  },
+};
+
+export const Account = mercury.createModel('Account', AccountSchema, {});
+
+// index.ts
+
+export { User } from './User.model';
+export { Account } from './Account.model';
+```
+
+## Profiles
+
+```typescript
+// User.profile.ts
+import mercury from '@mercury-js/core';
+
+const rules = [
+  {
+    modelName: 'User',
+    access: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+    },
+  },
+  {
+    modelName: 'Account',
+    access: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+    },
+    fieldLevelAccess: true,
+    fields: {
+      name: {
+        read: false,
+      },
+    },
+  },
+];
+
+export const UserProfile = mercury.createProfile('User', rules);
+
+// Admin.profile.ts
+import mercury from '@mercury-js/core';
+
+const rules = [
+  {
+    modelName: 'User',
+    access: {
+      create: true,
+      read: true,
+      update: true,
+      delete: true,
+    },
+  },
+  {
+    modelName: 'Account',
+    access: {
+      create: true,
+      read: true,
+      update: true,
+      delete: true,
+    },
+  },
+];
+
+export const AdminProfile = mercury.createProfile('Admin', rules);
+
+// index.ts
+export { AdminProfile } from './Admin.profile';
+export { UserProfile } from './User.profile';
+```
+
+## Hooks
+
+```typescript
+// User.hook.ts
+import { hook } from '@mercury-js/core';
+
+hook.before('CREATE_USER_RECORD', async function (this: any) {
+  //modify data before create
+  this.data.name = 'Test 1';
+  this.data.test = 'Test 3';
+});
+
+hook.after('CREATE_USER_RECORD', async function (this: any, args: any) {
+  console.log('Here');
+  console.log('AFTER CREATE hook', this);
+});
+
+hook.before('UPDATE_USER_RECORD', function (this: any) {
+  console.log('BEFORE UPDATE hook', this);
+});
+
+hook.after('UPDATE_USER_RECORD', function (this: any) {
+  console.log('Here');
+
+  console.log('AFTER UPDATE hook', this);
+});
+
+hook.before('DELETE_USER_RECORD', function (this: any) {
+  console.log('BEFORE DELETE hook', this);
+});
+
+hook.after('DELETE_USER_RECORD', function (this: any) {
+  console.log('Here');
+
+  console.log('AFTER DELETE hook', this);
+});
+
+// index.ts
+
+export { default as UserHook } from './User.hook';
+```
 
 ## License
 

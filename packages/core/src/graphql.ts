@@ -30,8 +30,10 @@ export class Mgraphql {
       }
       let fieldType: string =
         value.type == 'enum' && value.enumType
-          ? `${name}${startCase(key)}EnumType`
+          ? `${name}${startCase(key).replace(/ /g, '')}EnumType`
           : value.type === 'relationship' && value.ref
+          ? value.ref
+          : value.type === 'virtual' && value.ref
           ? value.ref
           : fieldTypeMap[value.type];
       if (value.many) {
@@ -41,7 +43,9 @@ export class Mgraphql {
       if (value.enum) {
         additionalTypes.push(``);
         additionalTypes.push(``);
-        additionalTypes.push(`enum ${name}${startCase(key)}EnumType {`);
+        additionalTypes.push(
+          `enum ${name}${startCase(key).replace(/ /g, '')}EnumType {`
+        );
         value.enum.forEach((enumValue) => {
           additionalTypes.push(`    ${enumValue}`);
         });
@@ -71,9 +75,13 @@ export class Mgraphql {
       if ('ignoreGraphQL' in value && value.ignoreGraphQL) {
         return;
       }
+      // ignore virtual
+      if (value.type === 'virtual') {
+        return;
+      }
       let fieldType: string =
         value.type == 'enum' && value.enumType
-          ? `${name}${startCase(key)}EnumType`
+          ? `${name}${startCase(key).replace(/ /g, '')}EnumType`
           : value.type === 'relationship' && value.ref
           ? 'String'
           : fieldTypeMap[value.type];
@@ -97,9 +105,13 @@ export class Mgraphql {
       if ('ignoreGraphQL' in value && value.ignoreGraphQL) {
         return;
       }
+      // ignore virtual
+      if (value.type === 'virtual') {
+        return;
+      }
       let fieldType: string =
         value.type == 'enum' && value.enumType
-          ? `${name}${startCase(key)}EnumType`
+          ? `${name}${startCase(key).replace(/ /g, '')}EnumType`
           : value.type === 'relationship' && value.ref
           ? 'String'
           : fieldTypeMap[value.type];
@@ -122,6 +134,10 @@ export class Mgraphql {
         ('bcrypt' in value && value.bcrypt) ||
         ('ignoreGraphQL' in value && value.ignoreGraphQL)
       ) {
+        return;
+      }
+      // ignore virtual
+      if (value.type === 'virtual') {
         return;
       }
       whereInputSchema.push(this.generateWhereInput(name, key, value.type));

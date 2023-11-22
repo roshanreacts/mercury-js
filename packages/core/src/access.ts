@@ -1,5 +1,5 @@
-import { keyBy, mapKeys } from 'lodash';
-
+import { mapKeys } from 'lodash';
+import mercury from './mercury';
 class Access {
   profiles: Profile[] = [];
   constructor() {}
@@ -29,6 +29,7 @@ class Access {
     return false;
   }
   validateDeepAccess<T>(
+    modelName: string,
     select: PopulateSchema,
     action: TAction,
     user: CtxUser
@@ -37,13 +38,29 @@ class Access {
       (profile) => profile.name === user.profile
     );
     if (profile) {
+      // retrive the model
+      const model = mercury.list.find((model) => model.name === modelName);
+      if (!model) {
+        throw new Error(`Model ${modelName} does not exist.`);
+      }
+
       const allAccess: boolean[] = select.map((val) => {
         const childPopulate: boolean = val.populate
-          ? this.validateDeepAccess(val.populate, action, user)
+          ? this.validateDeepAccess(
+              model.fields[val.path]?.ref || '',
+              val.populate,
+              action,
+              user
+            )
           : true;
         return (
           childPopulate &&
-          this.validateAccess(val.path, action, user, val.select)
+          this.validateAccess(
+            model.fields[val.path]?.ref || '',
+            action,
+            user,
+            val.select
+          ) // check ref on model or throw error
         );
       });
       return allAccess.every((field) => field);

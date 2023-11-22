@@ -14,7 +14,7 @@ describe('Generate graphql Schema', () => {
       active: {
         type: 'boolean',
       },
-      profile: {
+      profileStatus: {
         type: 'enum',
         enum: ['admin', 'user'],
         enumType: 'string',
@@ -23,6 +23,13 @@ describe('Generate graphql Schema', () => {
         type: 'relationship',
         ref: 'Account',
       },
+      accVirtual: {
+        type: 'virtual',
+        ref: 'Account',
+        localField: 'account',
+        foreignField: '_id',
+        justOne: true,
+      },
     });
     expect(query).toEqual(
       `type User {
@@ -30,8 +37,9 @@ describe('Generate graphql Schema', () => {
     name: String
     age: Int
     active: Boolean
-    profile: UserProfileEnumType
+    profileStatus: UserProfileStatusEnumType
     account: Account
+    accVirtual: Account
     createdOn: DateTime
     updatedOn: DateTime
 }
@@ -43,7 +51,7 @@ type UserPagination {
     totalDocs: Int
 }
 
-enum UserProfileEnumType {
+enum UserProfileStatusEnumType {
     admin
     user
 }`
@@ -117,6 +125,13 @@ enum UserProfileEnumType {
           type: 'string',
           ignoreGraphQL: true,
         },
+        accVirtual: {
+          type: 'virtual',
+          ref: 'Account',
+          localField: 'account',
+          foreignField: '_id',
+          justOne: true,
+        },
       },
       { historyTracking: false }
     );
@@ -143,6 +158,7 @@ type User {
     active: Boolean
     profile: UserProfileEnumType
     account: [Account]
+    accVirtual: Account
     createdOn: DateTime
     updatedOn: DateTime
 }

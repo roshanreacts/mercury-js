@@ -1,4 +1,5 @@
 import access from '../src/access';
+import mercury from '../src/mercury';
 
 describe('Access', () => {
   it('should create a profile', () => {
@@ -93,16 +94,51 @@ describe('Access', () => {
   });
 
   it('should deep validate field level access', () => {
+    const name = 'User';
+    const fields: TFields = {
+      name: {
+        type: 'string',
+        required: true,
+      },
+      age: {
+        type: 'number',
+        required: true,
+      },
+      acc: {
+        type: 'string',
+        ref: 'Account',
+      },
+    };
+    const accFields: TFields = {
+      name: {
+        type: 'string',
+        required: true,
+      },
+      age: {
+        type: 'number',
+        required: true,
+      },
+      user: {
+        type: 'string',
+        ref: 'User',
+      },
+    };
+    const options = {
+      historyTracking: false,
+    };
+    mercury.createModel(name, fields, options);
+    mercury.createModel('Account', accFields, options);
     const user = {
       id: '1',
       profile: 'User',
     };
     const result = access.validateDeepAccess(
+      'Account',
       [
         {
-          path: 'User',
-          select: ['name', 'age'],
-          populate: [{ path: 'Account', select: ['name'] }], //as no age is selected it is true
+          path: 'user',
+          select: ['name', 'age', 'acc'],
+          populate: [{ path: 'acc', select: ['name'] }], //as age is not selected return will be true
         },
       ],
       'read',
