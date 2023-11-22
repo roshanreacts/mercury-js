@@ -2,7 +2,7 @@
 module.exports = {
   preset: '@shelf/jest-mongodb',
   testEnvironment: 'node',
-  testMatch: ['**/__test__/*.spec.ts'],
+  testMatch: ['**/__test__/**/*.spec.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   collectCoverage: false,
   collectCoverageFrom: ['src/**/*.ts'],
