@@ -496,21 +496,17 @@ export class Model {
           } = {
             type: this.fieldMongooseTyepMap[value.type],
           };
-          if ('required' in value) {
-            fieldSchema['required'] = value.required;
-          }
-          if ('unique' in value) {
-            fieldSchema['unique'] = value.unique;
-          }
-          if ('ref' in value) {
-            fieldSchema['ref'] = value.ref;
-          }
+          Object.keys(value).forEach((vKey: string) => {
+            if (vKey === 'type') {
+              return;
+            }
+            fieldSchema[vKey as keyof typeof fieldSchema] = value[
+              vKey as keyof typeof value
+            ] as (typeof fieldSchema)[keyof typeof fieldSchema];
+          });
           if ('enum' in value && value.enumType) {
             fieldSchema.type = this.fieldMongooseTyepMap[value.enumType];
             fieldSchema.enum = value.enum;
-          }
-          if ('bcrypt' in value) {
-            fieldSchema.bcrypt = value.bcrypt;
           }
           return { [key]: fieldSchema };
         })
