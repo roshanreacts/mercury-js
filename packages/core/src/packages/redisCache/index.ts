@@ -1,5 +1,23 @@
 import { RedisClientType, createClient, SchemaFieldTypes } from 'redis';
-import uniqid from 'uniqid';
+import type { Mercury } from '../../mercury';
+
+type RedisCacheConfig = {
+  prefix?: string;
+};
+
+declare module '../../mercury' {
+  interface Mercury {
+    cache: Redis;
+  }
+}
+
+export default (config?: RedisCacheConfig) => {
+  return (mercury: Mercury) => {
+    // extend mercury to include a cache property
+
+    mercury.cache = new Redis(config);
+  };
+};
 
 function AfterHook(
   target: any,
@@ -36,16 +54,16 @@ const redisFieldType = {
 };
 
 type RedisFieldType = typeof redisFieldType;
-export default class Redis {
+export class Redis {
   client: RedisClientType;
   models: any = [];
   prefix: string = 'redis';
-  constructor(prefix?: string) {
+  constructor(config?: RedisCacheConfig) {
+    if (config?.prefix) {
+      this.prefix = config.prefix;
+    }
     this.client = createClient();
     this.initializeClient();
-    if (prefix) {
-      this.prefix = prefix;
-    }
   }
 
   async initializeClient() {
@@ -92,9 +110,9 @@ export default class Redis {
           NOINDEX: fields[key].noindex || false,
         };
       });
-      await this.client.ft.create(`${this.prefix}_${name}`, fieldMap, {
+      await this.client.ft.create(`${this.prefix}:${name}`, fieldMap, {
         ON: 'JSON',
-        PREFIX: `${this.prefix}_${name}:`,
+        PREFIX: `${this.prefix}:${name}:`,
       });
     } catch (e: any) {
       if (e.message === 'Index already exists') {
@@ -109,32 +127,12 @@ export default class Redis {
 
   @AfterHook
   async insert(name: string, data: any) {
-    const id = uniqid();
-    return await this.client.json.set(
-      `${this.prefix}_${name}:${id}`,
-      '$',
-      data
-    );
-    return { id, ...data };
+    await this.client.json.set(`${this.prefix}:${name}:${data.id}`, '$', data);
+    return data;
   }
 
   @AfterHook
-  async search(name: string, field: string, value: string) {
-    return await this.client.ft.search(
-      `${this.prefix}_${name}`,
-      `@name:${value}`
-    );
+  async search(name: string, query: string) {
+    return await this.client.ft.search(`${this.prefix}:${name}`, query);
   }
 }
-
-// let cache: Redis;
-
-// (async () => {
-//   const client = await createClient().on('error', (err) => {
-//     throw new Error(err);
-//   });
-
-//   cache = new Redis(client as RedisClientType);
-// })();
-
-// export default cache;

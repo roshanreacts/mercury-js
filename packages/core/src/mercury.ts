@@ -36,7 +36,7 @@ class Mercury {
   }
 
   public package(packages: Array<(mercury: Mercury) => void>) {
-    packages.map((pkg) => pkg(this as any));
+    packages.map((pkg) => pkg(this as Mercury));
   }
   public connect(path: string) {
     mongoose.connect(path);
@@ -117,5 +117,6 @@ class Mercury {
 
 // Create a new instance of the Mercury class and export it
 const mercury: Mercury = new Mercury();
+export type { Mercury };
 export { hook, access };
 export default mercury;

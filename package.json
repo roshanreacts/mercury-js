@@ -31,7 +31,9 @@
     "framer-motion": "^10.12.2",
     "graphql": "^16.6.0",
     "graphql-fields": "^2.0.3",
+    "graphql-rate-limit": "^3.3.0",
     "graphql-scalars": "^1.20.1",
+    "graphql-shield": "^7.6.5",
     "kareem": "^2.5.1",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
@@ -47,8 +49,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.8.0",
-    "redis": "^4.6.11",
-    "uniqid": "^5.4.0"
+    "redis": "^4.6.11"
   },
   "devDependencies": {
     "@babel/preset-react": "^7.14.5",
@@ -75,7 +76,6 @@
     "@types/node": "18.14.2",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
-    "@types/uniqid": "^5.3.4",
     "@typescript-eslint/eslint-plugin": "^5.36.1",
     "@typescript-eslint/parser": "^5.36.1",
     "babel-jest": "^29.4.1",

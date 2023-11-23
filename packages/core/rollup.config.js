@@ -3,7 +3,7 @@ import typescript from 'rollup-plugin-typescript2';
 import generatePackageJson from 'rollup-plugin-generate-package-json';
 import terser from '@rollup/plugin-terser';
 
-const folderBuilds = ['packages/extendModelTypes', 'packages/rateLimiter'].map(
+const folderBuilds = ['packages/redisCache', 'packages/rateLimiter'].map(
   (folder) => ({
     input: `src/${folder}/index.ts`,
     output: [
@@ -55,5 +55,5 @@ export default [
       { dir: 'dist/esm/', format: 'es' },
     ],
   },
-  // ...folderBuilds,
+  ...folderBuilds,
 ];

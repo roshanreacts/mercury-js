@@ -18,15 +18,15 @@
       "import": "./dist/esm/mercury.js",
       "types": "./dist/esm/src/mercury.d.ts"
     },
-    "./packages/extendModelTypes": {
-      "require": "./dist/cjs/packages/extendModelTypes/index.js",
-      "import": "./dist/esm/packages/extendModelTypes/index.js",
-      "types": "./dist/esm/packages/extendModelTypes/index.d.ts"
+    "./packages/redisCache": {
+      "require": "./dist/cjs/packages/redisCache/index.js",
+      "import": "./dist/esm/packages/redisCache/index.js",
+      "types": "./dist/esm/src/packages/redisCache/index.d.ts"
     },
     "./packages/rateLimiter": {
       "require": "./dist/cjs/packages/rateLimiter/index.js",
       "import": "./dist/esm/packages/rateLimiter/index.js",
-      "types": "./dist/esm/packages/rateLimiter/index.d.ts"
+      "types": "./dist/esm/src/packages/rateLimiter/index.d.ts"
     }
   },
   "files": [
