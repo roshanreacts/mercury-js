@@ -3,5 +3,5 @@
   "private": false,
   "main": "../../dist/cjs/packages/redisCache/index.js",
   "module": "../../dist/esm/packages/redisCache/index.js",
-  "types": "../../dist/esm/src/packages/redisCache/index.d.ts"
+  "types": "./index.d.ts"
 }

@@ -1,4 +1,3 @@
-import hook from '../src/hooks';
 import mercury from '../src/mercury';
 
 describe('Mercury', () => {
@@ -18,7 +17,7 @@ describe('Mercury', () => {
     const options = {
       historyTracking: true,
     };
-    hook.before('CREATE_MODEL', mockBeforeFn);
+    mercury.hook.before('CREATE_MODEL', mockBeforeFn);
     mercury.createModel(name, fields, options);
     expect(mercury.list.length).toBe(2);
     expect(mercury.list[0].name).toBe('User');
@@ -42,7 +41,7 @@ describe('Mercury', () => {
     const options = {
       historyTracking: false,
     };
-    hook.before('CREATE_MODEL', function (this: any) {
+    mercury.hook.before('CREATE_MODEL', function (this: any) {
       this.fields.isActive = {
         type: 'boolean',
         default: true,

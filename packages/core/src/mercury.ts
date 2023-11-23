@@ -4,8 +4,8 @@ import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
 import mongoose from 'mongoose';
 import { Model } from './models';
 import { Mgraphql } from './graphql';
-import hook from './hooks';
-import access from './access';
+import hook, { Hook } from './hooks';
+import access, { Access } from './access';
 import { DocumentNode } from 'graphql';
 
 // Define a class for the Mercury ORM
@@ -18,6 +18,8 @@ class Mercury {
   db: {
     [modelName: string]: Model;
   } = {};
+  public access: Access = access;
+  public hook: Hook = hook;
   get typeDefs(): DocumentNode {
     return mergeTypeDefs(this.typeDefsArr);
   }
@@ -26,9 +28,9 @@ class Mercury {
     return mergeResolvers(this.resolversArr);
   }
 
-  public createProfile(name: string, rules: Rule[]): void {
-    access.createProfile(name, rules);
-  }
+  // public createProfile(name: string, rules: Rule[]): void {
+  //   access.createProfile(name, rules);
+  // }
 
   public addGraphqlSchema(typeDefs: string, resolvers: any) {
     this.typeDefsArr.push(typeDefs);
@@ -64,7 +66,7 @@ class Mercury {
     const model: TModel = { name, fields, options };
 
     // Execute the CREATE_MODEL hook before creating the model
-    hook.execBefore('CREATE_MODEL', model, (error: any) => {
+    this.hook.execBefore('CREATE_MODEL', model, (error: any) => {
       if (error) {
         throw error;
       }
@@ -115,8 +117,6 @@ class Mercury {
   }
 }
 
-// Create a new instance of the Mercury class and export it
 const mercury: Mercury = new Mercury();
 export type { Mercury };
-export { hook, access };
 export default mercury;

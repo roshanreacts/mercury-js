@@ -2,7 +2,7 @@
 import Kareem from 'kareem';
 
 // Define a class for a hook
-class Hook {
+export class Hook {
   // Create a new instance of Kareem for handling hooks
   private kareemHookInstance = new Kareem();
 

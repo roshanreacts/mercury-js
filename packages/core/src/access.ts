@@ -1,8 +1,25 @@
 import { mapKeys } from 'lodash';
 import mercury from './mercury';
-class Access {
+export class Access {
   profiles: Profile[] = [];
-  constructor() {}
+  // constructor() {
+  //   // this.profiles.push({
+  //   //   name: ' SUPERADMIN',
+  //   //   rules: [
+  //   //     {
+  //   //       modelName: 'User',
+  //   //       access: {
+  //   //         read: true,
+  //   //         create: true,
+  //   //         update: true,
+  //   //         delete: true,
+  //   //       },
+  //   //       fieldLevelAccess: false,
+  //   //       fields: {},
+  //   //     },
+  //   //   ],
+  //   // });
+  // }
   validateAccess<T>(
     modelName: string,
     action: TAction,
@@ -14,6 +31,9 @@ class Access {
     );
     if (profile) {
       const rule = profile.rules.find((rule) => rule.modelName === modelName);
+      // if (!rule) {
+      //   throw new Error(`Model ${modelName} does not exist.`);
+      // }
       if (action != 'delete' && rule?.fieldLevelAccess) {
         // check for all the fields in the fields array
         const allFields: boolean[] = [];
