@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Schema, model, models } from 'mongoose';
+import mongoose from 'mongoose';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import * as mongooseBcrypt from 'mongoose-bcrypt';
@@ -7,7 +7,7 @@ import * as mongooseBcrypt from 'mongoose-bcrypt';
 // @ts-ignore
 import * as mongoosePaginateV2 from 'mongoose-paginate-v2';
 import Resolvers from './Resolvers';
-
+const { Schema, model, models } = mongoose;
 const fieldsTypeMap = [
   { type: 'ID', value: 'ID' },
   { type: 'string', value: 'String' },
