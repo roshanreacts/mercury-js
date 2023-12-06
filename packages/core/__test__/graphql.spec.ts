@@ -30,6 +30,9 @@ describe('Generate graphql Schema', () => {
         foreignField: '_id',
         many: false,
       },
+      today: {
+        type: 'date',
+      }
     });
     expect(query).toEqual(
       `type User {
@@ -40,6 +43,7 @@ describe('Generate graphql Schema', () => {
     profileStatus: UserProfileStatusEnumType
     account: Account
     accVirtual: Account
+    today: DateTime
     createdOn: DateTime
     updatedOn: DateTime
 }

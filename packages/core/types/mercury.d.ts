@@ -17,7 +17,8 @@ declare type TField = {
     | 'relationship'
     | 'enum'
     | 'virtual'
-    | 'mixed';
+    | 'mixed'
+    | 'date';
   ref?: string;
   enum?: Array<string | number>;
   enumType?: string;

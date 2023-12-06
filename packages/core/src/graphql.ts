@@ -13,6 +13,7 @@ export const fieldTypeMap: { [key: string]: string } = {
   boolean: 'Boolean',
   enum: 'enum',
   relationship: 'relationship',
+  date: 'DateTime',
 };
 export class Mgraphql {
   // Generate graphql typedefs
