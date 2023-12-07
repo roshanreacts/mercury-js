@@ -13,6 +13,10 @@
 			"path": "packages/core"
 		},
 		{
+			"name": "client",
+			"path": "packages/client"
+		},
+		{
 			"name": "extendModelTypes",
 			"path": "packages/core/packages/extendModelTypes"
 		},
@@ -26,7 +30,17 @@
 			"mercury-js",
 			"docs",
 			"extendModelTypes",
-			"rateLimiter"
-		]
+			"rateLimiter",
+			"client"
+		],
+		"vitest.disabledWorkspaceFolders": [
+			"mercury-js",
+			"docs",
+			"extendModelTypes",
+			"rateLimiter",
+			"core",
+			"core-ui"
+		],
+		"testing.automaticallyOpenPeekView": "never"
 	}
 }

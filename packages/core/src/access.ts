@@ -2,24 +2,6 @@ import { mapKeys } from 'lodash';
 import mercury from './mercury';
 export class Access {
   profiles: Profile[] = [];
-  // constructor() {
-  //   // this.profiles.push({
-  //   //   name: ' SUPERADMIN',
-  //   //   rules: [
-  //   //     {
-  //   //       modelName: 'User',
-  //   //       access: {
-  //   //         read: true,
-  //   //         create: true,
-  //   //         update: true,
-  //   //         delete: true,
-  //   //       },
-  //   //       fieldLevelAccess: false,
-  //   //       fields: {},
-  //   //     },
-  //   //   ],
-  //   // });
-  // }
   validateAccess<T>(
     modelName: string,
     action: TAction,
@@ -31,16 +13,21 @@ export class Access {
     );
     if (profile) {
       const rule = profile.rules.find((rule) => rule.modelName === modelName);
-      // if (!rule) {
-      //   throw new Error(`Model ${modelName} does not exist.`);
-      // }
       if (action != 'delete' && rule?.fieldLevelAccess) {
         // check for all the fields in the fields array
-        const allFields: boolean[] = [];
-        mapKeys(rule.fields, (value, key) =>
-          fields.includes(key) ? allFields.push(value[action]) : null
-        );
-        return allFields.every((field) => field);
+        let access = true;
+        for (const key in rule.fields) {
+          const value = rule.fields[key];
+          if (
+            fields.includes(key) &&
+            value[action] !== undefined &&
+            !value[action]
+          ) {
+            access = false;
+            break;
+          }
+        }
+        return access;
       }
       if (rule) {
         return rule.access[action];

@@ -1,7 +1,7 @@
 import { Schema, model as mongooseModel, models } from 'mongoose';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import * as mongooseBcrypt from 'mongoose-bcrypt';
+import mongooseBcrypt from './mongoBcrypt';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import * as mongoosePaginateV2 from 'mongoose-paginate-v2';
@@ -32,7 +32,7 @@ export class Model {
     // create mongo schema from fields
     this.mongoSchema = this.createSchema();
     this.addVirtualFields();
-    this.mongoSchema.plugin(mongooseBcrypt.default);
+    this.mongoSchema.plugin(mongooseBcrypt);
     this.mongoSchema.plugin(mongoosePaginateV2.default);
     this.mongoModel =
       models[this.model.name] ||
@@ -62,7 +62,7 @@ export class Model {
       const hasDeepAccess = access.validateDeepAccess(
         this.model.name,
         options.populate,
-        'create',
+        'read',
         user
       );
       if (!hasDeepAccess) {
@@ -125,7 +125,7 @@ export class Model {
       const hasDeepAccess = access.validateDeepAccess(
         this.model.name,
         options.populate,
-        'update',
+        'read',
         user
       );
       if (!hasDeepAccess) {

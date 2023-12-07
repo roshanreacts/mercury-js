@@ -89,6 +89,7 @@ describe('Access', () => {
     const result = access.validateAccess('Account', 'read', user, [
       'name',
       'age',
+      'acc',
     ]);
     expect(result).toBe(false);
   });
