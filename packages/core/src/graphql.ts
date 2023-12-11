@@ -272,7 +272,6 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
           const select = fields.docs
             ? Object.keys(fields.docs).map((key) => key)
             : [];
-          console.log('whereInput', whereInput);
           return await model.paginate(
             whereInput,
             { sort: args.sort, offset: args.offset, limit: args.limit },
