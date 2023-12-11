@@ -8,6 +8,8 @@ import hook, { Hook } from './hooks';
 import access, { Access } from './access';
 import { DocumentNode } from 'graphql';
 
+export interface DB {}
+
 // Define a class for the Mercury ORM
 class Mercury {
   // Initialize an empty array for storing models
@@ -15,9 +17,7 @@ class Mercury {
   private typeDefsArr: string[] = [defaultTypeDefs];
   private resolversArr: any = defaultResolvers;
   // Initialize an empty object for storing models by name
-  db: {
-    [modelName: string]: Model;
-  } = {};
+  db: DB = {} as DB;
   public access: Access = access;
   public hook: Hook = hook;
   get typeDefs(): DocumentNode {
@@ -76,13 +76,16 @@ class Mercury {
     this.list.push(model);
 
     // Create a new Model instance for the model and add it to the database
-    this.db[name] = new Model(model);
+    (this.db as any)[name] = new Model(model);
 
     // If the model is private, do not add graphql typedefs
     if (!options.private) {
       // Create graphql typedefs
       this.typeDefsArr.push(Mgraphql.genModel(name, fields, options));
-      const createResolvers = Mgraphql.genResolvers(name, this.db[name]);
+      const createResolvers = Mgraphql.genResolvers(
+        name,
+        (this.db as any)[name]
+      );
       this.resolversArr = mergeResolvers([this.resolversArr, createResolvers]);
     }
 
@@ -93,7 +96,7 @@ class Mercury {
         fields: historySchema(name),
       };
       this.list.push(historyModel);
-      this.db[name] = new Model({
+      (this.db as any)[name] = new Model({
         name: historyModel.name,
         fields: historyModel.fields,
         options: { historyTracking: false },
@@ -106,7 +109,7 @@ class Mercury {
         );
         const createHistoryResolvers = Mgraphql.genResolvers(
           name,
-          this.db[name]
+          (this.db as any)[name]
         );
         this.resolversArr = mergeResolvers([
           this.resolversArr,

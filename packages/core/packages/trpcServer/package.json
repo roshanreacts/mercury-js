@@ -1,0 +1,7 @@
+{
+  "name": "@mercury-js/core/packages/trpcServer",
+  "private": false,
+  "main": "../../dist/cjs/packages/trpcServer/index.js",
+  "module": "../../dist/esm/packages/trpcServer/index.js",
+  "types": "./index.d.ts"
+}

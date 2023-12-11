@@ -27,6 +27,11 @@
       "require": "./dist/cjs/packages/rateLimiter/index.js",
       "import": "./dist/esm/packages/rateLimiter/index.js",
       "types": "./dist/esm/src/packages/rateLimiter/index.d.ts"
+    },
+    "./packages/trpcServer": {
+      "require": "./dist/cjs/packages/trpcServer/index.js",
+      "import": "./dist/esm/packages/trpcServer/index.js",
+      "types": "./dist/esm/src/packages/trpcServer/index.d.ts"
     }
   },
   "files": [
