@@ -1,4 +1,4 @@
-import { Mercury } from '../../mercury';
+import { Mercury, DB, ModelType } from '../../mercury';
 import { initTRPC, ProcedureRouterRecord } from '@trpc/server';
 import { z } from 'zod';
 import path from 'path';
@@ -14,16 +14,6 @@ declare module '../../mercury' {
     trpc: {
       appRouter: ReturnType<typeof createTrpcServer>;
       t: typeof trpc;
-    };
-  }
-
-  interface DB {
-    User: {
-      name: string;
-    };
-    Account: {
-      name: string;
-      user: string;
     };
   }
 }
@@ -67,32 +57,41 @@ export const createInterfaces = (mercury: Mercury) => {
   const filePath = path.join(rootDirectory, fileName);
 
   const recordType = mercury.list.map((model) => {
-    return `${model.name}: import("@trpc/server").BuildProcedure<
-  "query",
-  {
-    _config: import("@trpc/server").RootConfig<{
+    return `${
+      model.name
+    }: import("@trpc/server").CreateRouterInner<import("@trpc/server").RootConfig<{
       ctx: object;
       meta: object;
       errorShape: import("@trpc/server").DefaultErrorShape;
       transformer: import("@trpc/server").DefaultDataTransformer;
-    }>;
-    _meta: object;
-    _ctx_out: object;
-    _input_in: {
-      ${Object.keys(model.fields)
-        .map((key) => {
-          return `${key}: string`;
-        })
-        .join(';\n')}
-    };
-    _input_out: {
-      id: string;
-    };
-    _output_in: typeof import("@trpc/server").unsetMarker;
-    _output_out: typeof import("@trpc/server").unsetMarker;
-  },
-  string
->`;
+  }>, {
+      get: import("@trpc/server").BuildProcedure<"query", {
+          _config: import("@trpc/server").RootConfig<{
+              ctx: object;
+              meta: object;
+              errorShape: import("@trpc/server").DefaultErrorShape;
+              transformer: import("@trpc/server").DefaultDataTransformer;
+          }>;
+          _meta: object;
+          _ctx_out: object;
+          _input_in: {
+            ${Object.keys(model.fields)
+              .map((key) => {
+                return `${key}?: string`;
+              })
+              .join(';\n')}
+          };
+          _input_out: {
+            ${Object.keys(model.fields)
+              .map((key) => {
+                return `${key}?: string`;
+              })
+              .join(';\n')}
+          };
+          _output_in: typeof import("@trpc/server").unsetMarker;
+          _output_out: typeof import("@trpc/server").unsetMarker;
+      }, any>
+    `;
   });
   const fileContent = `declare function createTrpcServer(): import("@trpc/server").CreateRouterInner<
   import("@trpc/server").RootConfig<{
@@ -111,7 +110,7 @@ export type AppRouter = ReturnType<typeof createTrpcServer>;
   fs.writeFileSync(filePath, fileContent, 'utf-8');
 };
 
-type DB = 'User' | 'Account';
+// type DB = 'User' | 'Account';
 
 function createTrpcServer(mercury: Mercury, options: MercuryServerOptions) {
   const { t } = options;
@@ -127,16 +126,28 @@ function createTrpcServer(mercury: Mercury, options: MercuryServerOptions) {
     return procedure
       .input(z.object(obj))
       .query(
-        ({ input }) => `Hello ${model.toString()}, you have sent ${input}!`
+        async ({ input }) =>
+          await mercury.db[model].get(input, { id: '1', profile: 'User' })
       );
   };
-  const data: Record<keyof DB, ReturnType<typeof genProcedure>> = {} as Record<
-    keyof DB,
-    ReturnType<typeof genProcedure>
-  >;
+  const data: any = {};
   (Object.keys(mercury.db) as (keyof DB)[]).forEach((model: keyof DB) => {
-    data[model] = genProcedure(model);
+    data[model] = t.router({
+      get: genProcedure(model),
+    });
   });
   createInterfaces(mercury); // This will generate the type defs file
   return t.router(data);
+  // return t.router({
+  //   User: t.router({
+  //     get: procedure
+  //       .input(z.object({ id: z.string() }))
+  //       .query(async ({ input }) => {
+  //         return await mercury.db.User.get(input, {
+  //           id: '1',
+  //           profile: 'public',
+  //         });
+  //       }),
+  //   }),
+  // });
 }

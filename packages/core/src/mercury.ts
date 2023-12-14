@@ -8,7 +8,11 @@ import hook, { Hook } from './hooks';
 import access, { Access } from './access';
 import { DocumentNode } from 'graphql';
 
-export interface DB {}
+export type ModelType = Model;
+
+export interface DB {
+  [x: string]: Model;
+}
 
 // Define a class for the Mercury ORM
 class Mercury {
