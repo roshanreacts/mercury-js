@@ -3,5 +3,8 @@
   "private": false,
   "main": "../../dist/cjs/packages/trpcServer/index.js",
   "module": "../../dist/esm/packages/trpcServer/index.js",
-  "types": "./index.d.ts"
+  "types": "./index.d.ts",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
 }

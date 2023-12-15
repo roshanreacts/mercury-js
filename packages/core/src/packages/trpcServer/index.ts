@@ -5,25 +5,25 @@ import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
 
-const trpc = initTRPC.create();
+export const trpc = initTRPC.create();
 const zObj: any = {
-  String: z.string(),
-  ID: z.string(),
-  Int: z.number(),
+  String: z.string().optional(),
+  ID: z.string().optional(),
+  Int: z.number().optional(),
 };
 
 type MercuryServerOptions = {
   t: typeof trpc;
 };
 
-type inputObj  = {
-  argName: string,
-  argType: string | Array<string>,
-}
+type inputObj = {
+  argName: string;
+  argType: string | Array<string>;
+};
 
 type inputSchemaObj = {
-  [key: string]: Array<inputObj>
-}
+  [key: string]: Array<inputObj>;
+};
 declare module '../../mercury' {
   interface Mercury {
     trpc: {
@@ -41,24 +41,6 @@ export default (config?: MercuryServerOptions) => {
       };
     }
 
-    const router = config.t.router({
-      greeting: config.t.procedure
-        // This is the input schema of your procedure
-        // 💡 Tip: Try changing this and see type errors on the client straight away
-        .input(
-          z.object({
-            name: z.string().nullish(),
-          })
-        )
-        .query(({ input }) => {
-          // This is what you're returning to your client
-          return {
-            text: `hello ${input?.name ?? 'world'}`,
-            // 💡 Tip: Try adding a new property here and see it propagate to the client straight-away
-          };
-        }),
-    });
-
     mercury.trpc = {
       t: config.t,
       appRouter: createTrpcServer(mercury, config),
@@ -67,32 +49,34 @@ export default (config?: MercuryServerOptions) => {
 };
 
 const zFieldMapping: { [type: string]: any } = {
-  string: z.string(),
-  id: z.string(),
-  int: z.number(),
-  number: z.number(),
-  float: z.number(),
-  boolean: z.boolean(),
-  date: z.date(),
-  relationship: z.string(),
-  virtual: z.string(),
-  mixed:z.string(),
-  objectId:z.string(),
-  decimal:z.number(),
-  undefined: z.any()
-}
+  string: z.string().optional(),
+  id: z.string().optional(),
+  int: z.number().optional(),
+  number: z.number().optional(),
+  float: z.number().optional(),
+  boolean: z.boolean().optional(),
+  date: z.date().optional(),
+  relationship: z.string().optional(),
+  virtual: z.string().optional(),
+  mixed: z.string().optional(),
+  objectId: z.string().optional(),
+  decimal: z.number().optional(),
+  undefined: z.any().optional(),
+};
 
 const getZField = (value: TField) => {
-  // @ts-ignore
-  if(value.type == 'enum') return zFieldMapping[value?.enumType];
-  let zfield = zFieldMapping[value.type];
-  if(value?.many) zfield = zfield.array();
-  if(!value?.required) zfield = zfield.optional();
+  const type = value.type === 'enum' ? value.enumType : value.type;
+  if (!type) {
+    return z.any();
+  }
+  let zfield = zFieldMapping[type];
+  if (value?.many) zfield = zfield.array();
+  if (!value?.required) zfield = zfield.optional();
   return zfield;
-}
+};
 
 const getZObj = (mercury: Mercury, model: keyof DB) => {
-  console.log("My resolvers are", mercury.resolvers, mercury.typeDefs);
+  console.log('My resolvers are', mercury.resolvers, mercury.typeDefs);
   const obj: any = {};
   const modelFields = mercury.list.find((v) => v.name === model)?.fields;
   if (modelFields) {
@@ -101,13 +85,41 @@ const getZObj = (mercury: Mercury, model: keyof DB) => {
     });
   }
   return obj;
-}
+};
 
 export const createInterfaces = (mercury: Mercury) => {
   const rootDirectory = process.cwd();
   const fileName = 'interfaces.ts';
   const filePath = path.join(rootDirectory, fileName);
-
+  const operType = (model: TModel) =>
+    ['get', 'list', 'paginate', 'count'].map(
+      (action) => `${action}: import("@trpc/server").BuildProcedure<"query", {
+  _config: import("@trpc/server").RootConfig<{
+      ctx: object;
+      meta: object;
+      errorShape: import("@trpc/server").DefaultErrorShape;
+      transformer: import("@trpc/server").DefaultDataTransformer;
+  }>;
+  _meta: object;
+  _ctx_out: object;
+  _input_in: {
+    ${Object.keys(model.fields)
+      .map((key) => {
+        return `${key}?: string`;
+      })
+      .join(';\n')}
+  };
+  _input_out: {
+    ${Object.keys(model.fields)
+      .map((key) => {
+        return `${key}?: string`;
+      })
+      .join(';\n')}
+  };
+  _output_in: typeof import("@trpc/server").unsetMarker;
+  _output_out: typeof import("@trpc/server").unsetMarker;
+}, any>`
+    );
   const recordType = mercury.list.map((model) => {
     return `${
       model.name
@@ -117,32 +129,8 @@ export const createInterfaces = (mercury: Mercury) => {
       errorShape: import("@trpc/server").DefaultErrorShape;
       transformer: import("@trpc/server").DefaultDataTransformer;
   }>, {
-      get: import("@trpc/server").BuildProcedure<"query", {
-          _config: import("@trpc/server").RootConfig<{
-              ctx: object;
-              meta: object;
-              errorShape: import("@trpc/server").DefaultErrorShape;
-              transformer: import("@trpc/server").DefaultDataTransformer;
-          }>;
-          _meta: object;
-          _ctx_out: object;
-          _input_in: {
-            ${Object.keys(model.fields)
-              .map((key) => {
-                return `${key}?: string`;
-              })
-              .join(';\n')}
-          };
-          _input_out: {
-            ${Object.keys(model.fields)
-              .map((key) => {
-                return `${key}?: string`;
-              })
-              .join(';\n')}
-          };
-          _output_in: typeof import("@trpc/server").unsetMarker;
-          _output_out: typeof import("@trpc/server").unsetMarker;
-      }, any>
+      ${operType(model).join(';\n')}
+  }>
     `;
   });
   const fileContent = `declare function createTrpcServer(): import("@trpc/server").CreateRouterInner<
@@ -169,140 +157,161 @@ function createTrpcServer(mercury: Mercury, options: MercuryServerOptions) {
   const procedure = t.procedure;
   const genProcedure = (model: keyof DB, action: string) => {
     const obj: any = getZObj(mercury, model);
-    return procedure
-      .input(z.object(obj))
-      .query(
-        async ({ input }) =>{
-          if(action === 'get'){
-            return await mercury.db[model].get(input, { id: '1', profile: 'User' })
-          } else if(action === 'list') {
-            return await mercury.db[model].list(input, { id: '1', profile: 'User' })
-          } else if(action === 'paginate') {
-            return await mercury.db[model].paginate(input.query, input.filters, { id: '1', profile: 'User' })
-          } else if(action === 'count') {
-            return await mercury.db[model].count( { id: '1', profile: 'User' })
-          } 
-        }
-      );
+    return procedure.input(z.object(obj));
   };
+  // genetateType
+  const inputSchemaMap = getAllProcedureInputs(mercury.typeDefs);
+  console.log('inputSchemaMap', inputSchemaMap);
+  createZodInputs(inputSchemaMap);
+  console.log('zodObj', zObj);
 
-  const genMutationProcedure = (model: keyof DB, action: string) => {
-    const obj: any = getZObj(mercury, model);
-    return procedure
-      .input(z.object(obj))
-      .mutation(
-        async ({ input }) =>{
-           if(action === 'create') {
-            return await mercury.db[model].create(input, { id: '1', profile: 'User' })
-          } else if(action === 'update') {
-            return await mercury.db[model].update(input.id, input, { id: '1', profile: 'User' })
-          } else if(action === 'delete') {
-            return await mercury.db[model].delete(input.id, { id: '1', profile: 'User' })
-          }
-        }
-      );
-  }
-  const data: any = {};
-  (Object.keys(mercury.db) as (keyof DB)[]).forEach((model: keyof DB) => {
-    data[model] = t.router({
-      query: createQueryProcedures(mercury, options)
-    });
+  const queryProcedures: any = createQueryProcedures(mercury, options);
+  const mutationProcedures: any = createMutationProcedures(mercury, options);
+  // const tempRouter = {
+  //   getUser: procedure
+  //     .input(z.object({ name: z.string() }))
+  //     .query(async ({ input }) => {
+  //       return await mercury.db.User.get(input, {
+  //         id: '1',
+  //         profile: 'User',
+  //       });
+  //     }),
+  // };
+  // console.log('tempRouter', tempRouter);
+  // console.log('queryProcedures', queryProcedures);
+  // console.log('mutationProcedures', mutationProcedures);
+  const data: any = t.router({
+    query: t.router(queryProcedures),
+    mutation: t.router(mutationProcedures),
   });
   createInterfaces(mercury); // This will generate the type defs file
-  return t.router(data);
+  return data;
   // return t.router({
-  //   User: t.router({
-  //     get: procedure
-  //       .input(z.object({ id: z.string() }))
+  //   query: t.router({
+  //     getUser: procedure
+  //       .input(z.object({ name: z.string() }))
   //       .query(async ({ input }) => {
   //         return await mercury.db.User.get(input, {
   //           id: '1',
-  //           profile: 'public',
+  //           profile: 'User',
   //         });
   //       }),
   //   }),
   // });
 }
 
-const createQueryProcedures: any = ( mercury: Mercury, options: MercuryServerOptions) => {
+export const createQueryProcedures: any = (
+  mercury: Mercury,
+  options: MercuryServerOptions
+) => {
   const { t } = options;
   const procedure = t.procedure;
-  const allQueries: any = [];
+  const allQueries: any = getQueries(mercury.typeDefs);
   const queryProcedures: any = {};
   allQueries.map((query: any) => {
     const procedureReturnType = query.returnType;
-    queryProcedures[query.name] = procedure.input(getProcedureInput(query.inputArgName)).query(({ input }) => {
-      return "Working";
-    })
-  })
+    queryProcedures[query.name] = procedure
+      .input(getProcedureInput(query.inputArgName))
+      .query(({ input }) => {
+        return 'Working';
+      });
+  });
   return queryProcedures;
-}
+};
+
+const createMutationProcedures: any = (
+  mercury: Mercury,
+  options: MercuryServerOptions
+) => {
+  const { t } = options;
+  const procedure = t.procedure;
+  const allMutations: any = getMutations(mercury.typeDefs);
+  const mutationProcedures: any = {};
+  allMutations.map((query: any) => {
+    const procedureReturnType = query.returnType;
+    mutationProcedures[query.name] = procedure
+      .input(getProcedureInput(query.inputArgName))
+      .query(({ input }) => {
+        return 'Working';
+      });
+  });
+  return mutationProcedures;
+};
 
 const getProcedureInput = (inputs: Array<inputObj>) => {
   const obj: any = {};
   inputs.map((input: any) => {
     obj[input.argName] = zObj[input.argType];
-  })
+  });
   return z.object(obj);
-}
+};
 
 // after getting the schema we need to execute this function , is it ok to store all input schema inside a variabel or do we need to create one file?
-const createZodInputs = ( inputObj: inputSchemaObj ) => {
+export const createZodInputs = (inputObj: inputSchemaObj) => {
   Object.entries(inputObj).forEach(([key, value]) => {
     let obj: any = {};
-    value.map((v:any) => {
-      if(v.argName === "enum"){
+
+    value.map((v: any) => {
+      if (v.argName === 'enum') {
         obj[key] = z.enum(v.argType);
       } else {
-        obj[v.argName] = zFieldMapping[v.argType.toLowerCase()];
+        obj[v.argName] = zObj[v.argType];
       }
-    })
-    zObj[key] = z.object(obj);
+    });
+    zObj[key] = z.object(obj).optional();
   });
-}  
+  return zObj;
+};
 
 // For all procedure inputs, after this create zod inputs
-function getAllProcedureInputs(data: any) {
+export function getAllProcedureInputs(data: any) {
   const inputTypes = _.map(data.definitions, (item) => {
-    if (item?.kind === "InputObjectTypeDefinition") {
+    if (item?.kind === 'InputObjectTypeDefinition') {
       return item;
     }
-  }).filter(item => item);
+  }).filter((item) => item);
   const finalTypes: any = {};
   const enumTypes: any = [];
-  inputTypes.map(inputType => {
+  inputTypes.map((inputType) => {
     const inputTypeValue = inputType?.fields.map((arg: any) => {
       let argType: any = arg?.type;
-      argType = argType?.name?.value ?? argType?.type?.name?.value ?? argType?.type?.type?.name?.value;
+      argType =
+        argType?.name?.value ??
+        argType?.type?.name?.value ??
+        argType?.type?.type?.name?.value;
       return {
         argName: arg?.name?.value,
-        argType: argType
+        argType: argType,
       };
     });
-    return finalTypes[inputType?.name?.value] = inputTypeValue
-  })
-  return { ...finalTypes, ...(getEnumTypesData(data)) };
+    return (finalTypes[inputType?.name?.value] = inputTypeValue);
+  });
+  return { ...finalTypes, ...getEnumTypesData(data) };
 }
 
 function getEnumTypesData(data: any) {
   const result: any = {};
   const enumTypes = _.map(data.definitions, (item) => {
-    if (item?.kind === "EnumTypeDefinition") {
+    if (item?.kind === 'EnumTypeDefinition') {
       return item;
     }
-  }).filter(item => item);
-  enumTypes.map(enumType => {
-    result[enumType.name.value] = { argName: enumType.name.value, argType: enumType.values.map((value: any) => value?.name?.value) }
-  }
-  )
+  }).filter((item) => item);
+  enumTypes.map((enumType) => {
+    result[enumType.name.value] = [
+      {
+        argName: 'enum',
+        argType: enumType.values.map((value: any) => value?.name?.value),
+      },
+    ];
+  });
   return result;
 }
 
 // For query inputs
 
-function getMutations(data: any) {
+export function getQueries(data: any) {
   const query = _.filter(data.definitions, (item) => {
-    if (item?.name && item?.name?.value === "Query") {
+    if (item?.name && item?.name?.value === 'Query') {
       return item;
     }
   });
@@ -312,7 +321,9 @@ function getMutations(data: any) {
       name: it?.name?.value,
       inputArgName: it?.arguments.map((arg: any) => ({
         argName: arg?.name?.value,
-        argType: arg?.type?.name?.value ? arg?.type?.name?.value : arg?.type?.type?.name?.value,
+        argType: arg?.type?.name?.value
+          ? arg?.type?.name?.value
+          : arg?.type?.type?.name?.value,
       })),
       returnType: it?.type?.name?.value,
     };
@@ -321,9 +332,9 @@ function getMutations(data: any) {
 
 // For mutation inputs
 
-function getQueries(data: any) {
+function getMutations(data: any) {
   const query = _.filter(data.definitions, (item) => {
-    if (item.name && item.name.value === "Mutation") {
+    if (item.name && item.name.value === 'Mutation') {
       return item;
     }
   });
@@ -333,19 +344,21 @@ function getQueries(data: any) {
       name: it?.name?.value,
       inputArgName: it.arguments.map((arg: any) => {
         let argType = arg?.type?.type;
-        argType = argType?.name?.value ?? argType?.type?.name?.value ?? argType?.type?.type?.name?.value
+        argType =
+          argType?.name?.value ??
+          argType?.type?.name?.value ??
+          argType?.type?.type?.name?.value;
         return {
           argName: arg?.name?.value,
-          argType: argType
-        }
+          argType: argType,
+        };
       }),
-      returnTypeInput: it?.type?.name?.value ? it?.type?.name?.value : it?.type?.type?.name?.value,
-      returnTypeKind: it?.type?.kind
+      returnTypeInput: it?.type?.name?.value
+        ? it?.type?.name?.value
+        : it?.type?.type?.name?.value,
+      returnTypeKind: it?.type?.kind,
     };
   });
 }
-
-
-
 
 /// zod inputs created after fetching data from typedefs and formatting it
