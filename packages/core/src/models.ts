@@ -32,6 +32,7 @@ export class Model {
     // create mongo schema from fields
     this.mongoSchema = this.createSchema();
     this.addVirtualFields();
+    this.addIndexes(); //Add indexes
     this.mongoSchema.plugin(mongooseBcrypt);
     this.mongoSchema.plugin(mongoosePaginateV2.default);
     this.mongoModel =
@@ -494,7 +495,9 @@ export class Model {
             unique?: boolean;
             required?: boolean;
           } = {
-            type: this.fieldMongooseTyepMap[value.type],
+            type: value.many
+              ? [this.fieldMongooseTyepMap[value.type]]
+              : this.fieldMongooseTyepMap[value.type],
           };
           Object.keys(value).forEach((vKey: string) => {
             if (vKey === 'type') {
@@ -553,5 +556,13 @@ export class Model {
           justOne: !fieldObj.many,
         })
       );
+  }
+
+  private addIndexes() {
+    if (this.model.options?.indexes) {
+      this.model.options.indexes.forEach((index) => {
+        this.mongoSchema.index(index.fields, index.options);
+      });
+    }
   }
 }

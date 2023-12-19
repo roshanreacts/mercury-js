@@ -35,4 +35,23 @@ declare type TField = {
 declare type TOptions = {
   historyTracking: boolean;
   private?: boolean;
+  indexes?: Array<TIndex>;
+};
+
+declare type TIndex = {
+  fields: TIndexFields;
+  options?: TIndexOptions;
+};
+
+declare type TIndexFields = {
+  [fieldName: string]: number;
+};
+
+declare type TIndexOptions = {
+  unique?: boolean;
+  sparse?: boolean;
+  partialFilterExpression?: any;
+  collation?: any;
+  expireAfterSeconds?: number;
+  [key: string]: any;
 };
