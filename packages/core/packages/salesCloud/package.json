@@ -1,0 +1,7 @@
+{
+  "name": "@mercury-js/core/packages/salesCloud",
+  "private": false,
+  "main": "../../dist/cjs/packages/salesCloud/index.js",
+  "module": "../../dist/esm/packages/salesCloud/index.js",
+  "types": "./index.d.ts"
+}

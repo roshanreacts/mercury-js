@@ -7,6 +7,7 @@ const folderBuilds = [
   'packages/redisCache',
   'packages/rateLimiter',
   'packages/trpcServer',
+  'packages/salesCloud',
 ].map((folder) => ({
   input: `src/${folder}/index.ts`,
   output: [
