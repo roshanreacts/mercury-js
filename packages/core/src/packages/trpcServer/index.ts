@@ -1,6 +1,6 @@
 import mercury, { Mercury, DB, ModelType } from '../../mercury';
 import { initTRPC, ProcedureRouterRecord } from '@trpc/server';
-import { z } from 'zod';
+import { ZodAny, z } from 'zod';
 import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
@@ -92,6 +92,8 @@ export const createInterfaces = (mercury: Mercury) => {
   const rootDirectory = process.cwd();
   const fileName = 'interfaces.ts';
   const filePath = path.join(rootDirectory, fileName);
+  const procedures = getAllProcedureInputs(mercury.typeDefs);
+  const zObjIndexes = createZodInputs(procedures);
   const operType = (model: string) =>
     [mercury.resolvers[model]].map(
       (action) => `${action}: import("@trpc/server").BuildProcedure<"query", {
@@ -104,14 +106,13 @@ export const createInterfaces = (mercury: Mercury) => {
   _meta: object;
   _ctx_out: object;
   _input_in: {
-    ${z.infer < typeof zObj[mercury.resolvers[model]]}
+    // @ts-ignore
+    ${z.infer<typeof (zObjIndexes[action as string] as ZodAny)>}
   };
   _input_out: {
-    ${Object.keys(model.fields)
-      .map((key) => {
-        return `${key}?: string`;
-      })
-      .join(';\n')}
+    // @ts-ignore
+    ${z.infer<(typeof zObjIndexes)[action]>}
+
   };
   _output_in: typeof import("@trpc/server").unsetMarker;
   _output_out: typeof import("@trpc/server").unsetMarker;
