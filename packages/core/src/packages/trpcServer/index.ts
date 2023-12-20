@@ -9,7 +9,7 @@ export const trpc = initTRPC.create();
 const zObj: any = {
   String: z.string(),
   ID: z.string(),
-  Int: z.number()
+  Int: z.number(),
 };
 
 type MercuryServerOptions = {
@@ -92,8 +92,8 @@ export const createInterfaces = (mercury: Mercury) => {
   const rootDirectory = process.cwd();
   const fileName = 'interfaces.ts';
   const filePath = path.join(rootDirectory, fileName);
-  const operType = (model: TModel) =>
-    ['get', 'list', 'paginate', 'count'].map(
+  const operType = (model: string) =>
+    [mercury.resolvers[model]].map(
       (action) => `${action}: import("@trpc/server").BuildProcedure<"query", {
   _config: import("@trpc/server").RootConfig<{
       ctx: object;
@@ -104,26 +104,21 @@ export const createInterfaces = (mercury: Mercury) => {
   _meta: object;
   _ctx_out: object;
   _input_in: {
-    ${Object.keys(model.fields)
-          .map((key) => {
-            return `${key}?: string`;
-          })
-          .join(';\n')}
+    ${z.infer < typeof zObj[mercury.resolvers[model]]}
   };
   _input_out: {
     ${Object.keys(model.fields)
-          .map((key) => {
-            return `${key}?: string`;
-          })
-          .join(';\n')}
+      .map((key) => {
+        return `${key}?: string`;
+      })
+      .join(';\n')}
   };
   _output_in: typeof import("@trpc/server").unsetMarker;
   _output_out: typeof import("@trpc/server").unsetMarker;
 }, any>`
     );
-  const recordType = mercury.list.map((model) => {
-    return `${model.name
-      }: import("@trpc/server").CreateRouterInner<import("@trpc/server").RootConfig<{
+  const recordType = ['Query', 'Mutation'].map((model) => {
+    return `${model}: import("@trpc/server").CreateRouterInner<import("@trpc/server").RootConfig<{
       ctx: object;
       meta: object;
       errorShape: import("@trpc/server").DefaultErrorShape;
@@ -165,8 +160,16 @@ function createTrpcServer(mercury: Mercury, options: MercuryServerOptions) {
   const zodInputs = createZodInputs(inputSchemaMap);
   // console.log('zodObj', zObj);
 
-  const queryProcedures: any = createQueryProcedures(mercury, options, zodInputs);
-  const mutationProcedures: any = createMutationProcedures(mercury, options, zodInputs);
+  const queryProcedures: any = createQueryProcedures(
+    mercury,
+    options,
+    zodInputs
+  );
+  const mutationProcedures: any = createMutationProcedures(
+    mercury,
+    options,
+    zodInputs
+  );
   // const tempRouter = {
   //   getUser: procedure
   //     .input(z.object({ name: z.string() }))
@@ -215,7 +218,12 @@ export const createQueryProcedures: any = (
       .input(getProcedureInput(query.inputArgName, zodInputs))
       .query(({ input }) => {
         // @ts-ignore
-        return mercury.resolvers?.Query[query.name]("", input,{user: {id: 1, profile: "User"}}, null);
+        return mercury.resolvers?.Query[query.name](
+          '',
+          input,
+          { user: { id: 1, profile: 'User' } },
+          null
+        );
       });
   });
   return queryProcedures;
@@ -235,9 +243,15 @@ const createMutationProcedures: any = (
     mutationProcedures[mutation.name] = procedure
       .input(getProcedureInput(mutation.inputArgName, zodInputs))
       .mutation(({ input }) => {
-      if(mutation.name == "createUser") console.log("Mutation", mutation, zodInputs['UserInput'])
-      //@ts-ignore
-      return mercury.resolvers?.Mutation[mutation.name]("", input,{user: {id: 1, profile: "Admin"}}, null);
+        if (mutation.name == 'createUser')
+          console.log('Mutation', mutation, zodInputs['UserInput']);
+        //@ts-ignore
+        return mercury.resolvers?.Mutation[mutation.name](
+          '',
+          input,
+          { user: { id: 1, profile: 'Admin' } },
+          null
+        );
       });
   });
   return mutationProcedures;
@@ -247,13 +261,16 @@ export const getProcedureInput = (inputs: any, zodInputs: any) => {
   const obj: any = {};
   inputs.map((input: any) => {
     let zObjValue = zodInputs[input.argType];
-    if (input.isArgArray && input.isArgArrayEleRequired) zObjValue = z.array(zObjValue);
-    if (input.isArgArray && !input.isArgArrayEleRequired) zObjValue = z.array(zObjValue.optional());
-    if(!input.isArgRequired) zObjValue = zObjValue.optional();
-    if(input.isDefaultPresent) zObjValue = zObjValue.default(input.defaultValue);
+    if (input.isArgArray && input.isArgArrayEleRequired)
+      zObjValue = z.array(zObjValue);
+    if (input.isArgArray && !input.isArgArrayEleRequired)
+      zObjValue = z.array(zObjValue.optional());
+    if (!input.isArgRequired) zObjValue = zObjValue.optional();
+    if (input.isDefaultPresent)
+      zObjValue = zObjValue.default(input.defaultValue);
     obj[input.argName] = zObjValue;
   });
-  if(inputs.argType === 'UserInput') console.log("ZObj", obj);
+  if (inputs.argType === 'UserInput') console.log('ZObj', obj);
   return z.object(obj);
 };
 
@@ -272,11 +289,11 @@ export const createZodInputs = (inputObj: inputSchemaObj) => {
           createZodInputs(obj);
         }
         if (zObj[v.argType]) {
-          obj[v.argName] = zObj[v.argType]
-          if(!v.isRequired) obj[v.argName] = obj[v.argName].optional();
+          obj[v.argName] = zObj[v.argType];
+          if (!v.isRequired) obj[v.argName] = obj[v.argName].optional();
           if (v.isArray) obj[v.argName] = z.array(obj[v.argName]).optional();
         }
-        if(v.isDefaultPresent) {
+        if (v.isDefaultPresent) {
           obj[v.argName] = obj[v.argName].default(v.defaultValue);
         }
       }
@@ -305,10 +322,13 @@ export function getAllProcedureInputs(data: any) {
       return {
         argName: arg?.name?.value,
         argType: argType,
-        isRequired: arg?.type?.kind === "NonNullType",
-        isArray: arg?.type?.kind === "ListType" ? true : false,
+        isRequired: arg?.type?.kind === 'NonNullType',
+        isArray: arg?.type?.kind === 'ListType' ? true : false,
         isDefaultPresent: arg.defaultValue?.value ? true : false,
-        defaultValue: arg.defaultValue?.kind == "IntValue" ? parseInt(arg.defaultValue?.value) : arg.defaultValue?.value
+        defaultValue:
+          arg.defaultValue?.kind == 'IntValue'
+            ? parseInt(arg.defaultValue?.value)
+            : arg.defaultValue?.value,
       };
     });
     return (finalTypes[inputType?.name?.value] = inputTypeValue);
@@ -351,11 +371,21 @@ export function getQueries(data: any) {
         argType: arg?.type?.name?.value
           ? arg?.type?.name?.value
           : arg?.type?.type?.name?.value,
-        isArgArray: (arg?.type?.kind === "ListType" || arg?.type?.type?.kind == "ListType") ? true : false,
-        isArgArrayEleRequired: arg?.type?.type?.kind == "NonNullType" || arg?.type?.type?.type?.kind === "NonNullType" ? true : false,
-        isArgRequired: arg?.type?.kind === "NonNullType" ? true : false,
+        isArgArray:
+          arg?.type?.kind === 'ListType' || arg?.type?.type?.kind == 'ListType'
+            ? true
+            : false,
+        isArgArrayEleRequired:
+          arg?.type?.type?.kind == 'NonNullType' ||
+          arg?.type?.type?.type?.kind === 'NonNullType'
+            ? true
+            : false,
+        isArgRequired: arg?.type?.kind === 'NonNullType' ? true : false,
         isDefaultPresent: arg.defaultValue?.value ? true : false,
-        defaultValue: arg.defaultValue?.kind == "IntValue" ? parseInt(arg.defaultValue?.value) : arg.defaultValue?.value
+        defaultValue:
+          arg.defaultValue?.kind == 'IntValue'
+            ? parseInt(arg.defaultValue?.value)
+            : arg.defaultValue?.value,
       })),
       returnType: it?.type?.name?.value,
     };
@@ -383,11 +413,22 @@ function getMutations(data: any) {
         return {
           argName: arg?.name?.value,
           argType: argType,
-          isArgArray: (arg?.type?.kind === "ListType" || arg?.type?.type?.kind == "ListType") ? true : false,
-          isArgArrayEleRequired: arg?.type?.type?.kind == "NonNullType" || arg?.type?.type?.type?.kind === "NonNullType" ? true : false,
-          isArgRequired: arg?.type?.kind === "NonNullType" ? true : false,
+          isArgArray:
+            arg?.type?.kind === 'ListType' ||
+            arg?.type?.type?.kind == 'ListType'
+              ? true
+              : false,
+          isArgArrayEleRequired:
+            arg?.type?.type?.kind == 'NonNullType' ||
+            arg?.type?.type?.type?.kind === 'NonNullType'
+              ? true
+              : false,
+          isArgRequired: arg?.type?.kind === 'NonNullType' ? true : false,
           isDefaultPresent: arg.defaultValue?.value ? true : false,
-          defaultValue: arg.defaultValue?.kind == "IntValue" ? parseInt(arg.defaultValue?.value) : arg.defaultValue?.value
+          defaultValue:
+            arg.defaultValue?.kind == 'IntValue'
+              ? parseInt(arg.defaultValue?.value)
+              : arg.defaultValue?.value,
         };
       }),
       returnTypeInput: it?.type?.name?.value
@@ -399,7 +440,6 @@ function getMutations(data: any) {
 }
 
 /// zod inputs created after fetching data from typedefs and formatting it
-
 
 //1.self reference
 //2.Obj empty
