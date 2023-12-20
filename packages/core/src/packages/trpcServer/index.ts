@@ -235,8 +235,9 @@ const createMutationProcedures: any = (
     mutationProcedures[mutation.name] = procedure
       .input(getProcedureInput(mutation.inputArgName, zodInputs))
       .mutation(({ input }) => {
+      if(mutation.name == "createUser") console.log("Mutation", mutation, zodInputs['UserInput'])
       //@ts-ignore
-        return mercury.resolvers?.Mutation[mutation.name]("", input,{user: {id: 1, profile: "Admin"}}, null);
+      return mercury.resolvers?.Mutation[mutation.name]("", input,{user: {id: 1, profile: "Admin"}}, null);
       });
   });
   return mutationProcedures;
@@ -252,6 +253,7 @@ export const getProcedureInput = (inputs: any, zodInputs: any) => {
     if(input.isDefaultPresent) zObjValue = zObjValue.default(input.defaultValue);
     obj[input.argName] = zObjValue;
   });
+  if(inputs.argType === 'UserInput') console.log("ZObj", obj);
   return z.object(obj);
 };
 
@@ -270,7 +272,8 @@ export const createZodInputs = (inputObj: inputSchemaObj) => {
           createZodInputs(obj);
         }
         if (zObj[v.argType]) {
-          obj[v.argName] = zObj[v.argType].optional();
+          obj[v.argName] = zObj[v.argType]
+          if(!v.isRequired) obj[v.argName] = obj[v.argName].optional();
           if (v.isArray) obj[v.argName] = z.array(obj[v.argName]).optional();
         }
         if(v.isDefaultPresent) {
@@ -302,6 +305,7 @@ export function getAllProcedureInputs(data: any) {
       return {
         argName: arg?.name?.value,
         argType: argType,
+        isRequired: arg?.type?.kind === "NonNullType",
         isArray: arg?.type?.kind === "ListType" ? true : false,
         isDefaultPresent: arg.defaultValue?.value ? true : false,
         defaultValue: arg.defaultValue?.kind == "IntValue" ? parseInt(arg.defaultValue?.value) : arg.defaultValue?.value
