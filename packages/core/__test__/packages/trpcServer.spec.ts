@@ -6,9 +6,11 @@ import {
   createQueryProcedures,
   trpc,
   getProcedureInput,
+  createInterfaces,
 } from '../../src/packages/trpcServer';
 import schema from './schema';
 import { z } from 'zod';
+import mercury from '../../src/mercury';
 
 // const zObj: any = {
 //   String: z.string().optional(),
@@ -72,5 +74,9 @@ describe('getAllProcedureInputs', () => {
     //   //   @ts-ignore
     //   .listUsers({});
     expect(1).toEqual(1);
+  });
+
+  it("should create intefaces", async() => {
+    // const testInterfaces = createInterfaces(mercury);
   });
 });

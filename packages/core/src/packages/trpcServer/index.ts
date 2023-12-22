@@ -1,9 +1,11 @@
 import mercury, { Mercury, DB, ModelType } from '../../mercury';
 import { initTRPC, ProcedureRouterRecord } from '@trpc/server';
-import { ZodAny, z } from 'zod';
+import { TypeOf, ZodAny, ZodType, string, z } from 'zod';
 import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
+import schema from '__test__/packages/schema';
+import { zodToTs, createTypeAlias, printNode } from 'zod-to-ts'
 
 export const trpc = initTRPC.create();
 const zObj: any = {
@@ -88,47 +90,60 @@ const getZObj = (mercury: Mercury, model: keyof DB) => {
   return obj;
 };
 
-export const createInterfaces = (mercury: Mercury) => {
+export const createInterfaces = (mercury: Mercury, queryZodInputs: any, mutationZodInputs: any) => {
   const rootDirectory = process.cwd();
-  const fileName = 'interfaces.ts';
+  const fileName = 'zodtots.ts';
   const filePath = path.join(rootDirectory, fileName);
-  const procedures = getAllProcedureInputs(mercury.typeDefs);
-  const zObjIndexes = createZodInputs(procedures);
-  const operType = (model: string) =>
-    [mercury.resolvers[model]].map(
-      (action) => `${action}: import("@trpc/server").BuildProcedure<"query", {
-  _config: import("@trpc/server").RootConfig<{
-      ctx: object;
-      meta: object;
-      errorShape: import("@trpc/server").DefaultErrorShape;
-      transformer: import("@trpc/server").DefaultDataTransformer;
-  }>;
-  _meta: object;
-  _ctx_out: object;
-  _input_in: {
-    // @ts-ignore
-    ${z.infer<typeof (zObjIndexes[action as string] as ZodAny)>}
-  };
-  _input_out: {
-    // @ts-ignore
-    ${z.infer<(typeof zObjIndexes)[action]>}
-
-  };
-  _output_in: typeof import("@trpc/server").unsetMarker;
-  _output_out: typeof import("@trpc/server").unsetMarker;
-}, any>`
-    );
-  const recordType = ['Query', 'Mutation'].map((model) => {
-    return `${model}: import("@trpc/server").CreateRouterInner<import("@trpc/server").RootConfig<{
+  const userSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string().email(),
+    password: z.string().min(8),
+    role: z.enum(['admin', 'user']),
+    phone: z.string().optional(),
+  });
+  const { node, store } = zodToTs(userSchema, 'User')
+  // @ts-ignore
+  console.log("node ", printNode(node));
+  const operType = (record: string) => {
+    const result: any = [];
+    Object.keys(mercury.resolvers[record]).map((element: string) => {
+      const schema = (record === "Query" ? queryZodInputs : mutationZodInputs);
+      //@ts-ignore
+      const { node } = zodToTs(schema[element], element);
+      console.log(element, printNode(node));
+      const type =  `${element}: import("@trpc/server").BuildProcedure<"query", {
+        _config: import("@trpc/server").RootConfig<{
+            ctx: object;
+            meta: object;
+            errorShape: import("@trpc/server").DefaultErrorShape;
+            transformer: import("@trpc/server").DefaultDataTransformer;
+        }>;
+        _meta: object;
+        _ctx_out: object;
+        _input_in: ${printNode(node)}
+        ;
+        _input_out: ${printNode(node)}
+        ;
+        _output_in: typeof import("@trpc/server").unsetMarker;
+        _output_out: typeof import("@trpc/server").unsetMarker;
+      }, any>`;
+      result.push(type);
+    })
+    return result;
+  }
+  const recordType = ['Query', 'Mutation'].map((record) => {
+    return `${record}: import("@trpc/server").CreateRouterInner<import("@trpc/server").RootConfig<{
       ctx: object;
       meta: object;
       errorShape: import("@trpc/server").DefaultErrorShape;
       transformer: import("@trpc/server").DefaultDataTransformer;
   }>, {
-      ${operType(model).join(';\n')}
+      ${operType(record).join(';\n')}
   }>
     `;
   });
+  // console.log("Record", recordType);
   const fileContent = `declare function createTrpcServer(): import("@trpc/server").CreateRouterInner<
   import("@trpc/server").RootConfig<{
     ctx: object;
@@ -161,16 +176,19 @@ function createTrpcServer(mercury: Mercury, options: MercuryServerOptions) {
   const zodInputs = createZodInputs(inputSchemaMap);
   // console.log('zodObj', zObj);
 
-  const queryProcedures: any = createQueryProcedures(
+  const queryProcedures = createQueryProcedures(
     mercury,
     options,
     zodInputs
   );
-  const mutationProcedures: any = createMutationProcedures(
+  const mutationProcedures = createMutationProcedures(
     mercury,
     options,
     zodInputs
   );
+  
+  const queryZodInputs = createQueryZodInputs(getQueries(mercury.typeDefs), zodInputs);
+  const mutationZodInputs = createMutationZodInputs(getMutations(mercury.typeDefs), zodInputs);
   // const tempRouter = {
   //   getUser: procedure
   //     .input(z.object({ name: z.string() }))
@@ -182,18 +200,30 @@ function createTrpcServer(mercury: Mercury, options: MercuryServerOptions) {
   //     }),
   // };
   // console.log('tempRouter', tempRouter);
-  // console.log('queryProcedures', queryProcedures);
+  // console.log('quer\yProcedures', queryProcedures);
   // console.log('mutationProcedures', mutationProcedures);
-  const data: any = t.router({
-    query: t.router(queryProcedures),
-    mutation: t.router(mutationProcedures),
+  const data = t.router({
+    Query: t.router(queryProcedures),
+    Mutation: t.router(mutationProcedures),
   });
-  createInterfaces(mercury); // This will generate the type defs file
+  createInterfaces(mercury, queryZodInputs, mutationZodInputs); // This will generate the type defs file
   return data;
   // return t.router({
-  //   query: t.router({
+  //   Query: t.router({
   //     getUser: procedure
-  //       .input(z.object({ name: z.string() }))
+  //       .input(z.object({ where: z.object({
+  //         name: z.string().optional()
+  //       }) }))
+  //       .query(async ({ input }) => {
+  //         return await mercury.db.User.get(input, {
+  //           id: '1',
+  //           profile: 'User',
+  //         });
+  //       }),
+  //       listUser: procedure
+  //       .input(z.object({ where: z.object({
+  //         name: z.string().optional()
+  //       }) }))
   //       .query(async ({ input }) => {
   //         return await mercury.db.User.get(input, {
   //           id: '1',
@@ -204,6 +234,22 @@ function createTrpcServer(mercury: Mercury, options: MercuryServerOptions) {
   // });
 }
 
+export const createQueryZodInputs = (queries: any, zodInputs: any) => {
+  let zodObj: any = {};
+  queries.map((query: any) => {
+    zodObj[query.name] = getProcedureInput(query.inputArgName, zodInputs);
+  })
+  return zodObj;
+}
+
+export const createMutationZodInputs = (mutations: any, zodInputs: any) => {
+  let zodObj: any = {};
+  mutations.map((mutation: any) => {
+    zodObj[mutation.name] = getProcedureInput(mutation.inputArgName, zodInputs);
+  })
+  return zodObj;
+}
+
 export const createQueryProcedures: any = (
   mercury: Mercury,
   options: MercuryServerOptions,
@@ -212,14 +258,15 @@ export const createQueryProcedures: any = (
   const { t } = options;
   const procedure = t.procedure;
   const allQueries: any = getQueries(mercury.typeDefs);
-  const queryProcedures: any = {};
-  allQueries.map((query: any) => {
+  const queryProcedures: { [key: string]: typeof procedure} = {};
+  allQueries.map( (query: any) => {
     const procedureReturnType = query.returnType;
+    // @ts-ignore
     queryProcedures[query.name] = procedure
       .input(getProcedureInput(query.inputArgName, zodInputs))
-      .query(({ input }) => {
+      .query(async({ input }) => {
         // @ts-ignore
-        return mercury.resolvers?.Query[query.name](
+        return await mercury.resolvers?.Query[query.name](
           '',
           input,
           { user: { id: 1, profile: 'User' } },
@@ -238,16 +285,17 @@ const createMutationProcedures: any = (
   const { t } = options;
   const procedure = t.procedure;
   const allMutations: any = getMutations(mercury.typeDefs);
-  const mutationProcedures: any = {};
+  const mutationProcedures: { [key: string]: typeof procedure} = {};
   allMutations.map((mutation: any) => {
     const procedureReturnType = mutation.returnType;
+    //@ts-ignore
     mutationProcedures[mutation.name] = procedure
       .input(getProcedureInput(mutation.inputArgName, zodInputs))
-      .mutation(({ input }) => {
+      .mutation(async ({ input }) => {
         if (mutation.name == 'createUser')
           console.log('Mutation', mutation, zodInputs['UserInput']);
         //@ts-ignore
-        return mercury.resolvers?.Mutation[mutation.name](
+        return await mercury.resolvers?.Mutation[mutation.name](
           '',
           input,
           { user: { id: 1, profile: 'Admin' } },
@@ -271,7 +319,6 @@ export const getProcedureInput = (inputs: any, zodInputs: any) => {
       zObjValue = zObjValue.default(input.defaultValue);
     obj[input.argName] = zObjValue;
   });
-  if (inputs.argType === 'UserInput') console.log('ZObj', obj);
   return z.object(obj);
 };
 
@@ -378,7 +425,7 @@ export function getQueries(data: any) {
             : false,
         isArgArrayEleRequired:
           arg?.type?.type?.kind == 'NonNullType' ||
-          arg?.type?.type?.type?.kind === 'NonNullType'
+            arg?.type?.type?.type?.kind === 'NonNullType'
             ? true
             : false,
         isArgRequired: arg?.type?.kind === 'NonNullType' ? true : false,
@@ -416,12 +463,12 @@ function getMutations(data: any) {
           argType: argType,
           isArgArray:
             arg?.type?.kind === 'ListType' ||
-            arg?.type?.type?.kind == 'ListType'
+              arg?.type?.type?.kind == 'ListType'
               ? true
               : false,
           isArgArrayEleRequired:
             arg?.type?.type?.kind == 'NonNullType' ||
-            arg?.type?.type?.type?.kind === 'NonNullType'
+              arg?.type?.type?.type?.kind === 'NonNullType'
               ? true
               : false,
           isArgRequired: arg?.type?.kind === 'NonNullType' ? true : false,
@@ -438,6 +485,10 @@ function getMutations(data: any) {
       returnTypeKind: it?.type?.kind,
     };
   });
+}
+
+export function getAllProcedureOutputs(data: any) {
+
 }
 
 /// zod inputs created after fetching data from typedefs and formatting it
