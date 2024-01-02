@@ -104,15 +104,15 @@ export const createInterfaces = (mercury: Mercury, queryZodInputs: any, mutation
   });
   const { node, store } = zodToTs(userSchema, 'User')
   // @ts-ignore
-  console.log("node ", printNode(node));
+  // console.log("node ", printNode(node));
   const operType = (record: string) => {
     const result: any = [];
     Object.keys(mercury.resolvers[record]).map((element: string) => {
       const schema = (record === "Query" ? queryZodInputs : mutationZodInputs);
       //@ts-ignore
       const { node } = zodToTs(schema[element], element);
-      console.log(element, printNode(node));
-      const type =  `${element}: import("@trpc/server").BuildProcedure<"query", {
+      // console.log(element, printNode(node));
+      const type =  `${element}: import("@trpc/server").BuildProcedure<"${ record === "Query" ? "query" : "mutation"}", {
         _config: import("@trpc/server").RootConfig<{
             ctx: object;
             meta: object;
@@ -265,6 +265,7 @@ export const createQueryProcedures: any = (
     queryProcedures[query.name] = procedure
       .input(getProcedureInput(query.inputArgName, zodInputs))
       .query(async({ input }) => {
+        console.log("Input", input);
         // @ts-ignore
         return await mercury.resolvers?.Query[query.name](
           '',
@@ -293,7 +294,7 @@ const createMutationProcedures: any = (
       .input(getProcedureInput(mutation.inputArgName, zodInputs))
       .mutation(async ({ input }) => {
         if (mutation.name == 'createUser')
-          console.log('Mutation', mutation, zodInputs['UserInput']);
+          // console.log('Mutation', mutation, zodInputs['UserInput']);
         //@ts-ignore
         return await mercury.resolvers?.Mutation[mutation.name](
           '',
