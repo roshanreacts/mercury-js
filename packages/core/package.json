@@ -2,7 +2,7 @@
   "name": "@mercury-js/core",
   "description": "Fully automated GrpahQL API generator for your mongoDB models",
   "private": false,
-  "version": "2.0.0-beta.10",
+  "version": "2.0.0-beta.11",
   "main": "dist/cjs/mercury.js",
   "module": "dist/esm/mercury.js",
   "types": "dist/esm/src/mercury.d.ts",
@@ -32,11 +32,6 @@
       "require": "./dist/cjs/packages/trpcServer/index.js",
       "import": "./dist/esm/packages/trpcServer/index.js",
       "types": "./dist/esm/src/packages/trpcServer/index.d.ts"
-    },
-    "./packages/salesCloud": {
-      "require": "./dist/cjs/packages/salesCloud/index.js",
-      "import": "./dist/esm/packages/salesCloud/index.js",
-      "types": "./dist/esm/src/packages/salesCloud/index.d.ts"
     }
   },
   "files": [
