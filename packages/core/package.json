@@ -37,11 +37,6 @@
       "require": "./dist/cjs/packages/salesCloud/index.js",
       "import": "./dist/esm/packages/salesCloud/index.js",
       "types": "./dist/esm/src/packages/salesCloud/index.d.ts"
-    },
-    "./packages/historyTracking": {
-      "require": "./dist/cjs/packages/historyTracking/index.js",
-      "import": "./dist/esm/packages/historyTracking/index.js",
-      "types": "./dist/esm/src/packages/historyTracking/index.d.ts"
     }
   },
   "files": [

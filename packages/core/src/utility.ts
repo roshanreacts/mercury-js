@@ -75,7 +75,6 @@ export const defaultResolvers = {
   JSONObject: JSONObjectResolver,
 };
 
-// No need of name
 export const historySchema = (name: string): TFields => {
   return {
     recordId: {
@@ -101,11 +100,11 @@ export const historySchema = (name: string): TFields => {
       required: true,
     },
     newValue: {
-      type: 'string',
+      type: 'mixed',
       required: true,
     },
     oldValue: {
-      type: 'string',  // Mixed
+      type: 'mixed',
       required: true,
     },
   };
