@@ -92,35 +92,6 @@ class Mercury {
       );
       this.resolversArr = mergeResolvers([this.resolversArr, createResolvers]);
     }
-
-    // If historyTracking is true, create a history model for the model
-    if (options.historyTracking) {
-      const historyModel: TModel = {
-        name: `${name}History`,
-        fields: historySchema(name),
-      };
-      this.list.push(historyModel);
-      (this.db as any)[name] = new Model({
-        name: historyModel.name,
-        fields: historyModel.fields,
-        options: { historyTracking: false },
-      });
-
-      // If the model is private, do not add history graphql typedefs
-      if (!options.private) {
-        this.typeDefsArr.push(
-          Mgraphql.genModel(historyModel.name, historyModel.fields)
-        );
-        const createHistoryResolvers = Mgraphql.genResolvers(
-          name,
-          (this.db as any)[name]
-        );
-        this.resolversArr = mergeResolvers([
-          this.resolversArr,
-          createHistoryResolvers,
-        ]);
-      }
-    }
   }
 }
 

@@ -8,6 +8,7 @@ const folderBuilds = [
   'packages/rateLimiter',
   'packages/trpcServer',
   'packages/salesCloud',
+  'packages/historyTracking'
 ].map((folder) => ({
   input: `src/${folder}/index.ts`,
   output: [
@@ -51,6 +52,7 @@ export default [
         include: /node_modules/,
         requireReturnsDefault: 'auto', // <---- this solves default issue
       }),
+      // json(),
       // terser(),
     ],
     output: [
