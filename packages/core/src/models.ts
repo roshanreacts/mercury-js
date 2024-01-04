@@ -170,6 +170,7 @@ export class Model {
         name: this.model.name,
         prevRecord: record,
         record: updateRecord,
+        data,
         user,
         options,
       },

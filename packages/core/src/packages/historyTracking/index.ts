@@ -1,6 +1,7 @@
 import { historySchema } from '../../utility';
 import { Mercury } from '../../mercury';
 import { Types } from "mongoose";
+import _ from "lodash";
 
 export interface MercuryHistoryPkgConfig {
   skipModels?: Array<string>;
@@ -24,33 +25,41 @@ const createHistory = (config: MercuryHistoryPkgConfig, mercury: Mercury) => {
   models.map((model: TModel) => {
     mercury.hook.after(`UPDATE_${model.name.toUpperCase()}_RECORD`, function (this: any) {
       const instanceId = new Types.ObjectId();
-      Object.keys(model.fields).map((key: string) => {
-        if (this.prevRecord[key] !== this.record[key]) {
-          console.log("Not equal", key, this.options.args.input);
-          createHistoryRecord(mercury, `${model.name}History`, this.prevRecord[key], this.record[key], instanceId, "UPDATE", typeof this.prevRecord[key], this.prevRecord._id, key, this.user)
+      Object.keys(this.data).map((key: string) => {
+        const value = this.data[key];
+        if (!_.isEqual(ifStringAndNotNull(this.prevRecord[key]), ifStringAndNotNull(value))) {
+          let dataType = ["relationship", "virtual"].includes(model.fields[key]?.type) ? model.fields[key].ref : model.fields[key].type;
+          createHistoryRecord(mercury, `${model.name}History`, this.prevRecord[key], value, instanceId, "UPDATE", dataType, this.prevRecord._id, key, this.user)
         }
       })
+    });
+    mercury.hook.after(`DELETE_${model.name.toUpperCase()}_RECORD`, function (this: any) {
+      // What fields are updataed or history itself gets deleted?
     })
   })
-  // Filter mercury.list and get the models which has option historyTracking enabled
-  // Iterate through the models and createModel with history generic model schema
-  // iterate through filtered models and call mercury.hooks.after(${model.name}_RECORD_UPDATE, (this:any) => createHis(mercury, this, model,Name))
-  // add models to profile dynamically to view the records
 }
 
 
-function createHistoryRecord(mercury: Mercury, model: any, oldValue: any, newValue: any, instanceId: any, operationType: String, dataType: String, recordId: String, fieldName: String, ctx: any) {
-  console.log("Creating records");
+function createHistoryRecord(mercury: Mercury, model: any, oldValue: any, newValue: any, instanceId: any, operationType: String, dataType: any, recordId: String, fieldName: String, ctx: any) {
   mercury.db[model].create({
     recordId: recordId,
     operationType: operationType,
     instanceId: instanceId,
     dataType: dataType,
     fieldName: fieldName,
-    newValue: newValue ?? "UNKNOWN",
-    oldValue: oldValue ?? "UNKNOWN"
+    newValue: ifStringAndNotNull(newValue),
+    oldValue: ifStringAndNotNull(oldValue)
   },
-  ctx, 
-  {});
+    ctx,
+    {});
 }
 
+function ifStringAndNotNull(value: any): string {
+  if (value == null || value.length == 0 || value == undefined) {
+    value = 'UNKNOWN';
+  }
+  if (typeof value !== 'string') {
+    value = value.toString();
+  }
+  return value;
+}
