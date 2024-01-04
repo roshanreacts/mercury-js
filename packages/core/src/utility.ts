@@ -1,6 +1,14 @@
 import _ from 'lodash';
 import { fieldTypeMap } from './graphql';
 import {
+  Logger,
+  ILogObj,
+  BaseLogger,
+  ISettingsParam,
+  ILogObjMeta,
+} from "tslog";
+
+import {
   DateTimeResolver,
   EmailAddressResolver,
   NegativeFloatResolver,
@@ -332,3 +340,36 @@ export const composePopulateQuery = (
     })
     .filter((item) => item != null);
 };
+export class MercuryLogger<LogObj> extends Logger<LogObj> {
+  constructor(settings?: ISettingsParam<LogObj>, logObj?: LogObj) {
+    super(settings, logObj);
+  }
+  public start(...args: unknown[]): (LogObj & ILogObjMeta) | undefined {
+    return super.log(8, "START", ...args);
+  }
+  public end(...args: unknown[]): (LogObj & ILogObjMeta) | undefined {
+    return super.log(9, "END", ...args);
+  }
+}
+export const loggerConfig = {
+  name: "MercuryCore",
+  prettyLogStyles: {
+    logLevelName: {
+      "*": ["bold", "black", "bgWhiteBright", "dim"],
+      START: ["bold", "green", "dim"],
+      END: ["bold", "red", "dim"],
+      SILLY: ["bold", "white"],
+      TRACE: ["bold", "whiteBright"],
+      DEBUG: ["bold", "green"],
+      INFO: ["bold", "blue"],
+      WARN: ["bold", "yellow"],
+      ERROR: ["bold", "red"],
+      FATAL: ["bold", "redBright"],
+    },
+  }
+}
+export let log: MercuryLogger<ILogObj> = new MercuryLogger(loggerConfig);
+
+export const setLogger = (logger: MercuryLogger<ILogObj>) => {
+  log = logger;
+}
