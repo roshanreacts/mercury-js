@@ -37,6 +37,11 @@
       "require": "./dist/cjs/packages/salesCloud/index.js",
       "import": "./dist/esm/packages/salesCloud/index.js",
       "types": "./dist/esm/src/packages/salesCloud/index.d.ts"
+    },
+    "./packages/recordOwner": {
+      "require": "./dist/cjs/packages/recordOwner/index.js",
+      "import": "./dist/esm/packages/recordOwner/index.js",
+      "types": "./dist/esm/src/packages/recordOwner/index.d.ts"
     }
   },
   "files": [

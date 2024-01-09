@@ -1,0 +1,7 @@
+{
+  "name": "@mercury-js/core/packages/recordOwner",
+  "private": false,
+  "main": "../../dist/cjs/packages/recordOwner/index.js",
+  "module": "../../dist/esm/packages/recordOwner/index.js",
+  "types": "./index.d.ts"
+}
