@@ -30,6 +30,7 @@ declare type TField = {
   bcrypt?: boolean;
   rounds?: number;
   ignoreGraphQL?: boolean;
+  default?: any;
 };
 
 declare type TOptions = {

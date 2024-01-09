@@ -1,5 +1,5 @@
 import { Mercury } from '../../mercury';
-
+import { InvoiceSchema, CustomerSchema } from './models/index';
 export interface MercurySalesPkgConfig {
   invoice: boolean;
 }
@@ -28,46 +28,7 @@ const salesModels = (config: MercurySalesPkgConfig, mercury: Mercury) => {
     }
   );
   if (config.invoice) {
-    mercury.createModel('Invoice', {
-      name: {
-        type: 'string',
-        required: true,
-      },
-      total: {
-        type: 'number',
-        required: true,
-      },
-      customer: {
-        type: 'string',
-        required: true,
-      },
-      status: {
-        type: 'enum',
-        enumType: 'string',
-        enum: ['active', 'inactive'],
-        required: true,
-      },
-    });
+    InvoiceSchema();
   }
-  console.log('salesModels');
-  mercury.createModel('Customer', {
-    name: {
-      type: 'string',
-      required: true,
-    },
-    total: {
-      type: 'number',
-      required: true,
-    },
-    customer: {
-      type: 'string',
-      required: true,
-    },
-    status: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['active', 'inactive'],
-      required: true,
-    },
-  });
+  CustomerSchema();
 };
