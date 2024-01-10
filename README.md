@@ -15,3 +15,7 @@ Run `npx nx connect-to-nx-cloud` to enable [remote caching](https://nx.app) and 
 ## Further help
 
 Visit the [Nx Documentation](https://nx.dev) to learn more.
+
+
+## Points to consider
+Ensure access permissions for updating a model include corresponding permissions for its history records to enable proper history tracking."
