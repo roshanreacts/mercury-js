@@ -24,24 +24,35 @@ const createHistory = (config: MercuryHistoryPkgConfig, mercury: Mercury) => {
   })
   models.map((model: TModel) => {
     mercury.hook.after(`UPDATE_${model.name.toUpperCase()}_RECORD`, function (this: any) {
-      const instanceId = new Types.ObjectId();
-      Object.keys(this.data).map((key: string) => {
-        const value = this.data[key];
+      const instanceId = getInstanceId();
+      Object.entries(this.data).map(async ([key, value]: [string, any]) => {
         if (!_.isEqual(ifStringAndNotNull(this.prevRecord[key]), ifStringAndNotNull(value))) {
-          let dataType = ["relationship", "virtual"].includes(model.fields[key]?.type) ? model.fields[key].ref : model.fields[key].type;
-          createHistoryRecord(mercury, `${model.name}History`, this.prevRecord[key], value, instanceId, "UPDATE", dataType, this.prevRecord._id, key, this.user)
+          await createHistoryRecord(mercury, `${model.name}History`, this.prevRecord[key], value, instanceId, "UPDATE", getDataType(model, key), this.prevRecord._id, key, this.user)
         }
       })
     });
     mercury.hook.after(`DELETE_${model.name.toUpperCase()}_RECORD`, function (this: any) {
-      // What fields are updataed or history itself gets deleted?
+      console.log("deleted",this.deletedRecord)
+      const instanceId = getInstanceId();
+      const skipFields = ["id", "_id", "createdOn", "updatedOn", "__v"];
+      Object.entries(this.deletedRecord['_doc']).map(async ([key, value]: [string, any]) => {
+        if(skipFields.includes(key)) return;
+        await createHistoryRecord(mercury, `${model.name}History`, value, "UNKNOWN", instanceId, "DELETE", getDataType(model, key), this.deletedRecord._id, key, this.user);
+      })
     })
   })
 }
 
+function getDataType(model: TModel, key: string) {
+  return ["relationship", "virtual"].includes(model.fields[key]?.type) ? model.fields[key].ref : model.fields[key].type;
+}
 
-function createHistoryRecord(mercury: Mercury, model: any, oldValue: any, newValue: any, instanceId: any, operationType: String, dataType: any, recordId: String, fieldName: String, ctx: any) {
-  mercury.db[model].create({
+function getInstanceId() {
+  return new Types.ObjectId();
+}
+
+async function createHistoryRecord(mercury: Mercury, model: any, oldValue: any, newValue: any, instanceId: any, operationType: String, dataType: any, recordId: String, fieldName: String, ctx: any) {
+  const historyRecord = await mercury.db[model].create({
     recordId: recordId,
     operationType: operationType,
     instanceId: instanceId,
@@ -50,8 +61,8 @@ function createHistoryRecord(mercury: Mercury, model: any, oldValue: any, newVal
     newValue: ifStringAndNotNull(newValue),
     oldValue: ifStringAndNotNull(oldValue)
   },
-    ctx,
-    {});
+  ctx,
+  {});
 }
 
 function ifStringAndNotNull(value: any): string {

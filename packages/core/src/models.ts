@@ -216,11 +216,13 @@ export class Model {
         }
       );
     });
+    const deletedRecord = record;
     record = await record.deleteOne();
     hook.execAfter(
       `DELETE_${this.model.name.toUpperCase()}_RECORD`,
       {
         name: this.model.name,
+        deletedRecord,
         record,
         user,
         options,
