@@ -32,7 +32,7 @@ describe('Generate graphql Schema', () => {
       },
       today: {
         type: 'date',
-      }
+      },
     });
     expect(query).toEqual(
       `type User {

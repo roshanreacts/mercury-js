@@ -87,29 +87,24 @@ class Mercury {
         throw error;
       }
     });
-    // this.log.end(`Before create model hook: ${name}`);
-
     // Add the model to the list of models
     this.list.push(model);
 
     // Create a new Model instance for the model and add it to the database
-    // this.log.start(`Generating model class: ${name}`);
-    (this.db as any)[name] = new Model(model);
-    // this.log.end(`Generating model class: ${name}`);
+    (this.db as any)[model.name] = new Model(model);
 
     // If the model is private, do not add graphql typedefs
     if (!options.private) {
       // Create graphql typedefs
-      this.typeDefsArr.push(Mgraphql.genModel(name, fields, options));
+      this.typeDefsArr.push(
+        Mgraphql.genModel(model.name, model.fields, model.options)
+      );
       const createResolvers = Mgraphql.genResolvers(
-        name,
-        (this.db as any)[name]
+        model.name,
+        (this.db as any)[model.name]
       );
       this.resolversArr = mergeResolvers([this.resolversArr, createResolvers]);
     }
-
-    // Log debug information
-    // this.log.end(`Created model: ${name}`);
   }
 }
 
