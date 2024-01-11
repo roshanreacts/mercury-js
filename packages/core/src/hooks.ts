@@ -8,12 +8,12 @@ export class Hook {
 
   // Add a function to be executed before a hook
   public before = (type: THookType, fn: Function) => {
-    this.kareemHookInstance.pre(type, true, fn);
+    this.kareemHookInstance.pre(type, fn);
   };
 
   // Add a function to be executed after a hook
   public after = (type: THookType, fn: Function) => {
-    this.kareemHookInstance.post(type, true, fn);
+    this.kareemHookInstance.post(type, fn);
   };
 
   // Execute all functions added to be executed before a hook

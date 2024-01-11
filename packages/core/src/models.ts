@@ -94,12 +94,22 @@ export class Model {
     });
     let record = new this.mongoModel(data);
     record = await record.save();
-    hook.execAfter(
-      `CREATE_${this.model.name.toUpperCase()}_RECORD`,
-      { name: this.model.name, record, user, options },
-      [],
-      function () { }
-    );
+    await new Promise((resolve, reject) => {
+      hook.execAfter(
+        `CREATE_${this.model.name.toUpperCase()}_RECORD`,
+        { name: this.model.name, record, user, options },
+        [],
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
+        }
+      );
+    });
     return record;
   }
 
@@ -164,19 +174,29 @@ export class Model {
       .populate(options.populate || [])
       .select(options.select || [])
       .exec();
-    hook.execAfter(
-      `UPDATE_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        prevRecord: record,
-        record: updateRecord,
-        data,
-        user,
-        options,
-      },
-      [],
-      function () { }
-    );
+    await new Promise((resolve, reject) => {
+      hook.execAfter(
+        `UPDATE_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          prevRecord: record,
+          record: updateRecord,
+          data,
+          user,
+          options,
+        },
+        [],
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
+        }
+      );
+    });
     return updateRecord;
   }
 
@@ -218,18 +238,28 @@ export class Model {
     });
     const deletedRecord = record;
     record = await record.deleteOne();
-    hook.execAfter(
-      `DELETE_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        deletedRecord,
-        record,
-        user,
-        options,
-      },
-      [],
-      function () { }
-    );
+    await new Promise((resolve, reject) => {
+      hook.execAfter(
+        `DELETE_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          deletedRecord,
+          record,
+          user,
+          options,
+        },
+        [],
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
+        }
+      );
+    });
     return true;
   }
 
@@ -286,18 +316,28 @@ export class Model {
     if (!record) {
       throw new Error('Record not found');
     }
-    hook.execAfter(
-      `GET_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        query,
-        record,
-        user,
-        options,
-      },
-      [],
-      function () { }
-    );
+    await new Promise((resolve, reject) => {
+      hook.execAfter(
+        `GET_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          query,
+          record,
+          user,
+          options,
+        },
+        [],
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
+        }
+      );
+    });
     return record;
   }
 
@@ -352,18 +392,28 @@ export class Model {
       .populate(options.populate || [])
       .select(options.select || [])
       .exec();
-    hook.execAfter(
-      `LIST_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        query,
-        records,
-        user,
-        options,
-      },
-      [],
-      function () { }
-    );
+    await new Promise((resolve, reject) => {
+      hook.execAfter(
+        `LIST_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          query,
+          records,
+          user,
+          options,
+        },
+        [],
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
+        }
+      );
+    });
     return records;
   }
 
@@ -423,19 +473,29 @@ export class Model {
       populate: options.populate || [],
       select: options.select || [],
     });
-    hook.execAfter(
-      `PAGINATE_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        query,
-        filters,
-        records,
-        user,
-        options,
-      },
-      [],
-      function () { }
-    );
+    await new Promise((resolve, reject) => {
+      hook.execAfter(
+        `PAGINATE_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          query,
+          filters,
+          records,
+          user,
+          options,
+        },
+        [],
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
+        }
+      );
+    });
     return records;
   }
 
@@ -465,17 +525,27 @@ export class Model {
       );
     });
     let count = await this.mongoModel.countDocuments();
-    hook.execAfter(
-      `COUNT_${this.model.name.toUpperCase()}_RECORD`,
-      {
-        name: this.model.name,
-        count,
-        user,
-        options,
-      },
-      [],
-      function () { }
-    );
+    await new Promise((resolve, reject) => {
+      hook.execAfter(
+        `COUNT_${this.model.name.toUpperCase()}_RECORD`,
+        {
+          name: this.model.name,
+          count,
+          user,
+          options,
+        },
+        [],
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
+        }
+      );
+    });
     return count;
   }
 

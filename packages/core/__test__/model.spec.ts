@@ -163,8 +163,13 @@ describe('Model create', () => {
       );
       hook.after(
         `CREATE_${model.name.toUpperCase()}_RECORD`,
-        function (this: any, args: any) {
+        function (this: any, next: Function) {
           expect(this.record.name).toBe('test 2');
+          // console.log("AfterHook");
+          setTimeout(() => {
+            console.log("AfterHook");
+            next();
+          }, 2000);
         }
       );
       await modelInstance.create({ name: 'rename' }, userCtx, { test: 1 });
