@@ -98,7 +98,7 @@ export class Model {
       `CREATE_${this.model.name.toUpperCase()}_RECORD`,
       { name: this.model.name, record, user, options },
       [],
-      function () {}
+      function () { }
     );
     return record;
   }
@@ -170,11 +170,12 @@ export class Model {
         name: this.model.name,
         prevRecord: record,
         record: updateRecord,
+        data,
         user,
         options,
       },
       [],
-      function () {}
+      function () { }
     );
     return updateRecord;
   }
@@ -215,17 +216,19 @@ export class Model {
         }
       );
     });
+    const deletedRecord = record;
     record = await record.deleteOne();
     hook.execAfter(
       `DELETE_${this.model.name.toUpperCase()}_RECORD`,
       {
         name: this.model.name,
+        deletedRecord,
         record,
         user,
         options,
       },
       [],
-      function () {}
+      function () { }
     );
     return true;
   }
@@ -293,7 +296,7 @@ export class Model {
         options,
       },
       [],
-      function () {}
+      function () { }
     );
     return record;
   }
@@ -359,7 +362,7 @@ export class Model {
         options,
       },
       [],
-      function () {}
+      function () { }
     );
     return records;
   }
@@ -431,7 +434,7 @@ export class Model {
         options,
       },
       [],
-      function () {}
+      function () { }
     );
     return records;
   }
@@ -471,7 +474,7 @@ export class Model {
         options,
       },
       [],
-      function () {}
+      function () { }
     );
     return count;
   }

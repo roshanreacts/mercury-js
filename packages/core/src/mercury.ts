@@ -1,5 +1,6 @@
 import { merge } from 'lodash';
-import { historySchema, defaultTypeDefs, defaultResolvers } from './utility';
+import { defaultTypeDefs, defaultResolvers } from './utility';
+// import { log, loggerConfig, setLogger, defaultTypeDefs, defaultResolvers, MercuryLogger } from './utility';
 import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
 import mongoose from 'mongoose';
 import { Model } from './models';
@@ -7,6 +8,7 @@ import { Mgraphql } from './graphql';
 import hook, { Hook } from './hooks';
 import access, { Access } from './access';
 import { DocumentNode } from 'graphql';
+import { Logger, ILogObj } from "tslog";
 
 export type ModelType = Model;
 
@@ -20,6 +22,7 @@ class Mercury {
   list: Array<TModel> = [];
   private typeDefsArr: string[] = [defaultTypeDefs];
   private resolversArr: any = defaultResolvers;
+  private _debug: boolean = false;
   // Initialize an empty object for storing models by name
   db: DB = {} as DB;
   public access: Access = access;
@@ -32,10 +35,18 @@ class Mercury {
     return mergeResolvers(this.resolversArr);
   }
 
-  // public createProfile(name: string, rules: Rule[]): void {
-  //   access.createProfile(name, rules);
+  // set debug(val: boolean) {
+  //   this._debug = val;
+  //   this.setLogger(new MercuryLogger({
+  //     ...loggerConfig,
+  //     minLevel: val ? 0 : 100
+  //   }))
   // }
-
+  // public log = log;
+  // public setLogger(logger: any) {
+  //   setLogger(logger);
+  //   this.log = logger;
+  // }
   public addGraphqlSchema(typeDefs: string, resolvers: any) {
     this.typeDefsArr.push(typeDefs);
     this.resolversArr = mergeResolvers([this.resolversArr, resolvers]);
@@ -57,9 +68,9 @@ class Mercury {
     fields: TFields,
     options?: TOptions
   ): void {
+    // this.log.start(`Created model: ${name}`);
     // Define default options for the model
     const defaultOptions = {
-      historyTracking: false,
       private: false,
     };
 
@@ -70,6 +81,7 @@ class Mercury {
     const model: TModel = { name, fields, options };
 
     // Execute the CREATE_MODEL hook before creating the model
+    // this.log.start(`Before create model hook: ${name}`);
     this.hook.execBefore('CREATE_MODEL', model, (error: any) => {
       if (error) {
         throw error;

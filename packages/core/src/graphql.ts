@@ -242,11 +242,14 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
           ctx: any,
           resolveInfo: any
         ) => {
+          let requestedFields, select;
           const whereInput = whereInputCompose(args.where, model.model.fields);
-          const fields = graphqlFields(resolveInfo);
-          const deep = 0;
-          const requestedFields = composePopulateQuery(fields, deep, 5);
-          const select = Object.keys(fields).map((key) => key);
+          if(resolveInfo){
+            const fields = graphqlFields(resolveInfo);
+            const deep = 0;
+             requestedFields = composePopulateQuery(fields, deep, 5);
+             select = Object.keys(fields).map((key) => key);
+          }
           return await model.get(whereInput, ctx.user, {
             root,
             args,
@@ -263,15 +266,18 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
           ctx: any,
           resolveInfo: any
         ) => {
+          let requestedFields, select;
           const whereInput = whereInputCompose(args.where, model.model.fields);
-          const fields = graphqlFields(resolveInfo);
-          const deep = 0;
-          const requestedFields = fields.docs
-            ? composePopulateQuery(fields.docs, deep, 5)
-            : [];
-          const select = fields.docs
-            ? Object.keys(fields.docs).map((key) => key)
-            : [];
+          if(resolveInfo){
+            const fields = graphqlFields(resolveInfo);
+            const deep = 0;
+             requestedFields = fields.docs
+              ? composePopulateQuery(fields.docs, deep, 5)
+              : [];
+             select = fields.docs
+              ? Object.keys(fields.docs).map((key) => key)
+              : [];
+          }
           return await model.paginate(
             whereInput,
             { sort: args.sort, offset: args.offset, limit: args.limit },
@@ -295,10 +301,13 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
           ctx: any,
           resolveInfo: any
         ) => {
-          const fields = graphqlFields(resolveInfo);
-          const deep = 0;
-          const requestedFields = composePopulateQuery(fields, deep, 5);
-          const select = Object.keys(fields).map((key) => key);
+          let requestedFields, select;
+          if(resolveInfo){
+            const fields = graphqlFields(resolveInfo);
+            const deep = 0;
+             requestedFields = composePopulateQuery(fields, deep, 5);
+             select = Object.keys(fields).map((key) => key);
+          }
           return await model.create(args.input, ctx.user, {
             root,
             args,
@@ -315,10 +324,13 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
           ctx: any,
           resolveInfo: any
         ) => {
-          const fields = graphqlFields(resolveInfo);
-          const deep = 0;
-          const requestedFields = composePopulateQuery(fields, deep, 5);
-          const select = Object.keys(fields).map((key) => key);
+          let requestedFields: any, select: any;
+          if(resolveInfo){
+            const fields = graphqlFields(resolveInfo);
+            const deep = 0;
+             requestedFields = composePopulateQuery(fields, deep, 5);
+             select = Object.keys(fields).map((key) => key);
+          }
           return await Promise.all(
             args.input.map(
               async (item) =>
@@ -340,10 +352,13 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
           ctx: any,
           resolveInfo: any
         ) => {
-          const fields = graphqlFields(resolveInfo);
-          const deep = 0;
-          const requestedFields = composePopulateQuery(fields, deep, 5);
-          const select = Object.keys(fields).map((key) => key);
+          let requestedFields, select;
+          if(resolveInfo){
+            const fields = graphqlFields(resolveInfo);
+            const deep = 0;
+             requestedFields = composePopulateQuery(fields, deep, 5);
+             select = Object.keys(fields).map((key) => key);
+          }
           return await model.update(args.input.id, args.input, ctx.user, {
             root,
             args,
@@ -360,10 +375,13 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
           ctx: any,
           resolveInfo: any
         ) => {
-          const fields = graphqlFields(resolveInfo);
-          const deep = 0;
-          const requestedFields = composePopulateQuery(fields, deep, 5);
-          const select = Object.keys(fields).map((key) => key);
+          let requestedFields: any, select: any;
+          if(resolveInfo){
+            const fields = graphqlFields(resolveInfo);
+            const deep = 0;
+             requestedFields = composePopulateQuery(fields, deep, 5);
+             select = Object.keys(fields).map((key) => key);
+          }
           return await Promise.all(
             args.input.map(
               async (item: any) =>

@@ -1,6 +1,12 @@
 import _ from 'lodash';
 import { fieldTypeMap } from './graphql';
 import {
+  Logger,
+  ISettingsParam,
+  ILogObjMeta,
+} from "tslog";
+
+import {
   DateTimeResolver,
   EmailAddressResolver,
   NegativeFloatResolver,
@@ -75,6 +81,7 @@ export const defaultResolvers = {
   JSONObject: JSONObjectResolver,
 };
 
+// No need of name
 export const historySchema = (name: string): TFields => {
   return {
     recordId: {
@@ -100,11 +107,11 @@ export const historySchema = (name: string): TFields => {
       required: true,
     },
     newValue: {
-      type: 'mixed',
+      type: 'string',
       required: true,
     },
     oldValue: {
-      type: 'mixed',
+      type: 'string',  // Mixed
       required: true,
     },
   };
@@ -160,7 +167,7 @@ input whereString {
   notStartWith: String
   endsWith: String
   notEndsWith: String
-  isIn: [String]
+  in: [String]
   notIn: [String]
 }
 
@@ -228,46 +235,46 @@ export const whereInputMap = (input: any, modelFields: TFields) => {
         querySchema._id = _.has(fieldReq, 'is')
           ? { $eq: fieldReq.is }
           : _.has(fieldReq, 'isNot')
-          ? { $ne: fieldReq.isNot }
-          : _.has(fieldReq, 'in')
-          ? { $in: fieldReq.in }
-          : _.has(fieldReq, 'notIn')
-          ? { $nin: fieldReq.notIn }
-          : null;
+            ? { $ne: fieldReq.isNot }
+            : _.has(fieldReq, 'in')
+              ? { $in: fieldReq.in }
+              : _.has(fieldReq, 'notIn')
+                ? { $nin: fieldReq.notIn }
+                : null;
         break;
       case 'relationship':
         querySchema[field] = _.has(fieldReq, 'is')
           ? { $eq: fieldReq.is }
           : _.has(fieldReq, 'isNot')
-          ? { $ne: fieldReq.isNot }
-          : _.has(fieldReq, 'in')
-          ? { $in: fieldReq.in }
-          : _.has(fieldReq, 'notIn')
-          ? { $nin: fieldReq.notIn }
-          : null;
+            ? { $ne: fieldReq.isNot }
+            : _.has(fieldReq, 'in')
+              ? { $in: fieldReq.in }
+              : _.has(fieldReq, 'notIn')
+                ? { $nin: fieldReq.notIn }
+                : null;
         break;
       case 'String':
         querySchema[field] = _.has(fieldReq, 'is')
           ? { $eq: fieldReq.is }
           : _.has(fieldReq, 'isNot')
-          ? { $ne: fieldReq.isNot }
-          : _.has(fieldReq, 'contains')
-          ? { $regex: `${fieldReq.contains}`, $options: 'i' }
-          : _.has(fieldReq, 'notContains')
-          ? { $regex: `^((?!${fieldReq.notContains}).)*$`, $options: 'i' }
-          : _.has(fieldReq, 'startsWith')
-          ? { $regex: `^${fieldReq.startsWith}`, $options: 'i' }
-          : _.has(fieldReq, 'notStartWith')
-          ? { $not: { $regex: `^${fieldReq.notStartWith}.*`, $options: 'i' } }
-          : _.has(fieldReq, 'endsWith')
-          ? { $regex: `.*${fieldReq.endsWith}$`, $options: 'i' }
-          : _.has(fieldReq, 'notEndsWith')
-          ? { $not: { $regex: `.*${fieldReq.notEndsWith}$`, $options: 'i' } }
-          : _.has(fieldReq, 'in')
-          ? { $in: fieldReq.in }
-          : _.has(fieldReq, 'notIn')
-          ? { $nin: fieldReq.notIn }
-          : null;
+            ? { $ne: fieldReq.isNot }
+            : _.has(fieldReq, 'contains')
+              ? { $regex: `${fieldReq.contains}`, $options: 'i' }
+              : _.has(fieldReq, 'notContains')
+                ? { $regex: `^((?!${fieldReq.notContains}).)*$`, $options: 'i' }
+                : _.has(fieldReq, 'startsWith')
+                  ? { $regex: `^${fieldReq.startsWith}`, $options: 'i' }
+                  : _.has(fieldReq, 'notStartWith')
+                    ? { $not: { $regex: `^${fieldReq.notStartWith}.*`, $options: 'i' } }
+                    : _.has(fieldReq, 'endsWith')
+                      ? { $regex: `.*${fieldReq.endsWith}$`, $options: 'i' }
+                      : _.has(fieldReq, 'notEndsWith')
+                        ? { $not: { $regex: `.*${fieldReq.notEndsWith}$`, $options: 'i' } }
+                        : _.has(fieldReq, 'in')
+                          ? { $in: fieldReq.in }
+                          : _.has(fieldReq, 'notIn')
+                            ? { $nin: fieldReq.notIn }
+                            : null;
         break;
       case 'enum':
         querySchema[field] = { $eq: fieldReq };
@@ -280,20 +287,20 @@ export const whereInputMap = (input: any, modelFields: TFields) => {
         querySchema[field] = _.has(fieldReq, 'is')
           ? { $eq: fieldReq.is }
           : _.has(fieldReq, 'isNot')
-          ? { $ne: fieldReq.isNot }
-          : _.has(fieldReq, 'lt')
-          ? { $lt: fieldReq.lt }
-          : _.has(fieldReq, 'lte')
-          ? { $lte: fieldReq.lte }
-          : _.has(fieldReq, 'gt')
-          ? { $gt: fieldReq.gt }
-          : _.has(fieldReq, 'gte')
-          ? { $gte: fieldReq.gte }
-          : _.has(fieldReq, 'in')
-          ? { $in: fieldReq.in }
-          : _.has(fieldReq, 'notIn')
-          ? { $nin: fieldReq.notIn }
-          : null;
+            ? { $ne: fieldReq.isNot }
+            : _.has(fieldReq, 'lt')
+              ? { $lt: fieldReq.lt }
+              : _.has(fieldReq, 'lte')
+                ? { $lte: fieldReq.lte }
+                : _.has(fieldReq, 'gt')
+                  ? { $gt: fieldReq.gt }
+                  : _.has(fieldReq, 'gte')
+                    ? { $gte: fieldReq.gte }
+                    : _.has(fieldReq, 'in')
+                      ? { $in: fieldReq.in }
+                      : _.has(fieldReq, 'notIn')
+                        ? { $nin: fieldReq.notIn }
+                        : null;
         break;
       default:
         break;
@@ -331,3 +338,36 @@ export const composePopulateQuery = (
     })
     .filter((item) => item != null);
 };
+// export class MercuryLogger<T> extends Logger<T> {
+//   constructor(settings?: ISettingsParam<T>, logObj?: T) {
+//     super(settings, logObj);
+//   }
+//   public start(...args: unknown[]): (T & ILogObjMeta) | undefined {
+//     return super.log(8, "START", ...args);
+//   }
+//   public end(...args: unknown[]): (T & ILogObjMeta) | undefined {
+//     return super.log(9, "END", ...args);
+//   }
+// }
+// export const loggerConfig = {
+//   name: "MercuryCore",
+//   prettyLogStyles: {
+//     logLevelName: {
+//       "*": ["bold", "black", "bgWhiteBright", "dim"],
+//       START: ["bold", "green", "dim"],
+//       END: ["bold", "red", "dim"],
+//       SILLY: ["bold", "white"],
+//       TRACE: ["bold", "whiteBright"],
+//       DEBUG: ["bold", "green"],
+//       INFO: ["bold", "blue"],
+//       WARN: ["bold", "yellow"],
+//       ERROR: ["bold", "red"],
+//       FATAL: ["bold", "redBright"],
+//     },
+//   }
+// }
+// export let log = new MercuryLogger(loggerConfig);
+
+// export const setLogger = (logger: any) => {
+//   log = logger;
+// }

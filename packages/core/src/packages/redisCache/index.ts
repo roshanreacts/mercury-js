@@ -27,6 +27,9 @@ function AfterHook(
   const originalMethod = descriptor.value;
 
   descriptor.value = async function (this: Redis, ...args: any[]) {
+    if (this.client.isOpen) {
+      await this.client.quit();
+    }
     await this.client.connect();
 
     const result = originalMethod.apply(this, args);

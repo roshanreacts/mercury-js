@@ -17,6 +17,10 @@
 			"path": "packages/core/packages/extendModelTypes"
 		},
 		{
+			"name": "platform",
+			"path": "packages/core/packages/platform"
+		},
+		{
 			"name": "rateLimiter",
 			"path": "packages/core/packages/rateLimiter"
 		}
