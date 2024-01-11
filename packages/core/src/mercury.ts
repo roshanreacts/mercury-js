@@ -75,51 +75,23 @@ class Mercury {
         throw error;
       }
     });
-
     // Add the model to the list of models
     this.list.push(model);
 
     // Create a new Model instance for the model and add it to the database
-    (this.db as any)[name] = new Model(model);
+    (this.db as any)[model.name] = new Model(model);
 
     // If the model is private, do not add graphql typedefs
     if (!options.private) {
       // Create graphql typedefs
-      this.typeDefsArr.push(Mgraphql.genModel(name, fields, options));
+      this.typeDefsArr.push(
+        Mgraphql.genModel(model.name, model.fields, model.options)
+      );
       const createResolvers = Mgraphql.genResolvers(
-        name,
-        (this.db as any)[name]
+        model.name,
+        (this.db as any)[model.name]
       );
       this.resolversArr = mergeResolvers([this.resolversArr, createResolvers]);
-    }
-
-    // If historyTracking is true, create a history model for the model
-    if (options.historyTracking) {
-      const historyModel: TModel = {
-        name: `${name}History`,
-        fields: historySchema(name),
-      };
-      this.list.push(historyModel);
-      (this.db as any)[name] = new Model({
-        name: historyModel.name,
-        fields: historyModel.fields,
-        options: { historyTracking: false },
-      });
-
-      // If the model is private, do not add history graphql typedefs
-      if (!options.private) {
-        this.typeDefsArr.push(
-          Mgraphql.genModel(historyModel.name, historyModel.fields)
-        );
-        const createHistoryResolvers = Mgraphql.genResolvers(
-          name,
-          (this.db as any)[name]
-        );
-        this.resolversArr = mergeResolvers([
-          this.resolversArr,
-          createHistoryResolvers,
-        ]);
-      }
     }
   }
 }

@@ -12,7 +12,6 @@ export default (config?: MercuryRecordOwnerPkgConfig) => {
       };
     }
     mercury.hook.before('CREATE_MODEL', function (this: any) {
-      console.log('recordOwner', this);
       if (this.options.recordOwner) {
         this.fields = {
           ...this.fields,
