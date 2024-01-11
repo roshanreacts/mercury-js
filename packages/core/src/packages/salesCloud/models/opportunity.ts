@@ -1,91 +1,29 @@
 import { Mercury } from '../../../mercury';
 
-let mercury = new Mercury();
-
-export const OpportunitySchema: any = () => {
+export const OpportunitySchema: any = (mercury: Mercury) => {
   mercury.createModel('Opportunity', {
-    accountId: {
-      //change it to ref account
-      type: 'string',
-      required: true,
-    },
-    amount: {
-      type: 'number',
-    },
-    budgetConfirm: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['budget1', 'budget2'],
-    },
-    closeDate: {
-      type: 'string',
-    },
-    contractId: {
-      //change it to ref contract
-      type: 'string',
-    },
-    description: {
-      type: 'string',
-    },
-    discoveryCompleted: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['discovery1', 'discovery2'],
-    },
-    expectedRevenue: {
-      type: 'string',
-    },
-    forecastCategoryName: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['Category1', 'Category2'],
-    },
-    lastModifiedBy: {
-      //change it to userId
-      type: 'string',
-    },
-    leadSource: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['source1', 'source2', 'source3'],
-    },
-    lossReason: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['loss1', 'loss2'],
-    },
-    nextOption: {
-      type: 'string',
-    },
-    opportunityName: {
-      type: 'string',
-    },
-    opportunityOwnerId: {
-      //change it to userId
-      type: 'string',
-    },
-    opportunitySource: {
-      type: 'number',
-    },
-    priceBook2Id: {
-      //change it to priceId
-      type: 'string',
-    },
-    campaignId: {
-      //change it to userId
-      type: 'string',
+    owner: {
+      type: 'relationship',
+      ref: 'User',
     },
     isPrivate: {
       type: 'boolean',
       default: false,
     },
-    probability: {
-      type: 'string',
+    accountId: {
+      type: 'relationship',
+      ref: 'Account',
     },
-    totalOpportunityQuantity: {
+    amount: {
       type: 'number',
     },
-    stageName: {
+    closeDate: {
+      type: 'string',
+    },
+    nextStep: {
+      type: 'string',
+    },
+    stage: {
       type: 'enum',
       enumType: 'string',
       enum: [
@@ -99,14 +37,52 @@ export const OpportunitySchema: any = () => {
         'NEGOTIATION',
       ],
     },
-    syncedQuoteId: {
-      //change it to userId
-      type: 'string',
-    },
     type: {
       type: 'enum',
       enumType: 'string',
-      enum: ['stage1', 'stage2', 'stage3'],
+      enum: ['UPGRADE', 'DOWNGRADE', 'REPLACEMENT'],
+    },
+    leadSource: {
+      type: 'enum',
+      enumType: 'string',
+      enum: [
+        'WEB',
+        'PHONE_ENQUIRY',
+        'PARTNER_REFERAL',
+        'PURCHASED_LIST',
+        'OTHER',
+      ],
+    },
+    lead: {
+      type: 'relationship',
+      ref: 'Lead',
+    },
+    probability: {
+      type: 'string',
+    },
+    campaignId: {
+      type: 'relationship',
+      ref: 'Campaign',
+    },
+    orderNo: {
+      type: 'number',
+    },
+    competitor: {
+      type: 'string',
+    },
+    generator: {
+      type: 'string',
+    },
+    trackingNo: {
+      type: 'number',
+    },
+    status: {
+      type: 'enum',
+      enumType: 'string',
+      enum: ['IN_PROGRESS', 'COMPLETED', 'BEGIN'],
+    },
+    description: {
+      type: 'string',
     },
   });
 };

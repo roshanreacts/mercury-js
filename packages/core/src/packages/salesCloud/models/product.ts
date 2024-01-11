@@ -1,54 +1,28 @@
 import { Mercury } from '../../../mercury';
 
-let mercury = new Mercury();
-
-export const ProductSchema: any = () => {
+export const ProductSchema: any = (mercury: Mercury) => {
   mercury.createModel('Product', {
-    isActive: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['active', 'inactive'],
-      required: true,
-    },
-    createdBy: {
-      //change it to red User
-      type: 'string',
-    },
-    displayUrl: {
-      type: 'string',
-    },
-    externalId: {
-      type: 'string',
-    },
-    lastModifiedBy: {
-      //change it to userId
-      type: 'string',
-    },
-    productCode: {
-      type: 'string',
-      required: true,
-    },
-    description: {
-      type: 'string',
-    },
-    productFamily: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['active', 'inactive'],
-      required: true,
-    },
     name: {
       type: 'string',
       required: true,
     },
-    sku: {
+    isActive: {
+      type: 'boolean',
+      default: false,
+    },
+    code: {
       type: 'string',
     },
-    quantityUnitOfMeasure: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['active', 'inactive'],
-      required: true,
+    family: {
+      type: 'string',
+    },
+    description: {
+      type: 'string',
+    },
+    file: {
+      type: 'relationship',
+      ref: 'File',
+      many: true,
     },
   });
 };

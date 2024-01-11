@@ -1,32 +1,20 @@
 import { Mercury } from '../../../mercury';
 
-let mercury = new Mercury();
-
-export const PriceBookSchema: any = () => {
+export const PriceBookSchema: any = (mercury: Mercury) => {
   mercury.createModel('PriceBook', {
-    isActive: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['active', 'inactive'],
-    },
-    createdBy: {
-      //change it to red User
+    name: {
       type: 'string',
+      required: true,
+    },
+    isActive: {
+      type: 'boolean',
+      default: false,
     },
     isStandard: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['active', 'inactive'],
+      type: 'boolean',
+      default: false,
     },
     description: {
-      type: 'string',
-    },
-    lastModifiedBy: {
-      //change it to userId
-      type: 'string',
-    },
-    priceBookName: {
-      //change it to userId
       type: 'string',
     },
   });

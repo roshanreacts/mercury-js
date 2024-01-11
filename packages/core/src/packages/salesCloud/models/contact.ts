@@ -1,67 +1,42 @@
 import { Mercury } from '../../../mercury';
 
-let mercury = new Mercury();
-
-export const ContactSchema: any = () => {
+export const ContactSchema: any = (mercury: Mercury) => {
   mercury.createModel('Contact', {
+    owner: {
+      type: 'relationship',
+      ref: 'User',
+      required: true,
+    },
+    salutation: {
+      type: 'enum',
+      enumType: 'string',
+      enum: ['MR', 'MS', 'MRS', 'DR', 'PROF', 'MX'],
+    },
+    firstName: {
+      type: 'string',
+    },
+    middleName: {
+      type: 'string',
+    },
+    lastName: {
+      type: 'string',
+    },
     accountId: {
-      //change it to ref account
-      type: 'string',
-      required: true,
+      type: 'relationship',
+      ref: 'Account',
     },
-    assistantName: {
-      type: 'string',
-    },
-    assistantPhone: {
-      type: 'string',
-    },
-    dob: {
-      type: 'string',
-    },
-    ownerId: {
-      //change it to user ref
-      type: 'string',
-      required: true,
-    },
-    jigsaw: {
+    title: {
       type: 'string',
     },
     department: {
       type: 'string',
     },
-    description: {
+    dob: {
       type: 'string',
     },
-    doNotCall: {
-      type: 'boolean',
-      default: false,
-    },
-    email: {
-      type: 'string',
-      required: true,
-    },
-    fax: {
-      type: 'string',
-    },
-    homePhone: {
-      type: 'string',
-    },
-    lastModifiedBy: {
-      //change it to userId
-      type: 'string',
-    },
-    lastTransferDate: {
-      type: 'string',
-    },
-    lastOwner: {
-      //change it to userId
-      type: 'string',
-    },
-    lastCURequestDate: {
-      type: 'string',
-    },
-    lastCUUpdateDate: {
-      type: 'string',
+    reportsToId: {
+      type: 'relationship',
+      ref: 'Contact',
     },
     leadSource: {
       type: 'enum',
@@ -74,47 +49,74 @@ export const ContactSchema: any = () => {
         'OTHER',
       ],
     },
-    mailingAddress: {
+    lead: {
+      type: 'relationship',
+      ref: 'Lead',
+    },
+    phone: {
+      type: 'string',
+    },
+    homePhone: {
       type: 'string',
     },
     mobile: {
       type: 'string',
     },
-    salutation: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['MR', 'MRS'],
-      required: true,
-    },
-    firstName: {
-      type: 'string',
-    },
-    middleName: {
-      type: 'string',
-    },
-    lastName: {
-      type: 'string',
-    },
-    suffix: {
-      type: 'string',
-    },
-    otherAddress: {
-      type: 'string',
-    },
     otherPhone: {
       type: 'string',
     },
-    phone: {
+    fax: {
       type: 'string',
     },
-    reportsToId: {
-      //change to ref contact table
+    email: {
+      type: 'string',
+      required: true,
+    },
+    assistantName: {
       type: 'string',
     },
-    title: {
+    assistantPhone: {
       type: 'string',
     },
-    website: {
+    mailingAddress: {
+      type: 'string',
+    },
+    mailingCity: {
+      type: 'string',
+    },
+    mailingState: {
+      type: 'string',
+    },
+    mailingCountry: {
+      type: 'string',
+    },
+    mailingZipCode: {
+      type: 'string',
+    },
+    OtherAddress: {
+      type: 'string',
+    },
+    OtherCity: {
+      type: 'string',
+    },
+    OtherState: {
+      type: 'string',
+    },
+    OtherCountry: {
+      type: 'string',
+    },
+    OtherZipCode: {
+      type: 'string',
+    },
+    languages: {
+      type: 'string',
+    },
+    level: {
+      type: 'enum',
+      enumType: 'string',
+      enum: ['PRIMARY', 'SECONDARY', 'TERTIARY'],
+    },
+    description: {
       type: 'string',
     },
   });

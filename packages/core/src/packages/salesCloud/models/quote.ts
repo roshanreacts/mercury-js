@@ -1,13 +1,10 @@
 import { Mercury } from '../../../mercury';
 
-let mercury = new Mercury();
-
-export const QuoteSchema: any = () => {
+export const QuoteSchema: any = (mercury: Mercury) => {
   mercury.createModel('Quote', {
     accountId: {
-      //change it to ref account
-      type: 'string',
-      required: true,
+      type: 'relationship',
+      ref: 'Account',
     },
     additionalAddress: {
       type: 'number',
@@ -22,19 +19,8 @@ export const QuoteSchema: any = () => {
       type: 'number',
     },
     contactId: {
-      //change it to ref contact
-      type: 'string',
-      required: true,
-    },
-    contractId: {
-      //change it to ref contractId
-      type: 'string',
-      required: true,
-    },
-    createdBy: {
-      //change it to ref user
-      type: 'string',
-      required: true,
+      type: 'relationship',
+      ref: 'Contact',
     },
     description: {
       type: 'string',
@@ -44,6 +30,7 @@ export const QuoteSchema: any = () => {
     },
     email: {
       type: 'string',
+      required: true,
     },
     expirationDate: {
       type: 'string',
@@ -54,17 +41,13 @@ export const QuoteSchema: any = () => {
     grandTotal: {
       type: 'string',
     },
-    lastModifiedBy: {
-      //change it to userId
-      type: 'string',
-    },
     opportunityId: {
-      //change it to opportunity
-      type: 'string',
+      type: 'relationship',
+      ref: 'Opportunity',
     },
-    ownerId: {
-      //change it to User
-      type: 'string',
+    owner: {
+      type: 'relationship',
+      ref: 'User',
     },
     phone: {
       type: 'string',
@@ -72,10 +55,6 @@ export const QuoteSchema: any = () => {
     name: {
       type: 'string',
       required: true,
-    },
-    quoteNumber: {
-      //auto increment
-      type: 'number',
     },
     quoteToAddress: {
       type: 'string',
@@ -92,18 +71,8 @@ export const QuoteSchema: any = () => {
     shippingHandling: {
       type: 'number',
     },
-    status: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['stage1', 'stage2', 'stage3'],
-    },
     subTotal: {
       type: 'number',
-    },
-    isSyncing: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['stage1', 'stage2', 'stage3'],
     },
     tax: {
       type: 'number',

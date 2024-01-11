@@ -1,8 +1,6 @@
 import { Mercury } from '../../../mercury';
 
-let mercury = new Mercury();
-
-export const InvoiceSchema: any = () => {
+export const InvoiceSchema: any = (mercury: Mercury) => {
   mercury.createModel('Invoice', {
     name: {
       type: 'string',

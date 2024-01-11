@@ -1,74 +1,11 @@
 import { Mercury } from '../../../mercury';
 
-let mercury = new Mercury();
-
-export const LeadSchema: any = () => {
+export const LeadSchema: any = (mercury: Mercury) => {
   mercury.createModel('Lead', {
-    address: {
-      type: 'string',
-    },
-    annualRevenue: {
-      type: 'number',
-    },
-    company: {
-      type: 'string',
+    owner: {
+      type: 'relationship',
+      ref: 'User',
       required: true,
-      unique: true,
-    },
-    jigsaw: {
-      type: 'string',
-    },
-    description: {
-      type: 'string',
-    },
-    doNotCall: {
-      type: 'boolean',
-      default: false,
-    },
-    email: {
-      type: 'string',
-      required: true,
-      unique: true,
-    },
-    fax: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['type1', 'type1'],
-    },
-    genderIdentity: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['MALE', 'FEMALE', 'OTHER'],
-    },
-    lastModifiedBy: {
-      //change it to userId
-      type: 'string',
-    },
-    lastTransferDate: {
-      type: 'string',
-    },
-    leadSource: {
-      type: 'enum',
-      enumType: 'string',
-      enum: [
-        'WEB',
-        'PHONE_INQUIRY',
-        'PARTNER_REFERRAL',
-        'PURCHASED_LIST',
-        'OTHER',
-      ],
-    },
-    lastOwner: {
-      //change it to userId
-      type: 'string',
-    },
-    leadStatus: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['OPEN', 'WORKING', 'CLOSES', 'CONVERTED'],
-    },
-    mobile: {
-      type: 'string',
     },
     salutation: {
       type: 'enum',
@@ -84,30 +21,86 @@ export const LeadSchema: any = () => {
     lastName: {
       type: 'string',
     },
-    suffix: {
+    company: {
       type: 'string',
+      required: true,
     },
-    numberOfEmployees: {
+    title: {
       type: 'string',
     },
     phone: {
       type: 'string',
-    },
-    pronouns: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['SIR', 'MAAM'],
     },
     rating: {
       type: 'enum',
       enumType: 'string',
       enum: ['HOT', 'WARM', 'COLD'],
     },
-    title: {
+    mobile: {
       type: 'string',
+    },
+    email: {
+      type: 'string',
+      required: true,
     },
     website: {
       type: 'string',
+    },
+    fax: {
+      type: 'string',
+    },
+    source: {
+      type: 'enum',
+      enumType: 'string',
+      enum: [
+        'WEB',
+        'PHONE_INQUIRY',
+        'PARTNER_REFERRAL',
+        'PURCHASED_LIST',
+        'OTHER',
+      ],
+    },
+    annualRevenue: {
+      type: 'number',
+    },
+    leadStatus: {
+      type: 'enum',
+      enumType: 'string',
+      enum: ['OPEN', 'WORKING', 'CLOSES', 'CONVERTED'],
+    },
+    numberOfEmployees: {
+      type: 'string',
+    },
+    street: {
+      type: 'string',
+    },
+    city: {
+      type: 'string',
+    },
+    state: {
+      type: 'string',
+    },
+    country: {
+      type: 'string',
+    },
+    zipCode: {
+      type: 'string',
+    },
+    description: {
+      type: 'string',
+    },
+    productInterest: {
+      type: 'string',
+    },
+    currentGenerator: {
+      type: 'string',
+    },
+    noOfLocation: {
+      type: 'string',
+    },
+    campaign: {
+      type: 'relationship',
+      ref: 'Campaign',
     },
   });
 };

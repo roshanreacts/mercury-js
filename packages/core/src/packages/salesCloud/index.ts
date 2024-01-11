@@ -1,5 +1,18 @@
 import { Mercury } from '../../mercury';
-import { InvoiceSchema, CustomerSchema } from './models/index';
+import {
+  CustomerSchema,
+  InvoiceSchema,
+  LeadSchema,
+  AccountSchema,
+  ContactSchema,
+  OpportunitySchema,
+  OpportunityProductSchema,
+  ProductSchema,
+  PriceBookSchema,
+  QuoteSchema,
+  CampaignSchema,
+  FileSchema,
+} from './models';
 export interface MercurySalesPkgConfig {
   invoice: boolean;
 }
@@ -27,8 +40,19 @@ const salesModels = (config: MercurySalesPkgConfig, mercury: Mercury) => {
       },
     }
   );
+  console.log('salesModels');
   if (config.invoice) {
-    InvoiceSchema();
+    InvoiceSchema(mercury);
   }
-  CustomerSchema();
+  CustomerSchema(mercury);
+  LeadSchema(mercury);
+  AccountSchema(mercury);
+  ContactSchema(mercury);
+  OpportunitySchema(mercury);
+  OpportunityProductSchema(mercury);
+  ProductSchema(mercury);
+  PriceBookSchema(mercury);
+  QuoteSchema(mercury);
+  CampaignSchema(mercury);
+  FileSchema(mercury);
 };
