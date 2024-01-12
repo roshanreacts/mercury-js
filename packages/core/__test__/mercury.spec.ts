@@ -19,9 +19,8 @@ describe('Mercury', () => {
     };
     mercury.hook.before('CREATE_MODEL', mockBeforeFn);
     mercury.createModel(name, fields, options);
-    expect(mercury.list.length).toBe(2);
+    expect(mercury.list.length).toBe(1);
     expect(mercury.list[0].name).toBe('User');
-    expect(mercury.list[1].name).toBe('UserHistory');
     expect(mockBeforeFn).toBeCalledTimes(1);
   });
 
@@ -49,8 +48,8 @@ describe('Mercury', () => {
       mockBeforeFn();
     });
     mercury.createModel(name, fields, options);
-    expect(mercury.list[2].name).toBe('Customer');
-    expect(mercury.list[2].fields.isActive).toBeDefined();
+    expect(mercury.list[1].name).toBe('Customer');
+    expect(mercury.list[1].fields.isActive).toBeDefined();
     expect(
       mercury.list.find((model) => model.name === 'CustomerHistory')
     ).toBeUndefined();
@@ -97,7 +96,7 @@ describe('Mercury', () => {
       fields,
       options
     );
-    expect(mercury.list.length).toBe(5);
+    expect(mercury.list.length).toBe(4);
     expect(mercury.db[name]).toBeDefined();
   });
 });

@@ -13,6 +13,10 @@
 			"path": "packages/core"
 		},
 		{
+			"name": "core-ui",
+			"path": "packages/core-ui"
+		},
+		{
 			"name": "extendModelTypes",
 			"path": "packages/core/packages/extendModelTypes"
 		},
@@ -30,7 +34,16 @@
 			"mercury-js",
 			"docs",
 			"extendModelTypes",
+			"core-ui"
+
+		],
+		"vitest.disabledWorkspaceFolders": [
+			"mercury-js",
+			"docs",
+			"extendModelTypes",
 			"rateLimiter",
+			"core",
+			"core-ui"
 		],
 		"testing.automaticallyOpenPeekView": "never"
 	}
