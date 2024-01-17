@@ -101,5 +101,9 @@ export const AccountSchema: any = (mercury: Mercury) => {
       type: 'relationship',
       ref: 'Lead',
     },
+    avatar: {
+      type: 'relationship',
+      ref: 'File',
+    },
   });
 };

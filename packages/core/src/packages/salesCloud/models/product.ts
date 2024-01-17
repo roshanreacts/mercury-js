@@ -19,7 +19,7 @@ export const ProductSchema: any = (mercury: Mercury) => {
     description: {
       type: 'string',
     },
-    file: {
+    images: {
       type: 'relationship',
       ref: 'File',
       many: true,

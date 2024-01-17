@@ -12,6 +12,7 @@ import {
   QuoteSchema,
   CampaignSchema,
   FileSchema,
+  PriceBookEntrySchema,
 } from './models';
 export interface MercurySalesPkgConfig {
   invoice: boolean;
@@ -55,4 +56,5 @@ const salesModels = (config: MercurySalesPkgConfig, mercury: Mercury) => {
   QuoteSchema(mercury);
   CampaignSchema(mercury);
   FileSchema(mercury);
+  PriceBookEntrySchema(mercury);
 };

@@ -38,17 +38,6 @@ export const ContactSchema: any = (mercury: Mercury) => {
       type: 'relationship',
       ref: 'Contact',
     },
-    leadSource: {
-      type: 'enum',
-      enumType: 'string',
-      enum: [
-        'WEB',
-        'PHONE_INQUIRY',
-        'PARTNER_REFERRAL',
-        'PURCHASED_LIST',
-        'OTHER',
-      ],
-    },
     lead: {
       type: 'relationship',
       ref: 'Lead',
@@ -118,6 +107,10 @@ export const ContactSchema: any = (mercury: Mercury) => {
     },
     description: {
       type: 'string',
+    },
+    avatar: {
+      type: 'relationship',
+      ref: 'File',
     },
   });
 };

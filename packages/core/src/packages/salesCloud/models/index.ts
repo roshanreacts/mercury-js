@@ -10,6 +10,7 @@ import { PriceBookSchema } from './priceBook';
 import { QuoteSchema } from './quote';
 import { CampaignSchema } from './campagin';
 import { FileSchema } from './files';
+import { PriceBookEntrySchema } from './priceBookEntry';
 
 export {
   CustomerSchema,
@@ -24,4 +25,5 @@ export {
   QuoteSchema,
   CampaignSchema,
   FileSchema,
+  PriceBookEntrySchema,
 };

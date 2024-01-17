@@ -14,6 +14,10 @@ export const OpportunitySchema: any = (mercury: Mercury) => {
       type: 'relationship',
       ref: 'Account',
     },
+    priceBookId: {
+      type: 'relationship',
+      ref: 'PriceBook',
+    },
     amount: {
       type: 'number',
     },
@@ -41,17 +45,6 @@ export const OpportunitySchema: any = (mercury: Mercury) => {
       type: 'enum',
       enumType: 'string',
       enum: ['UPGRADE', 'DOWNGRADE', 'REPLACEMENT'],
-    },
-    leadSource: {
-      type: 'enum',
-      enumType: 'string',
-      enum: [
-        'WEB',
-        'PHONE_ENQUIRY',
-        'PARTNER_REFERAL',
-        'PURCHASED_LIST',
-        'OTHER',
-      ],
     },
     lead: {
       type: 'relationship',

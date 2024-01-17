@@ -3,7 +3,7 @@ import { Mercury } from '../../../mercury';
 export const OpportunityProductSchema: any = (mercury: Mercury) => {
   mercury.createModel('OpportunityProduct', {
     date: {
-      type: 'date',
+      type: 'string',
     },
     discount: {
       type: 'number',
@@ -11,6 +11,10 @@ export const OpportunityProductSchema: any = (mercury: Mercury) => {
     opportunityId: {
       type: 'relationship',
       ref: 'Opportunity',
+    },
+    priceBookId: {
+      type: 'relationship',
+      ref: 'PriceBook',
     },
     listPrice: {
       type: 'number',

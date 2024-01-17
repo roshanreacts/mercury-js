@@ -2,23 +2,32 @@ import { Mercury } from '../../../mercury';
 
 export const FileSchema: any = (mercury: Mercury) => {
   mercury.createModel('File', {
-    title: {
+    filename: {
       type: 'string',
     },
-    isDeleted: {
-      type: 'boolean',
-      default: false,
+    mimetype: {
+      type: 'string',
     },
-    fileType: {
+    path: {
+      type: 'string',
+    },
+    extension: {
       type: 'string',
     },
     size: {
       type: 'string',
     },
-    visibility: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['AllUser'],
+    truncated: {
+      type: 'string',
+    },
+    encoding: {
+      type: 'string',
+    },
+    originalname: {
+      type: 'string',
+    },
+    buffer: {
+      type: 'string',
     },
   });
 };

@@ -7,16 +7,16 @@ export const QuoteSchema: any = (mercury: Mercury) => {
       ref: 'Account',
     },
     additionalAddress: {
-      type: 'number',
+      type: 'string',
     },
     additionalName: {
-      type: 'number',
+      type: 'string',
     },
     billingAddress: {
-      type: 'number',
+      type: 'string',
     },
     billingName: {
-      type: 'number',
+      type: 'string',
     },
     contactId: {
       type: 'relationship',
@@ -39,7 +39,7 @@ export const QuoteSchema: any = (mercury: Mercury) => {
       type: 'string',
     },
     grandTotal: {
-      type: 'string',
+      type: 'number',
     },
     opportunityId: {
       type: 'relationship',
@@ -69,13 +69,13 @@ export const QuoteSchema: any = (mercury: Mercury) => {
       type: 'string',
     },
     shippingHandling: {
-      type: 'number',
+      type: 'string',
     },
     subTotal: {
       type: 'number',
     },
     tax: {
-      type: 'number',
+      type: 'string',
     },
     totalPrice: {
       type: 'number',

@@ -9,12 +9,23 @@ export const CampaignSchema: any = (mercury: Mercury) => {
     type: {
       type: 'enum',
       enumType: 'string',
-      enum: ['type1', 'type2'],
+      enum: [
+        'ADVERTISING',
+        'DIRECT_MAIL',
+        'EMAIL',
+        'TELEMARKETING',
+        'BANNER_ADS',
+        'SEMINAR',
+        'PUBLIC_RELATIONS',
+        'PARTNERS',
+        'REFERRAL_PROGRAM',
+        'OTHER',
+      ],
     },
     status: {
       type: 'enum',
       enumType: 'string',
-      enum: ['MR', 'MS', 'MRS', 'DR', 'PROF', 'MX'],
+      enum: ['PLANNED', 'SENT', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'],
     },
     startDate: {
       type: 'string',
