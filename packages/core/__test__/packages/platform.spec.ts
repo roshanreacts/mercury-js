@@ -51,9 +51,9 @@ describe("platform", () => {
 		access.createProfile(name, rules);
 		await db.setUp();
 	})
-	// afterEach(async () => {
-	// 	await db.dropCollections();
-	//   });
+	afterEach(async () => {
+		await db.dropCollections();
+	});
 
 	afterAll(async () => {
 		await db.dropDatabase();
@@ -73,40 +73,63 @@ describe("platform", () => {
 		console.log("REDIS_PING", getMercury)
 		expect(getMercury).toBe(value);
 	});
+
+	it('initialize', async () => {
+		mercury.platform.initialize();
+		await mercury.platform.start();
+		const newModel = mercury.createModel("Test", {
+			name: {
+				type: "string",
+				required: true
+			},
+			age: {
+				type: "number",
+				default: 22
+			}
+		}, {
+			historyTracking: false
+		})
+		setTimeout(() =>{
+			console.log("Test case ends")
+		}, 10000);
+	});
+
+
+
 	it("should be intialize and start the platform", async () => {
 		console.log("Second")
-		mercury.platform.initialize();
-		const newModel = await mercury.db['Model'].create({
-			name: "Test1",
-			prefix: "test1",
-			managed: false
-		}, { id: "1", profile: "Admin" });
-		const newModelField = await mercury.db['ModelField'].create({
-			model: newModel._id,
-			fieldName: "field_1",
-			type: "string",
-			required: true,
-			default: "test",
-			managed: false
-		}, { id: "1", profile: "Admin" });
-		const modelOption = await mercury.db['ModelOption'].create({
-			model: newModel._id,
-			keyName: "historyTracking",
-			value: "true",
-			type: "boolean"
-		}, { id: "1", profile: "Admin" })
-		const fieldOption = await mercury.db['FieldOption'].create({
-			model: newModel._id,
-			modelField: newModelField._id,
-			keyName: "dummy",
-			type: "boolean",
-			value: "true"
-		}, { id: "1", profile: "Admin" })
-		await mercury.platform.start();
-		// console.log("REDIS_ALL_MODELS", await mercury.cache.get("ALL_MODELS"));
-		// console.log("REDIS_SINGLE_MODEL", await mercury.cache.get("TEST1"));
-		// console.log("LIST_MODELS", await mercury.platform.listModels());
-		// console.log("GET_MODEL", await mercury.platform.getModel("TEST1"));
+		// mercury.platform.initialize();
+		// const newModel = await mercury.db['Model'].create({
+		// 	name: "Test1",
+		// 	prefix: "test1",
+		// 	managed: false
+		// }, { id: "1", profile: "Admin" });
+		// const newModelField = await mercury.db['ModelField'].create({
+		// 	model: newModel._id,
+		// 	fieldName: "field_1",
+		// 	type: "string",
+		// 	required: true,
+		// 	default: "test",
+		// 	managed: false
+		// }, { id: "1", profile: "Admin" });
+		// const modelOption = await mercury.db['ModelOption'].create({
+		// 	model: newModel._id,
+		// 	keyName: "historyTracking",
+		// 	value: "true",
+		// 	type: "boolean"
+		// }, { id: "1", profile: "Admin" })
+		// const fieldOption = await mercury.db['FieldOption'].create({
+		// 	model: newModel._id,
+		// 	modelField: newModelField._id,
+		// 	keyName: "dummy",
+		// 	type: "boolean",
+		// 	value: "true"
+		// }, { id: "1", profile: "Admin" })
+		// await mercury.platform.start();
+		console.log("REDIS_ALL_MODELS", await mercury.cache.get("ALL_MODELS"));
+		console.log("REDIS_SINGLE_MODEL", await mercury.cache.get("TEST1"));
+		console.log("LIST_MODELS", await mercury.platform.listModels());
+		console.log("GET_MODEL", await mercury.platform.getModel("TEST1"));
 		// console.log("new Model", newModel);
 	})
 

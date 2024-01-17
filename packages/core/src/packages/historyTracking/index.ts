@@ -32,7 +32,6 @@ const createHistory = (config: MercuryHistoryPkgConfig, mercury: Mercury) => {
       })
     });
     mercury.hook.after(`DELETE_${model.name.toUpperCase()}_RECORD`, function (this: any) {
-      console.log("deleted",this.deletedRecord)
       const instanceId = getInstanceId();
       const skipFields = ["id", "_id", "createdOn", "updatedOn", "__v"];
       Object.entries(this.deletedRecord['_doc']).map(async ([key, value]: [string, any]) => {

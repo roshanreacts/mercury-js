@@ -9,7 +9,8 @@ const folderBuilds = [
   'packages/trpcServer',
   'packages/salesCloud',
   'packages/recordOwner',
-  'packages/historyTracking'
+  'packages/historyTracking',
+  'packages/platform'
 ].map((folder) => ({
   input: `src/${folder}/index.ts`,
   output: [

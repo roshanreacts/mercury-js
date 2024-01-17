@@ -47,6 +47,11 @@
       "require": "./dist/cjs/packages/historyTracking/index.js",
       "import": "./dist/esm/packages/historyTracking/index.js",
       "types": "./dist/esm/src/packages/historyTracking/index.d.ts"
+    },
+    "./packages/platform": {
+      "require": "./dist/cjs/packages/platform/index.js",
+      "import": "./dist/esm/packages/platform/index.js",
+      "types": "./dist/esm/src/packages/platform/index.d.ts"
     }
   },
   "files": [
