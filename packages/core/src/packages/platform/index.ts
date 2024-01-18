@@ -203,14 +203,14 @@ export class Platform {
           this.name.toUpperCase(),
           JSON.stringify(this)
         );
-				if(_.isEqual(redisObj.fields, this.fields)) {
-					await _self.modifyModelFields(this, redisObj);
-				} else if( _.isEqual(redisObj.options, this.options) ) {
-					await _self.modifyModelOptions(redisObj, this);
-				} else {
-					await _self.modifyModelFields(this, redisObj);
-					await _self.modifyModelOptions(redisObj, this);
-				}
+        if (!_.isEqual(redisObj.fields, this.fields)) {
+          await _self.modifyModelFields(this, redisObj);
+        } else if (!_.isEqual(redisObj.options, this.options)) {
+          await _self.modifyModelOptions(redisObj, this);
+        } else {
+          await _self.modifyModelFields(this, redisObj);
+          await _self.modifyModelOptions(redisObj, this);
+        }
       } else {
         // first set inside redis
         await _self.mercury.cache.set(
@@ -281,7 +281,7 @@ export class Platform {
         modelField._id,
         { ...updateData },
         { id: 'qwe', profile: 'Admin' },
-				{ skipHook: true }
+        { skipHook: true }
       );
   }
 
@@ -333,7 +333,7 @@ export class Platform {
         fieldOption._id,
         { value: value },
         { id: '123', profile: 'Admin' },
-				{ skipHook: true }
+        { skipHook: true }
       );
     } catch (error) {
       await this.createMetaRecords('FieldOption', {
@@ -412,10 +412,14 @@ export class Platform {
   }
 
   private async createMetaRecords(modelName: string, data: any) {
-    return await this.mercury.db[modelName].create(data, {
-      id: 'q2',
-      profile: 'Admin',
-    }, { skipHook: true});
+    return await this.mercury.db[modelName].create(
+      data,
+      {
+        id: 'q2',
+        profile: 'Admin',
+      },
+      { skipHook: true }
+    );
   }
 
   private async createRecords(modelObj: any) {
@@ -517,7 +521,7 @@ export class Platform {
         modelOption._id,
         { keyName: keyName, value: value, type: typeof value },
         { id: '123', profile: 'Admin' },
-				{ skipHook: true} 
+        { skipHook: true }
       );
     } catch (error) {
       await this.mercury.db['ModelOption'].create(
@@ -529,7 +533,7 @@ export class Platform {
           type: typeof value,
         },
         { id: '123', profile: 'Admin' },
-				{ skipHook: true }
+        { skipHook: true }
       );
     }
   }
@@ -549,7 +553,7 @@ export class Platform {
     this.mercury.hook.after(
       'CREATE_MODELFIELD_RECORD',
       async function (this: any) {
-				if(this.options.skipHook) return;
+        if (this.options.skipHook) return;
         console.log('INSIDE SUBSCRIBE TO RECORD HOOK');
         _self.syncModelFields(this.record);
       }
@@ -557,7 +561,7 @@ export class Platform {
     this.mercury.hook.after(
       'UPDATE_MODELFIELD_RECORD',
       async function (this: any) {
-				if(this.options.skipHook) return;
+        if (this.options.skipHook) return;
         const record = await _self.mercury.db.ModelField.get(
           { _id: this.record._id },
           { id: '1', profile: 'Admin' }
@@ -568,7 +572,7 @@ export class Platform {
     this.mercury.hook.after(
       'DELETE_MODELFIELD_RECORD',
       async function (this: any) {
-				if(this.options.skipHook) return;
+        if (this.options.skipHook) return;
         let redisObj: any = await _self.mercury.cache.get(
           this.deletedRecord.name.toUpperCase()
         );
@@ -583,14 +587,14 @@ export class Platform {
     this.mercury.hook.after(
       'CREATE_MODELOPTION_RECORD',
       async function (this: any) {
-				if(this.options.skipHook) return;
+        if (this.options.skipHook) return;
         _self.syncModelOptions(this.record);
       }
     );
     this.mercury.hook.after(
       'UPDATE_MODELOPTION_RECORD',
       async function (this: any) {
-				if(this.options.skipHook) return;
+        if (this.options.skipHook) return;
         const record = await _self.mercury.db.ModelOption.get(
           { _id: this.record._id },
           { id: '1', profile: 'Admin' }
@@ -601,7 +605,7 @@ export class Platform {
     this.mercury.hook.after(
       'DELETE_MODELOPTION_RECORD',
       async function (this: any) {
-				if(this.options.skipHook) return;
+        if (this.options.skipHook) return;
         console.log(
           '🚀 ~ Platform ~ this.deletedRecord:',
           this,
@@ -621,14 +625,14 @@ export class Platform {
     this.mercury.hook.after(
       'CREATE_FIELDOPTION_RECORD',
       async function (this: any) {
-				if(this.options.skipHook) return;
+        if (this.options.skipHook) return;
         _self.syncFieldOptions(this.record);
       }
     );
     this.mercury.hook.after(
       'UPDATE_FIELDOPTION_RECORD',
       async function (this: any) {
-				if(this.options.skipHook) return;
+        if (this.options.skipHook) return;
         const record = await _self.mercury.db.FieldOption.get(
           { _id: this.record._id },
           { id: '1', profile: 'Admin' }
@@ -639,7 +643,7 @@ export class Platform {
     this.mercury.hook.after(
       'DELETE_FIELDOPTION_RECORD',
       async function (this: any) {
-				if(this.options.skipHook) return;
+        if (this.options.skipHook) return;
         let redisObj: any = await _self.mercury.cache.get(
           this.deletedRecord.modelName.toUpperCase()
         );
