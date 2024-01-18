@@ -1,5 +1,19 @@
 import { Mercury } from '../../mercury';
-
+import {
+  CustomerSchema,
+  InvoiceSchema,
+  LeadSchema,
+  AccountSchema,
+  ContactSchema,
+  OpportunitySchema,
+  OpportunityProductSchema,
+  ProductSchema,
+  PriceBookSchema,
+  QuoteSchema,
+  CampaignSchema,
+  FileSchema,
+  PriceBookEntrySchema,
+} from './models';
 export interface MercurySalesPkgConfig {
   invoice: boolean;
 }
@@ -27,47 +41,20 @@ const salesModels = (config: MercurySalesPkgConfig, mercury: Mercury) => {
       },
     }
   );
-  if (config.invoice) {
-    mercury.createModel('Invoice', {
-      name: {
-        type: 'string',
-        required: true,
-      },
-      total: {
-        type: 'number',
-        required: true,
-      },
-      customer: {
-        type: 'string',
-        required: true,
-      },
-      status: {
-        type: 'enum',
-        enumType: 'string',
-        enum: ['active', 'inactive'],
-        required: true,
-      },
-    });
-  }
   console.log('salesModels');
-  mercury.createModel('Customer', {
-    name: {
-      type: 'string',
-      required: true,
-    },
-    total: {
-      type: 'number',
-      required: true,
-    },
-    customer: {
-      type: 'string',
-      required: true,
-    },
-    status: {
-      type: 'enum',
-      enumType: 'string',
-      enum: ['active', 'inactive'],
-      required: true,
-    },
-  });
+  if (config.invoice) {
+    InvoiceSchema(mercury);
+  }
+  CustomerSchema(mercury);
+  LeadSchema(mercury);
+  AccountSchema(mercury);
+  ContactSchema(mercury);
+  OpportunitySchema(mercury);
+  OpportunityProductSchema(mercury);
+  ProductSchema(mercury);
+  PriceBookSchema(mercury);
+  QuoteSchema(mercury);
+  CampaignSchema(mercury);
+  FileSchema(mercury);
+  PriceBookEntrySchema(mercury);
 };
