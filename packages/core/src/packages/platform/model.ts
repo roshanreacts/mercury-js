@@ -1,89 +1,92 @@
 import type { Mercury } from '../../mercury';
 
 export default (mercury: Mercury) => {
-  const Model = mercury.createModel("Model",
+  const Model = mercury.createModel(
+    'Model',
     {
       name: {
-        type: "string",
+        type: 'string',
         unique: true,
       },
       prefix: {
-        type: "string"
+        type: 'string',
       },
       managed: {
-        type: "boolean",
+        type: 'boolean',
       },
       createdBy: {
-        type: "relationship",
-        ref: "User"
+        type: 'relationship',
+        ref: 'User',
       },
       updatedBy: {
-        type: "relationship",
-        ref: "User"
+        type: 'relationship',
+        ref: 'User',
       },
     },
     {
-      historyTracking: false
-    });
-  const ModelField = mercury.createModel("ModelField",
+      historyTracking: false,
+    }
+  );
+  const ModelField = mercury.createModel(
+    'ModelField',
     {
       model: {
-        type: "relationship",
-        ref: "Model",
+        type: 'relationship',
+        ref: 'Model',
       },
       name: {
-        type: "string"
+        type: 'string',
       },
       createdBy: {
-        type: "relationship",
-        ref: "User"
+        type: 'relationship',
+        ref: 'User',
       },
       updatedBy: {
-        type: "relationship",
-        ref: "User"
+        type: 'relationship',
+        ref: 'User',
       },
       fieldName: {
-        type: "string"
+        type: 'string',
       },
       type: {
-        type: "string"
+        type: 'string',
       },
       required: {
-        type: "boolean",
+        type: 'boolean',
       },
       default: {
-        type: "string"
+        type: 'string',
       },
       rounds: {
-        type: "number"
+        type: 'number',
       },
       unique: {
-        type: "boolean"
+        type: 'boolean',
       },
       ref: {
-        type: "string"
+        type: 'string',
       },
       localField: {
-        type: "string"
+        type: 'string',
       },
       foreignField: {
-        type: "string"
+        type: 'string',
       },
       enumType: {
-        type: "string"
+        type: 'string',
       },
       enumValues: {
-        type: "string",
-        many: true
+        type: 'string',
+        many: true,
       },
       managed: {
-        type: "boolean"
+        type: 'boolean',
       },
       fieldOptions: {
-        type: "virtual",
-        ref: "FieldOption",
-        localField: "modelField",
-        foreignField: "_id",
+        type: 'virtual',
+        ref: 'FieldOption',
+        localField: 'modelField',
+        foreignField: '_id',
         many: true,
       },
     },
@@ -93,83 +96,88 @@ export default (mercury: Mercury) => {
         {
           fields: {
             model: 1,
-            fieldName: 1
+            fieldName: 1,
           },
           options: {
             unique: true,
-          }
-        }
-      ]
-    });
-  const ModelOption = mercury.createModel("ModelOption",
+          },
+        },
+      ],
+    }
+  );
+  const ModelOption = mercury.createModel(
+    'ModelOption',
     {
       model: {
-        type: "relationship",
-        ref: "Model",
+        type: 'relationship',
+        ref: 'Model',
       },
       name: {
-        type: "string"
+        type: 'string',
       },
       managed: {
-        type: "boolean"
+        type: 'boolean',
       },
       keyName: {
-        type: "string"
+        type: 'string',
       },
       value: {
-        type: "mixed",
+        type: 'string',
       },
       type: {
-        type: "string"
+        type: 'string',
       },
       createdBy: {
-        type: "relationship",
-        ref: "User"
+        type: 'relationship',
+        ref: 'User',
       },
       updatedBy: {
-        type: "relationship",
-        ref: "User"
+        type: 'relationship',
+        ref: 'User',
       },
     },
     {
-      historyTracking: false
-    });
-  const FieldOption = mercury.createModel("FieldOption",
+      historyTracking: false,
+    }
+  );
+  const FieldOption = mercury.createModel(
+    'FieldOption',
     {
       model: {
-        type: "relationship",
-        ref: "Model",
+        type: 'relationship',
+        ref: 'Model',
       },
       modelName: {
-        type: "string"
+        type: 'string',
       },
       modelField: {
-        type: "relationship",
-        ref: "ModelField",
+        type: 'relationship',
+        ref: 'ModelField',
       },
       fieldName: {
-        type: "string"
+        type: 'string',
       },
       keyName: {
-        type: "string"
+        type: 'string',
       },
       type: {
-        type: "enum",
-        enum: ["number", "string", "boolean"],
-        enumType: "string",
+        type: 'enum',
+        enum: ['number', 'string', 'boolean'],
+        enumType: 'string',
       },
       value: {
-        type: "mixed"
+        type: 'string',
       },
       managed: {
-        type: "boolean",
+        type: 'boolean',
       },
       prefix: {
-        type: "string",
-        default: "CUSTOM"
-      }
+        type: 'string',
+        default: 'CUSTOM',
+      },
     },
     {
-      historyTracking: false
-    });
-}
+      historyTracking: false,
+    }
+  );
+};
