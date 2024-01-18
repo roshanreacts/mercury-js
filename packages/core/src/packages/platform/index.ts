@@ -36,20 +36,20 @@ export class Platform {
 	public async start() {
 		// Get all the models from Model table and generate model schema and pass it to mercury.createModel
 		// Store all the model schemas as Redis Cache with search capability (Make sure redis is enabled)
-		// await this.subscribeHooks();
+		await this.subscribeHooks();
 		await this.mercury.cache.set("ping", "pong");
 		console.log("Redis", await this.mercury.cache.get("ping"));
 	}
 	public initialize() {
-		// console.log("INITIALIZATION DONE");
-		// if (!_.isEmpty(this.mercury.db['Model'])) {
-		// 	// compose schema and set in redis 
-		// 	// doubt - already present redis or not --> clear redis keys of these models and reset?
-		// 	// this.composeAllRedisSchemas();
-		// } else {
-		// 	console.log("Inside else")
-		// 	createMetaModels(this.mercury);
-		// }
+		console.log("INITIALIZATION DONE");
+		if (!_.isEmpty(this.mercury.db['Model'])) {
+			// compose schema and set in redis 
+			// doubt - already present redis or not --> clear redis keys of these models and reset?
+			this.composeAllRedisSchemas();
+		} else {
+			console.log("Inside else")
+			createMetaModels(this.mercury);
+		}
 	}
 
 	public async composeAllRedisSchemas() {
@@ -109,11 +109,13 @@ export class Platform {
 	}
 
 	public async listModels() {
-		return await this.mercury.cache.get("ALL_MODELS");
+		let allModels: any = await this.mercury.cache.get("ALL_MODELS");
+		return JSON.parse(allModels);
 	}
 
 	public async getModel(modelName: string) {
-		return await this.mercury.cache.get(modelName);
+		let model: any = await this.mercury.cache.get(modelName);
+		return JSON.parse(model);
 	}
 
 	private async subscribeHooks() {
@@ -139,7 +141,7 @@ export class Platform {
 				console.log("models lis", _self.mercury.list);
 				console.log("new models", await _self.mercury.db['Model'].mongoModel.find({}))
 				if (_self.isSchemaSame(this, redisObj)) return;
-				console.log("schema")
+				console.log("Schema is different")
 				await _self.mercury.cache.set(this.name.toUpperCase(), JSON.stringify(this));
 				!_.isEqual(redisObj.fields, this.fields) ? await _self.modifyModelFields(this, redisObj) : await _self.modifyModelOptions(redisObj, this);
 			} else {
@@ -265,8 +267,9 @@ export class Platform {
 			updatedBy: modelObj?.ctx?.id,
 		})
 		console.log("Model record", model);
+		// this is not working
 		// model fields and model options creation
-		await Promise.all([...Object.entries(modelObj.fields).map(async ([key, value]: any) => {
+	  Object.entries(modelObj.fields).map(async ([key, value]: any) => {
 			const modelField = await this.createMetaRecords('ModelField', {
 				model: model._id,
 				name: model.name,
@@ -300,7 +303,8 @@ export class Platform {
 				});
 				console.log("Inside field option entries");
 			}))
-		}), ...Object.entries(modelObj.options).map(async ([key, value]: any) => {
+		});
+		Object.entries(modelObj.options).map(async ([key, value]: any) => {
 			await this.createMetaRecords('ModelOption', {
 				model: model._id,
 				name: model.name,
@@ -310,7 +314,7 @@ export class Platform {
 				type: value.type
 			})
 			console.log("Inside model option entries");
-		})])
+		});
 		// model options creation
 		console.log("all entries are created");
 	}
@@ -352,80 +356,82 @@ export class Platform {
 
 	private subscribeToRecordHooks() {
 		// After the server is started these hooks will be executed
+		const _self = this;
 		this.mercury.hook.after('CREATE_MODELFIELD_RECORD', async function (this: any) {
-			// create field options fi required
-			if (this.options.skipHooks) return;
-			this.syncModelFields(this);
+			_self.syncModelFields(this.record);
 		});
 		this.mercury.hook.after('UPDATE_MODELFIELD_RECORD', async function (this: any) {
-			// create field options fi required
-			if (this.options.skipHooks) return;
-			this.syncModelFields(this);
+			const record = await _self.mercury.db.ModelField.get({ _id: this.record._id}, { id: "1", profile: "Admin"});
+			_self.syncModelFields(record);
 		})
-		this.mercury.hook.before('DELETE_MODELFIELD_RECORD', async function (this: any) {
-			// deletre field options for modelfields
-			if (this.options.skipHooks) return;
-			const redisObj = await this.mercury.cache.get(this.modelField.name);
-			delete redisObj.fields[this.data.fieldName];
-			const newRedisObj = {
-				name: redisObj.name,
-				fields: redisObj.fields,
-				options: redisObj.options
-			}
-			await this.mercury.cache.set(`${redisObj.name.toUpperCase()}`, JSON.stringify(newRedisObj));
+		this.mercury.hook.after('DELETE_MODELFIELD_RECORD', async function (this: any) {
+			let redisObj = await this.mercury.cache.get(this.deletedRecord.name);
+			redisObj = JSON.parse(redisObj);
+			delete redisObj.fields[this.deletedRecord.fieldName];
+			await this.mercury.cache.set(`${redisObj.name.toUpperCase()}`, JSON.stringify(redisObj));
 		})
-		this.mercury.hook.after('CREATE_MODELOPTION_RECORD', async (data: any) => {
-			if (data.options.skipHooks) return;
-			this.syncModelOptions(data);
+		this.mercury.hook.after('CREATE_MODELOPTION_RECORD', async function (this: any) {
+			_self.syncModelOptions(this.record);
 		})
-		this.mercury.hook.after('UPDATE_MODELOPTION_RECORD', async (data: any) => {
-			if (data.options.skipHooks) return;
-			this.syncModelOptions(data);
+		this.mercury.hook.after('UPDATE_MODELOPTION_RECORD', async function (this: any) {
+			const record = await _self.mercury.db.ModelOption.get({ _id: this.record._id}, { id: "1", profile: "Admin"});
+			this.syncModelOptions(record);
 		})
-		this.mercury.hook.before('DELETE_MODELOPTION_RECORD', async (data: any) => {
-			if (data.options.skipHooks) return;
-			const redisObj: any = await this.mercury.cache.get(data.modelField.name);
-			delete redisObj.options[data.data.fieldName];
-			const newRedisObj = {
-				name: redisObj.name,
-				fields: redisObj.fields,
-				options: redisObj.options
-			}
-			await this.mercury.cache.set(`${redisObj.name.toUpperCase()}`, JSON.stringify(newRedisObj));
+		this.mercury.hook.before('DELETE_MODELOPTION_RECORD', async function (this: any) {
+			let redisObj: any = await _self.mercury.cache.get(this.deletedRecord.name);
+			redisObj = JSON.parse(redisObj);
+			delete redisObj.options[this.deletedRecord.keyName];
+			await this.mercury.cache.set(`${redisObj.name.toUpperCase()}`, JSON.stringify(redisObj));
 		})
-		this.mercury.hook.after('CREATE_FIELDOPTION_RECORD', async (data: any) => {
-			if (data.options.skipHooks) return;
-			this.syncFieldOptions(data);
+		this.mercury.hook.after('CREATE_FIELDOPTION_RECORD', async function (this: any) {
+			_self.syncFieldOptions(this.record);
 		})
-
+		this.mercury.hook.after('UPDATE_FIELDOPTION_RECORD', async function (this: any) {
+			const record = await _self.mercury.db.FieldOption.get({ _id: this.record._id}, { id: "1", profile: "Admin"});
+			_self.syncFieldOptions(record);
+		})
+		this.mercury.hook.after('DELETE_FIELDOPTION_RECORD', async function (this: any) {
+			let redisObj: any = await _self.mercury.cache.get(this.deletedRecord.modelName);
+			redisObj = JSON.parse(redisObj);
+			delete redisObj.fields[this.deletedRecord.fieldName][this.deletedRecord.keyName];
+			await this.mercury.cache.set(`${redisObj.name.toUpperCase()}`, JSON.stringify(redisObj));
+		})
 	}
 
-	private async syncModelFields(this: any) {
-		const redisObj = await this.mercury.cache.get(this.modelField.name);
-		const fieldSchema = this.composeSchema([this.data]);
-		redisObj.fields[this.data.fieldName] = fieldSchema;
+	private async syncModelFields(modelField: any) {
+		let redisObj: any = await this.mercury.cache.get(modelField.name);
+		redisObj = JSON.parse(redisObj);
+		const fieldSchema = this.composeSchema([modelField]);
+		redisObj.fields[modelField.fieldName] = fieldSchema;
 		const newRedisObj = {
 			name: redisObj.name,
 			fields: redisObj.fields,
 			options: redisObj.options
 		}
 		await this.mercury.cache.set(`${redisObj.name.toUpperCase()}`, JSON.stringify(newRedisObj));
+		this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
 	}
 
-	private async syncModelOptions(data: any) {
-		const redisObj: any = await this.mercury.cache.get(data.modelField.name);
-		const options = this.composeOptions([data.data]);
-		redisObj.options[data.data.key] = options;
+	private async syncModelOptions(record: any) {
+		let redisObj: any = await this.mercury.cache.get(record.name);
+		redisObj = JSON.parse(redisObj);
+		const options = this.composeOptions([record]);
+		redisObj.options[record.keyName] = options;
 		const newRedisObj = {
 			name: redisObj.name,
 			fields: redisObj.fields,
 			options: redisObj.options
 		}
 		await this.mercury.cache.set(`${redisObj.name.toUpperCase()}`, JSON.stringify(newRedisObj));
+		this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
 	}
 
-	private async syncFieldOptions(data: any) {
-
+	private async syncFieldOptions(fieldOption: any) {
+		let redisObj: any = await this.mercury.cache.get(fieldOption.modelName);
+		redisObj = JSON.parse(redisObj);
+		redisObj.fields[fieldOption.fieldName][fieldOption['keyName']] = fieldOption.value;
+		await this.mercury.cache.set(`${redisObj.name.toUpperCase()}`, JSON.stringify(redisObj));
+		this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
 	}
 
 	// methods:
@@ -434,3 +440,8 @@ export class Platform {
 	// create/update/deleteModel (store the schema to DB and update the redis cache)
 
 }
+
+
+
+// syncing must be done for individual record updates? and after every record update should they call createModel again or not
+// when the create model will be called other than restarting
