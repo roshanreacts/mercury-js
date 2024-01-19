@@ -53,41 +53,67 @@ export class Platform {
     // Store all the model schemas as Redis Cache with search capability (Make sure redis is enabled)
     await this.subscribeHooks();
   }
+
+  public createModelApi(name: string, fields: TFields, options?: TOptions) {
+    this.mercury.createModel(name, fields, options);
+  }
+
   public initialize() {
-    console.log('INITIALIZATION DONE');
-    if (!_.isEmpty(this.mercury.db['Model'])) {
-      // compose schema and set in redis
-      // doubt - already present redis or not --> clear redis keys of these models and reset?
-      this.composeAllRedisSchemas();
-    } else {
-      console.log('Inside else');
-      createMetaModels(this.mercury);
-    }
+    console.log('INITIALIZATION DONE', this.mercury.db['Model']);
+    console.log('DB', this.mercury.db);
+    // if (!_.isEmpty(this.mercury.db['Model'])) {
+    // compose schema and set in redis
+    // doubt - already present redis or not --> clear redis keys of these models and reset?
+    createMetaModels(this.mercury);
+    this.composeAllRedisSchemas();
+    // } else {
+    // console.log('Inside else');
+    // }
   }
 
   public async composeAllRedisSchemas() {
-    const models: any[] = await this.mercury.db['Model'].mongoModel.find({});
-    const allModels: string[] = [];
-    models.map(async (model: any) => {
-      allModels.push(model.name);
-      this.composeRedisObject(model);
-    });
-    await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
+    console.log('LIST', this.mercury.list);
+    try {
+      const models: any[] = await this.mercury.db['Model'].mongoModel.find({});
+      console.log('all models', models);
+      const allModels: string[] = [];
+      models.map(async (model: any) => {
+        allModels.push(model.name);
+        this.composeRedisObject(model);
+      });
+      await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
+    } catch (err) {}
   }
 
   public async composeRedisObject(model: any) {
-    const modelFields = await this.mercury.db['ModelField'].get(
-      { model: model._id },
-      { id: 'khsd', profile: 'Admin' }
-    );
-    const fieldOptions = await this.mercury.db['FieldOption'].get(
-      { model: model._id },
-      { id: 'khsd', profile: 'Admin' }
-    );
-    const modelOptions = await this.mercury.db['ModelOption'].get(
-      { model: model._id },
-      { id: 'khsd', profile: 'Admin' }
-    );
+    let modelFields, modelOptions, fieldOptions;
+    try {
+      modelFields = await this.mercury.db['ModelField'].list(
+        { model: model._id },
+        { id: 'khsd', profile: 'Admin' },
+        { limit: 100 }
+      );
+    } catch (err) {
+      modelFields = [];
+    }
+    try {
+      fieldOptions = await this.mercury.db['FieldOption'].list(
+        { model: model._id },
+        { id: 'khsd', profile: 'Admin' },
+        { limit: 100 }
+      );
+    } catch (err) {
+      fieldOptions = [];
+    }
+    try {
+      modelOptions = await this.mercury.db['ModelOption'].list(
+        { model: model._id },
+        { id: 'khsd', profile: 'Admin' },
+        { limit: 100 }
+      );
+    } catch (err) {
+      modelOptions = [];
+    }
     const schema = this.composeSchema(modelFields, fieldOptions);
     const options = this.composeOptions(modelOptions);
     this.mercury.createModel(model.name, schema, options);
@@ -157,7 +183,7 @@ export class Platform {
           ? String(value)
           : type == 'boolean'
           ? Boolean(value)
-          : JSON.parse(value);
+          : value;
     });
     return options;
   }
@@ -665,7 +691,6 @@ export class Platform {
     );
     redisObj = JSON.parse(redisObj);
     if (!_.isEmpty(prevRecord)) {
-      console.log('🚀 ~ Platform ~ syncModelFields ~ prevRecord:', prevRecord);
       delete redisObj.fields[prevRecord.fieldName];
     }
     const fieldSchema = this.composeSchema([modelField]);
