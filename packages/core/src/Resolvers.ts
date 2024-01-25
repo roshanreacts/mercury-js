@@ -356,9 +356,10 @@ class Resolvers {
           });
           if (stopExecutionState) throw new Error(stopExecutionState);
           await newModel.save();
-          let newRecord = Model.findOne({ _id: newModel._id })
+          let newRecord = await Model.findOne({ _id: newModel._id })
             .select(selectedKey.join(' '))
-            .populate(populate);
+            .populate(populate)
+            .exec();
           const setData = (setRecord: any) => (newRecord = setRecord);
           this.hooks('afterCreate', {
             root,
@@ -414,7 +415,8 @@ class Resolvers {
               const newRecord = await Model.create(record);
               let fetchRec = await Model.findOne({ _id: newRecord._id })
                 .select(selectedKey.join(' '))
-                .populate(populate);
+                .populate(populate)
+                .exec();
               const setData = (setRecord: any) => (fetchRec = setRecord);
               this.hooks('afterCreate', {
                 root,
@@ -479,7 +481,8 @@ class Resolvers {
             new: true,
           })
             .select(selectedKey.join(' '))
-            .populate(populate);
+            .populate(populate)
+            .exec();
           await this.createHistoryRecord(findModel, updateModel, 'UPDATE');
           const setData = (setRecord: any) => (updateModel = setRecord);
           this.hooks('afterUpdate', {
@@ -550,7 +553,8 @@ class Resolvers {
                 { new: true }
               )
                 .select(selectedKey.join(' '))
-                .populate(populate);
+                .populate(populate)
+                .exec();
               await this.createHistoryRecord(findModel, updateRecord, 'UPDATE');
               const setData = (setRecord: any) => (updateRecord = setRecord);
               this.hooks('afterUpdate', {
