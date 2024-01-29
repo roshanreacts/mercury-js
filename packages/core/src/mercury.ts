@@ -8,7 +8,7 @@ import { Mgraphql } from './graphql';
 import hook, { Hook } from './hooks';
 import access, { Access } from './access';
 import { DocumentNode } from 'graphql';
-import { Logger, ILogObj } from "tslog";
+import { Logger, ILogObj } from 'tslog';
 
 export type ModelType = Model;
 

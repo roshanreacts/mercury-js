@@ -4,6 +4,12 @@ export interface MercuryRecordOwnerPkgConfig {
   recordOwner: boolean;
 }
 
+// declare module '../../mercury' {
+//   interface TOptions {
+//     recordOwner?: boolean;
+//   }
+// }
+
 export default (config?: MercuryRecordOwnerPkgConfig) => {
   return (mercury: Mercury) => {
     if (!config) {

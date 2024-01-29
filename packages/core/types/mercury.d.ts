@@ -34,7 +34,6 @@ declare type TField = {
 };
 
 declare type TOptions = {
-  historyTracking: boolean;
   private?: boolean;
   indexes?: Array<TIndex>;
   [x: string]: any;

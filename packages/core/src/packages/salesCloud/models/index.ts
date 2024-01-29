@@ -1,3 +1,5 @@
+import { Mercury } from '../../../mercury';
+
 import { CustomerSchema } from './customer';
 import { InvoiceSchema } from './invoice';
 import { LeadSchema } from './lead';
@@ -12,9 +14,14 @@ import { CampaignSchema } from './campagin';
 import { FileSchema } from './files';
 import { PriceBookEntrySchema } from './priceBookEntry';
 
+const Invoice: any = (mercury: Mercury) =>
+  mercury.createModel('Invoice', InvoiceSchema, {
+    recordOwner: true,
+  });
+
 export {
+  Invoice,
   CustomerSchema,
-  InvoiceSchema,
   LeadSchema,
   AccountSchema,
   ContactSchema,

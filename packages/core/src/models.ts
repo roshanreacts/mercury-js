@@ -633,7 +633,7 @@ export class Model {
 
   private addIndexes() {
     if (this.model.options?.indexes) {
-      this.model.options.indexes.forEach((index) => {
+      this.model.options.indexes.forEach((index: any) => {
         this.mongoSchema.index(index.fields, index.options);
       });
     }

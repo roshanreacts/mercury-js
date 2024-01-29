@@ -1,7 +1,7 @@
 import { Mercury } from '../../mercury';
 import {
   CustomerSchema,
-  InvoiceSchema,
+  Invoice,
   LeadSchema,
   AccountSchema,
   ContactSchema,
@@ -43,7 +43,7 @@ const salesModels = (config: MercurySalesPkgConfig, mercury: Mercury) => {
   );
   console.log('salesModels');
   if (config.invoice) {
-    InvoiceSchema(mercury);
+    Invoice(mercury);
   }
   CustomerSchema(mercury);
   LeadSchema(mercury);
