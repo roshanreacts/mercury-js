@@ -57,14 +57,16 @@ interface AccessType {
   default?: boolean;
   acl: Array<{
     [key: string]:
-      | boolean
-      | VerboseAccessFunctionType
-      | AccessFunctionType
-      | verboseAccessType;
+    | boolean
+    | VerboseAccessFunctionType
+    | AccessFunctionType
+    | verboseAccessType;
   }>;
 }
 
 interface HookType {
+  beforeRead?: Function;
+  afterRead?: Function;
   beforeCreate?: Function;
   afterCreate?: Function;
   beforeUpdate?: Function;

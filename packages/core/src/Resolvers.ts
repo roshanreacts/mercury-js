@@ -107,6 +107,16 @@ class Resolvers {
 
   async hooks(name: string, args: any) {
     switch (name) {
+      case 'beforeRead':
+        this.schema?.hooks?.beforeRead
+          ? await this.schema.hooks.beforeRead(args)
+          : true;
+        break;
+      case 'afterRead':
+        this.schema?.hooks?.afterRead
+          ? await this.schema.hooks.afterRead(args)
+          : true;
+        break;
       case 'beforeCreate':
         this.schema?.hooks?.beforeCreate
           ? await this.schema.hooks.beforeCreate(args)
@@ -176,8 +186,8 @@ class Resolvers {
           const exicliptHistory = _.has(this.modelFields[fieldName], 'history')
             ? this.modelFields[fieldName].history
             : hasMany // If hasMany then exiclipt history
-            ? false
-            : true;
+              ? false
+              : true;
           if (!exicliptHistory) {
             return;
           }
@@ -273,7 +283,18 @@ class Resolvers {
           );
           const selectedKey = _.intersection(parentFields, allowedKey);
           this.addExtentType(selectedKey);
-          const findAll = await Model.paginate(
+          let stopExecutionState: string | boolean = false;
+          await this.hooks('beforeRead', {
+            root,
+            args,
+            ctx,
+            resolveInfo,
+            allowedKey,
+            stopExecution: (err = 'EXECUTION STOPPED') =>
+              (stopExecutionState = err),
+          });
+          if (stopExecutionState) throw new Error(stopExecutionState);
+          let findAll = await Model.paginate(
             this.whereInputCompose(args.where),
             {
               select: selectedKey.join(' '),
@@ -283,7 +304,16 @@ class Resolvers {
               sort: args.sort,
             }
           );
-
+          const setData = (setRecord: any) => (findAll = setRecord);
+          await this.hooks('afterRead', {
+            root,
+            args,
+            ctx,
+            resolveInfo,
+            populate,
+            docs: findAll,
+            setData,
+          });
           return findAll;
         };
         break;
@@ -310,11 +340,34 @@ class Resolvers {
           );
           const selectedKey = _.intersection(parentFields, allowedKey);
           this.addExtentType(selectedKey);
-          const findOne = await Model.findOne(
+          this.addExtentType(selectedKey);
+          let stopExecutionState: string | boolean = false;
+          await this.hooks('beforeRead', {
+            root,
+            args,
+            ctx,
+            resolveInfo,
+            allowedKey,
+            stopExecution: (err = 'EXECUTION STOPPED') =>
+              (stopExecutionState = err),
+          });
+          if (stopExecutionState) throw new Error(stopExecutionState);
+          let findOne = await Model.findOne(
             this.whereInputCompose(args.where)
           )
             .select(selectedKey.join(' '))
-            .populate(populate);
+            .populate(populate).exec();
+
+          const setData = (setRecord: any) => (findOne = setRecord);
+          await this.hooks('afterRead', {
+            root,
+            args,
+            ctx,
+            resolveInfo,
+            populate,
+            docs: findOne,
+            setData,
+          });
           return findOne;
         };
         break;
@@ -344,7 +397,7 @@ class Resolvers {
           this.addExtentType(selectedKey);
           let stopExecutionState: string | boolean = false;
           const newModel = new Model(args.data);
-          this.hooks('beforeCreate', {
+          await this.hooks('beforeCreate', {
             root,
             args,
             ctx,
@@ -361,7 +414,7 @@ class Resolvers {
             .populate(populate)
             .exec();
           const setData = (setRecord: any) => (newRecord = setRecord);
-          this.hooks('afterCreate', {
+          await this.hooks('afterCreate', {
             root,
             args,
             ctx,
@@ -401,7 +454,7 @@ class Resolvers {
           await Promise.all(
             _.map(args.data, async (record: any) => {
               let stopExecutionState: string | boolean = false;
-              this.hooks('beforeCreate', {
+              await this.hooks('beforeCreate', {
                 root,
                 args,
                 ctx,
@@ -418,7 +471,7 @@ class Resolvers {
                 .populate(populate)
                 .exec();
               const setData = (setRecord: any) => (fetchRec = setRecord);
-              this.hooks('afterCreate', {
+              await this.hooks('afterCreate', {
                 root,
                 args,
                 ctx,
@@ -465,7 +518,7 @@ class Resolvers {
           let updateData = args.data;
           const setUpdateData = (newArgData: any) => (updateData = newArgData);
           let stopExecutionState: string | boolean = false;
-          this.hooks('beforeUpdate', {
+          await this.hooks('beforeUpdate', {
             root,
             args,
             ctx,
@@ -485,7 +538,7 @@ class Resolvers {
             .exec();
           await this.createHistoryRecord(findModel, updateModel, 'UPDATE');
           const setData = (setRecord: any) => (updateModel = setRecord);
-          this.hooks('afterUpdate', {
+          await this.hooks('afterUpdate', {
             root,
             args,
             ctx,
@@ -533,7 +586,7 @@ class Resolvers {
               const setUpdateData = (newArgData: any) =>
                 (updateData = newArgData);
               let stopExecutionState: string | boolean = false;
-              this.hooks('beforeUpdate', {
+              await this.hooks('beforeUpdate', {
                 root,
                 args,
                 ctx,
@@ -557,7 +610,7 @@ class Resolvers {
                 .exec();
               await this.createHistoryRecord(findModel, updateRecord, 'UPDATE');
               const setData = (setRecord: any) => (updateRecord = setRecord);
-              this.hooks('afterUpdate', {
+              await this.hooks('afterUpdate', {
                 root,
                 args,
                 ctx,
@@ -589,7 +642,7 @@ class Resolvers {
           });
           const findModel = await Model.findById(args.id);
           let stopExecutionState: string | boolean = false;
-          this.hooks('beforeDelete', {
+          await this.hooks('beforeDelete', {
             root,
             args,
             ctx,
@@ -601,7 +654,7 @@ class Resolvers {
           if (stopExecutionState) throw new Error(stopExecutionState);
           const delRec = await Model.findByIdAndDelete(args.id);
           await this.createHistoryRecord(findModel, delRec, 'DELETE');
-          this.hooks('afterDelete', {
+          await this.hooks('afterDelete', {
             root,
             args,
             ctx,
@@ -630,7 +683,7 @@ class Resolvers {
             _.map(args.ids, async (id: any) => {
               const findModel = await Model.findById(id);
               let stopExecutionState: string | boolean = false;
-              this.hooks('beforeDelete', {
+              await this.hooks('beforeDelete', {
                 root,
                 args,
                 ctx,
@@ -642,7 +695,7 @@ class Resolvers {
               if (stopExecutionState) throw new Error(stopExecutionState);
               const delRec = await Model.findByIdAndDelete(id);
               await this.createHistoryRecord(findModel, delRec, 'DELETE');
-              this.hooks('afterDelete', {
+              await this.hooks('afterDelete', {
                 root,
                 args,
                 ctx,
@@ -854,46 +907,46 @@ class Resolvers {
           querySchema._id = _.has(fieldReq, 'is')
             ? { $eq: fieldReq.is }
             : _.has(fieldReq, 'isNot')
-            ? { $ne: fieldReq.isNot }
-            : _.has(fieldReq, 'in')
-            ? { $in: fieldReq.in }
-            : _.has(fieldReq, 'notIn')
-            ? { $nin: fieldReq.notIn }
-            : null;
+              ? { $ne: fieldReq.isNot }
+              : _.has(fieldReq, 'in')
+                ? { $in: fieldReq.in }
+                : _.has(fieldReq, 'notIn')
+                  ? { $nin: fieldReq.notIn }
+                  : null;
           break;
         case 'relationship':
           querySchema[field] = _.has(fieldReq, 'is')
             ? { $eq: fieldReq.is }
             : _.has(fieldReq, 'isNot')
-            ? { $ne: fieldReq.isNot }
-            : _.has(fieldReq, 'in')
-            ? { $in: fieldReq.in }
-            : _.has(fieldReq, 'notIn')
-            ? { $nin: fieldReq.notIn }
-            : null;
+              ? { $ne: fieldReq.isNot }
+              : _.has(fieldReq, 'in')
+                ? { $in: fieldReq.in }
+                : _.has(fieldReq, 'notIn')
+                  ? { $nin: fieldReq.notIn }
+                  : null;
           break;
         case 'String':
           querySchema[field] = _.has(fieldReq, 'is')
             ? { $eq: fieldReq.is }
             : _.has(fieldReq, 'isNot')
-            ? { $ne: fieldReq.isNot }
-            : _.has(fieldReq, 'contains')
-            ? { $regex: `${fieldReq.contains}`, $options: 'i' }
-            : _.has(fieldReq, 'notContains')
-            ? { $regex: `^((?!${fieldReq.notContains}).)*$`, $options: 'i' }
-            : _.has(fieldReq, 'startsWith')
-            ? { $regex: `^${fieldReq.startsWith}`, $options: 'i' }
-            : _.has(fieldReq, 'notStartWith')
-            ? { $not: { $regex: `^${fieldReq.notStartWith}.*`, $options: 'i' } }
-            : _.has(fieldReq, 'endsWith')
-            ? { $regex: `.*${fieldReq.endsWith}$`, $options: 'i' }
-            : _.has(fieldReq, 'notEndsWith')
-            ? { $not: { $regex: `.*${fieldReq.notEndsWith}$`, $options: 'i' } }
-            : _.has(fieldReq, 'in')
-            ? { $in: fieldReq.in }
-            : _.has(fieldReq, 'notIn')
-            ? { $nin: fieldReq.notIn }
-            : null;
+              ? { $ne: fieldReq.isNot }
+              : _.has(fieldReq, 'contains')
+                ? { $regex: `${fieldReq.contains}`, $options: 'i' }
+                : _.has(fieldReq, 'notContains')
+                  ? { $regex: `^((?!${fieldReq.notContains}).)*$`, $options: 'i' }
+                  : _.has(fieldReq, 'startsWith')
+                    ? { $regex: `^${fieldReq.startsWith}`, $options: 'i' }
+                    : _.has(fieldReq, 'notStartWith')
+                      ? { $not: { $regex: `^${fieldReq.notStartWith}.*`, $options: 'i' } }
+                      : _.has(fieldReq, 'endsWith')
+                        ? { $regex: `.*${fieldReq.endsWith}$`, $options: 'i' }
+                        : _.has(fieldReq, 'notEndsWith')
+                          ? { $not: { $regex: `.*${fieldReq.notEndsWith}$`, $options: 'i' } }
+                          : _.has(fieldReq, 'in')
+                            ? { $in: fieldReq.in }
+                            : _.has(fieldReq, 'notIn')
+                              ? { $nin: fieldReq.notIn }
+                              : null;
           break;
         case 'enum':
           querySchema[field] = { $eq: fieldReq };
@@ -906,20 +959,20 @@ class Resolvers {
           querySchema[field] = _.has(fieldReq, 'is')
             ? { $eq: fieldReq.is }
             : _.has(fieldReq, 'isNot')
-            ? { $ne: fieldReq.isNot }
-            : _.has(fieldReq, 'lt')
-            ? { $lt: fieldReq.lt }
-            : _.has(fieldReq, 'lte')
-            ? { $lte: fieldReq.lte }
-            : _.has(fieldReq, 'gt')
-            ? { $gt: fieldReq.gt }
-            : _.has(fieldReq, 'gte')
-            ? { $gte: fieldReq.gte }
-            : _.has(fieldReq, 'in')
-            ? { $in: fieldReq.in }
-            : _.has(fieldReq, 'notIn')
-            ? { $nin: fieldReq.notIn }
-            : null;
+              ? { $ne: fieldReq.isNot }
+              : _.has(fieldReq, 'lt')
+                ? { $lt: fieldReq.lt }
+                : _.has(fieldReq, 'lte')
+                  ? { $lte: fieldReq.lte }
+                  : _.has(fieldReq, 'gt')
+                    ? { $gt: fieldReq.gt }
+                    : _.has(fieldReq, 'gte')
+                      ? { $gte: fieldReq.gte }
+                      : _.has(fieldReq, 'in')
+                        ? { $in: fieldReq.in }
+                        : _.has(fieldReq, 'notIn')
+                          ? { $nin: fieldReq.notIn }
+                          : null;
           break;
         default:
           break;
