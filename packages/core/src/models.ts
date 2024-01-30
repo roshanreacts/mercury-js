@@ -314,7 +314,7 @@ export class Model {
       .select(options.select || [])
       .exec();
     if (!record) {
-      throw new Error('Record not found');
+      return {};
     }
     await new Promise((resolve, reject) => {
       hook.execAfter(

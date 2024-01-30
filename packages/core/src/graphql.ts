@@ -14,6 +14,7 @@ export const fieldTypeMap: { [key: string]: string } = {
   enum: 'enum',
   relationship: 'relationship',
   date: 'DateTime',
+  float: 'Int'
 };
 export class Mgraphql {
   // Generate graphql typedefs

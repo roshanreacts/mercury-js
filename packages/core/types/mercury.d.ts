@@ -31,6 +31,7 @@ declare type TField = {
   rounds?: number;
   ignoreGraphQL?: boolean;
   default?: any;
+  [x: string]: any;
 };
 
 declare type TOptions = {
