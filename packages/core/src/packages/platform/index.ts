@@ -59,22 +59,12 @@ export class Platform {
 	}
 
 	public initialize() {
-		console.log('INITIALIZATION DONE', this.mercury.db['Model']);
-		console.log('DB', this.mercury.db);
-		// if (!_.isEmpty(this.mercury.db['Model'])) {
-		// compose schema and set in redis
-		// doubt - already present redis or not --> clear redis keys of these models and reset?
 		createMetaModels(this.mercury);
 		this.composeAllRedisSchemas();
-		// } else {
-		// console.log('Inside else');
-		// }
 	}
 
 	public async composeAllRedisSchemas() {
-		console.log('LIST', this.mercury.list);
 		const models: TMetaModel[] = await this.mercury.db['Model'].mongoModel.find({});
-		console.log('all models', models);
 		const allModels: string[] = [];
 		models.map(async (model: TMetaModel) => {
 			allModels.push(model.name);
@@ -575,10 +565,34 @@ export class Platform {
 		// After the server is started these hooks will be executed
 		const _self = this;
 		this.mercury.hook.after(
+			'CREATE_MODEL_RECORD',
+			async function (this: any) {
+				if (this.options.skipHook) return;
+				_self.syncModel(this.record);
+			}
+		);
+		this.mercury.hook.after(
+			'UPDATE_MODEL_RECORD',
+			async function (this: any) {
+				if (this.options.skipHook) return;
+				const record = await _self.mercury.db.Model.get(
+					{ _id: this.record._id },
+					{ id: '1', profile: 'Admin' }
+				);
+				_self.syncModel(record, this.prevRecord);
+			}
+		);
+		this.mercury.hook.after(
+			'DELETE_MODEL_RECORD',
+			async function (this: any) {
+				if (this.options.skipHook) return;
+				await this.mercury.cache.delete(this.deletedRecord.name.toUpperCase());
+			}
+		);
+		this.mercury.hook.after(
 			'CREATE_MODELFIELD_RECORD',
 			async function (this: any) {
 				if (this.options.skipHook) return;
-				console.log('INSIDE SUBSCRIBE TO RECORD HOOK');
 				_self.syncModelFields(this.record);
 			}
 		);
@@ -683,7 +697,28 @@ export class Platform {
 		);
 	}
 
+	private async syncModel(model: any, prevRecord?: any) {
+		let redisObj: any = {};
+		if(_.isEmpty(prevRecord)) {
+			redisObj = {
+				name: model.name,
+				fields: {},
+				options: {}
+			}
+		} else {
+			if(prevRecord.name !== model.name) {
+				redisObj = await this.mercury.cache.get(prevRecord.name.toUpperCase());
+				await this.mercury.cache.delete(redisObj.name.toUpperCase());
+				redisObj = JSON.parse(redisObj);
+				redisObj.name = model.name;
+			}
+		}
+		await this.mercury.cache.set(model.name.toUpperCase(), JSON.stringify(redisObj));
+		this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
+	}
+
 	private async syncModelFields(modelField: any, prevRecord?: any) {
+		// if not present , need to fetch from db and compose again?
 		let redisObj: any = await this.mercury.cache.get(
 			modelField.name.toUpperCase()
 		);

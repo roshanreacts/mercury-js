@@ -13,6 +13,7 @@ interface TMetaModel {
 interface TModelField {
   id: string,
   _id: string,
+  _doc: TModelField,
   model: string,
   name: string,
   createdBy: string,
