@@ -7,12 +7,16 @@ export default (mercury: Mercury) => {
       name: {
         type: 'string',
         unique: true,
+        required: true,
       },
       prefix: {
         type: 'string',
+        required: true,
       },
       managed: {
         type: 'boolean',
+        required: true,
+        default: true
       },
       createdBy: {
         type: 'relationship',
@@ -33,9 +37,11 @@ export default (mercury: Mercury) => {
       model: {
         type: 'relationship',
         ref: 'Model',
+        required: true,
       },
       name: {
         type: 'string',
+        required: true,
       },
       createdBy: {
         type: 'relationship',
@@ -47,9 +53,11 @@ export default (mercury: Mercury) => {
       },
       fieldName: {
         type: 'string',
+        required: true,
       },
       type: {
         type: 'string',
+        required: true,
       },
       required: {
         type: 'boolean',
@@ -81,6 +89,7 @@ export default (mercury: Mercury) => {
       },
       managed: {
         type: 'boolean',
+        required: true,
       },
       fieldOptions: {
         type: 'virtual',
@@ -111,21 +120,29 @@ export default (mercury: Mercury) => {
       model: {
         type: 'relationship',
         ref: 'Model',
+        required: true,
       },
       name: {
         type: 'string',
+        required: true,
       },
       managed: {
         type: 'boolean',
+        required: true,
       },
       keyName: {
         type: 'string',
+        required: true,
       },
       value: {
         type: 'string',
+        required: true,
       },
       type: {
-        type: 'string',
+        type: 'enum',
+        enum: ['number', 'string', 'boolean'],
+        enumType: 'string',
+        required: true,
       },
       createdBy: {
         type: 'relationship',
@@ -146,30 +163,39 @@ export default (mercury: Mercury) => {
       model: {
         type: 'relationship',
         ref: 'Model',
+        required: true,
       },
       modelName: {
         type: 'string',
+        required: true,
       },
       modelField: {
         type: 'relationship',
         ref: 'ModelField',
+        required: true,
       },
       fieldName: {
         type: 'string',
+        required: true,
       },
       keyName: {
         type: 'string',
+        required: true,
       },
+
       type: {
         type: 'enum',
         enum: ['number', 'string', 'boolean'],
         enumType: 'string',
+        required: true,
       },
       value: {
         type: 'string',
+        required: true,
       },
       managed: {
         type: 'boolean',
+        required: true,
       },
       prefix: {
         type: 'string',

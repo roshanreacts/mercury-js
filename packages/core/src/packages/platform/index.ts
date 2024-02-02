@@ -493,7 +493,7 @@ export class Platform {
     });
   }
 
-  private async createMetaRecords(modelName: string, data: any) {
+  public async createMetaRecords(modelName: string, data: any) {
     return await this.mercury.db[modelName].create(
       data,
       {
@@ -671,6 +671,14 @@ export class Platform {
 			await _self.deleteMetaRecords(this.deletedRecord);
       await _self.delModel(this.deletedRecord.name);
     });
+		this.mercury.hook.before(
+      'CREATE_MODELFIELD_RECORD',
+      async function (this: any) {
+        if (this.options.skipHook) return;
+        const model = await _self.mercury.db.Model.get({ _id: this.data.model}, { id: "1", profile: "Admin"});
+				if(model.name !== this.data.name) throw new Error("Model name mismatch");
+      }
+    );
     this.mercury.hook.after(
       'CREATE_MODELFIELD_RECORD',
       async function (this: any) {
@@ -689,6 +697,7 @@ export class Platform {
         _self.syncModelFields(record, this.prevRecord);
       }
     );
+    
     this.mercury.hook.after(
       'DELETE_MODELFIELD_RECORD',
       async function (this: any) {
@@ -702,6 +711,14 @@ export class Platform {
           `${redisObj.name.toUpperCase()}`,
           JSON.stringify(redisObj)
         );
+      }
+    );
+		this.mercury.hook.before(
+      'CREATE_MODELOPTION_RECORD',
+      async function (this: any) {
+        if (this.options.skipHook) return;
+        const model = await _self.mercury.db.Model.get({ _id: this.record.model}, { id: "1", profile: "Admin"});
+				if(model.name !== this.record.name) throw new Error("Model name mismatch");
       }
     );
     this.mercury.hook.after(
@@ -742,6 +759,14 @@ export class Platform {
         );
       }
     );
+		this.mercury.hook.before(
+      'CREATE_FIELDOPTION_RECORD',
+      async function (this: any) {
+        if (this.options.skipHook) return;
+        const model = await _self.mercury.db.Model.get({ _id: this.record.model}, { id: "1", profile: "Admin"});
+				if(model.name !== this.record.modelName) throw new Error("Model name mismatch !!");
+      }
+    );
     this.mercury.hook.after(
       'CREATE_FIELDOPTION_RECORD',
       async function (this: any) {
@@ -778,10 +803,10 @@ export class Platform {
       }
     );
   }
-
-  @AfterHook
-  private async syncModel(model: any, prevRecord?: any) {
-    let redisObj: any = {};
+ 
+	@AfterHook
+  private async syncModel(model: TMetaModel, prevRecord?: TMetaModel) {
+    let redisObj: TModel = {} as TModel;
     if (_.isEmpty(prevRecord)) {
       redisObj = {
         name: model.name,
@@ -790,40 +815,43 @@ export class Platform {
       };
     } else {
       if (prevRecord.name !== model.name) {
-        redisObj = await this.mercury.cache.get(prevRecord.name.toUpperCase());
-        redisObj = JSON.parse(redisObj);
+				// handle redis not present
+				// name update -> update in associated model fields, model options
+				await this.syncMetaModelRecords(model);
+        redisObj = JSON.parse((await this.mercury.cache.get(prevRecord.name.toUpperCase())) as string);
         await this.delModel(prevRecord.name);
         redisObj.name = model.name;
-      }
+      } else return;
     }
-    let allModels: any = await this.mercury.cache.get('ALL_MODELS');
-    allModels = JSON.parse(allModels);
+    let allModels:string[] = JSON.parse((await this.mercury.cache.get('ALL_MODELS')) as string);
     allModels.push(model.name);
     await this.mercury.cache.set(
       model.name.toUpperCase(),
       JSON.stringify(redisObj)
     );
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
+    if(!_.isEmpty(redisObj.fields))
     this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
-
   }
+
+	private async syncMetaModelRecords(model: TMetaModel) {
+		await this.mercury.db.ModelField.mongoModel.updateMany({ model: model._id },{ $set: { name: model.name }});
+		await this.mercury.db.ModelOption.mongoModel.updateMany({ model: model._id }, { $set: { name: model.name }});
+		await this.mercury.db.FieldOption.mongoModel.updateMany({ model: model._id }, { $set: { modelName: model.name }});
+	}
 
   @AfterHook
   private async delModel(model: string) {
-    let allModels: any = await this.mercury.cache.get('ALL_MODELS');
-    allModels = JSON.parse(allModels);
+    let allModels: string[] = JSON.parse(await this.mercury.cache.get('ALL_MODELS') as string);
     allModels = allModels.filter((rmodel: string) => rmodel !== model);
     await this.mercury.cache.delete(model.toUpperCase());
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
   }
 
   @AfterHook
-  private async syncModelFields(modelField: any, prevRecord?: any) {
+  private async syncModelFields(modelField: TModelField, prevRecord?: TModelField) {
     // if not present , need to fetch from db and compose again?
-    let redisObj: any = await this.mercury.cache.get(
-      modelField.name.toUpperCase()
-    );
-    redisObj = JSON.parse(redisObj);
+    let redisObj: TModel = JSON.parse(await this.mercury.cache.get(modelField.name.toUpperCase()) as string);
     if (!_.isEmpty(prevRecord)) {
       delete redisObj.fields[prevRecord.fieldName];
     }
@@ -836,28 +864,24 @@ export class Platform {
     this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
   }
 
-  @AfterHook
-  private async syncModelOptions(record: any, prevRecord?: any) {
-    let redisObj: any = await this.mercury.cache.get(record.name.toUpperCase());
-    redisObj = JSON.parse(redisObj);
+	@AfterHook
+  private async syncModelOptions(record: TModelOption, prevRecord?: TModelOption) {
+    let redisObj: TModel = JSON.parse(await this.mercury.cache.get(record.name.toUpperCase()) as string);
     if (!_.isEmpty(prevRecord)) {
-      delete redisObj.options[prevRecord.keyName];
+      delete redisObj?.options?.[prevRecord.keyName];
     }
     const options = this.composeOptions([record]);
-    redisObj.options[record.keyName] = record.value;
+    (redisObj.options as TOptions)[record.keyName] = record.value;
     await this.mercury.cache.set(
       `${redisObj.name.toUpperCase()}`,
       JSON.stringify(redisObj)
     );
     this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
   }
-
-  @AfterHook
-  private async syncFieldOptions(fieldOption: any, prevRecord?: any) {
-    let redisObj: any = await this.mercury.cache.get(
-      fieldOption.modelName.toUpperCase()
-    );
-    redisObj = JSON.parse(redisObj);
+  
+	@AfterHook
+  private async syncFieldOptions(fieldOption: TFieldOption, prevRecord?: TFieldOption) {
+		let redisObj: TModel = JSON.parse(await this.mercury.cache.get( fieldOption.modelName.toUpperCase()) as string);
     if (!_.isEmpty(prevRecord)) {
       delete redisObj.fields[fieldOption.fieldName][prevRecord.keyName];
     }
@@ -869,12 +893,9 @@ export class Platform {
     );
     this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
   }
-
-  // methods:
-  // listModels (Redis cache)
-  // getModel (Redis cache)
-  // create/update/deleteModel (store the schema to DB and update the redis cache)
 }
 
-// syncing must be done for individual record updates? and after every record update should they call createModel again or not
-// when the create model will be called other than restarting
+// export type { Platform };
+
+// managed true -> before hooks condition checks
+// delete hooks - afterHook decorator

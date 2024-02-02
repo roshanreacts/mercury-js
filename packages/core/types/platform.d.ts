@@ -19,7 +19,7 @@ interface TModelField {
   createdBy: string,
   updatedBy: string,
   fieldName: string,
-  type: string
+  type: 'number' | 'string' | 'boolean'
   required: boolean,
   default: string,
   rounds: number,
@@ -50,7 +50,7 @@ interface TFieldOption {
 interface TModelOption {
   id: string,
   _id: string,
-  model: string, 
+  model: string | TMetaModel, 
   name: string,
   managed: boolean,
   keyName: string,
