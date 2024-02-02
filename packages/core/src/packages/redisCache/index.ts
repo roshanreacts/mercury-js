@@ -16,6 +16,9 @@ export default (config?: RedisCacheConfig) => {
     // extend mercury to include a cache property
 
     mercury.cache = new Redis(config);
+    (async () => {
+      await mercury.cache.client.connect();
+    })();
   };
 };
 
@@ -27,20 +30,27 @@ function AfterHook(
   const originalMethod = descriptor.value;
 
   descriptor.value = async function (this: Redis, ...args: any[]) {
-    if (this.client.isOpen) {
-      await this.client.quit();
-    }
-    await this.client.connect();
-
-    const result = originalMethod.apply(this, args);
-    if (result instanceof Promise) {
-      return result.then(async (res: any) => {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+      const result = originalMethod.apply(this, args);
+      if (result instanceof Promise) {
+        return result.then(async (res: any) => {
+          // await this.client.disconnect();
+          return res;
+        });
+      } else {
+        // await this.client.disconnect();
+        return result;
+      }
+    } catch (error: any) {
+      console.log("Redis Client Error: ", error)
+    } finally {
+      // Always disconnect the client when done
+      if (this.client.isOpen) {
         await this.client.disconnect();
-        return res;
-      });
-    } else {
-      await this.client.disconnect();
-      return result;
+      }
     }
   };
 
@@ -79,17 +89,21 @@ export class Redis {
     this.client = client;
   }
 
-  @AfterHook
+  // @AfterHook
   async set(key: string, value: string) {
     await this.client.set(key, value);
   }
 
-  @AfterHook
+  async delete(key: string) {
+    await this.client.del(key);
+  }
+
+  // @AfterHook
   async get(key: string) {
     return await this.client.get(key);
   }
 
-  @AfterHook
+  // @AfterHook
   async createSchema(
     name: string,
     fields: {
@@ -128,13 +142,13 @@ export class Redis {
     }
   }
 
-  @AfterHook
+  // @AfterHook
   async insert(name: string, data: any) {
     await this.client.json.set(`${this.prefix}:${name}:${data.id}`, '$', data);
     return data;
   }
 
-  @AfterHook
+  // @AfterHook
   async search(name: string, query: string) {
     return await this.client.ft.search(`${this.prefix}:${name}`, query);
   }
