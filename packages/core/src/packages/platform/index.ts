@@ -10,7 +10,6 @@ type PlatformConfig = {
 declare module '../../mercury' {
   interface Mercury {
     platform: Platform;
-    // redis: Redis;
   }
 }
 
@@ -19,8 +18,6 @@ export default (config?: PlatformConfig) => {
     mercury.platform = new Platform(mercury, config);
     mercury.platform.initialize();
     mercury.platform.start();
-    // mercury.redis = new Redis();
-    // initialize here
   };
 };
 
@@ -76,7 +73,7 @@ export class Platform {
   }
 
   public async composeRedisObject(model: TMetaModel) {
-    let modelFields, modelOptions, fieldOptions;
+    let modelFields, modelOptions, fieldOptions = [];
     try {
       modelFields = await this.mercury.db['ModelField'].list(
         { model: model._id, name: model.name },
@@ -573,11 +570,33 @@ export class Platform {
     });
   }
 
+	private async createDefaultModelOptions(model: any) {
+		['historyTracking', 'private'].map((option: string) => {
+			this.createMetaRecords('ModelOption', {
+				model: model._id,
+        name: model.name,
+        managed: true,
+        keyName: option,
+        value: false,
+        type: "boolean",
+			});
+		})
+	}
+
+	private async deleteMetaRecords(model: any) {
+		['ModelField', 'ModelOption', 'FieldOption'].map(async (modelName: string) => {
+			await this.mercury.db[modelName].mongoModel.deleteMany({
+				model: model._id,
+			});
+		})
+	}
+
   private subscribeToRecordHooks() {
-    // After the server is started these hooks will be executed
     const _self = this;
     this.mercury.hook.after('CREATE_MODEL_RECORD', async function (this: any) {
       if (this.options.skipHook) return;
+			// create options
+			await _self.createDefaultModelOptions(this.record);
       _self.syncModel(this.record);
     });
     this.mercury.hook.after('UPDATE_MODEL_RECORD', async function (this: any) {
@@ -590,6 +609,7 @@ export class Platform {
     });
     this.mercury.hook.after('DELETE_MODEL_RECORD', async function (this: any) {
       if (this.options.skipHook) return;
+			await _self.deleteMetaRecords(this.deletedRecord);
       await _self.delModel(this.deletedRecord.name);
     });
     this.mercury.hook.after(
@@ -706,7 +726,7 @@ export class Platform {
       redisObj = {
         name: model.name,
         fields: {},
-        options: {},
+        options: { historyTracking: false, private: false},
       };
     } else {
       if (prevRecord.name !== model.name) {
