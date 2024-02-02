@@ -21,6 +21,49 @@ export default (config?: PlatformConfig) => {
   };
 };
 
+function AfterHook(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const originalMethod = descriptor.value;
+
+  descriptor.value = async function (this: Platform, ...args: any[]) {
+    try {
+      // before hook
+      // after hook
+      const result = originalMethod.apply(this, args);
+      if (result instanceof Promise) {
+        return result.then(async (res: any) => {
+          await new Promise((resolve, reject) => {
+            this.mercury.hook.execAfter(
+              `PLATFORM_INITIALIZE`,
+              {},
+              [],
+              function (error: any) {
+                if (error) {
+                  // Reject the Promise if there is an error
+                  reject(error);
+                } else {
+                  // Resolve the Promise if there is no error
+                  resolve(true);
+                }
+              }
+            );
+          });
+          return res;
+        });
+      } else {
+        return result;
+      }
+    } catch (error: any) {
+      console.log('Platform Error: ', error);
+    }
+  };
+
+  return descriptor;
+}
+
 export class Platform {
   protected mercury: Mercury;
   public config: PlatformConfig;
@@ -55,9 +98,25 @@ export class Platform {
     this.mercury.createModel(name, fields, options);
   }
 
-  public initialize() {
+  public async initialize() {
     createMetaModels(this.mercury);
-    this.composeAllRedisSchemas();
+    await this.composeAllRedisSchemas();
+    await new Promise((resolve, reject) => {
+      this.mercury.hook.execAfter(
+        `PLATFORM_INITIALIZE`,
+        {},
+        [],
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
+        }
+      );
+    });
   }
 
   public async composeAllRedisSchemas() {
@@ -65,10 +124,10 @@ export class Platform {
       {}
     );
     const allModels: string[] = [];
-    models.map(async (model: TMetaModel) => {
+    await Promise.all(models.map(async (model: TMetaModel) => {
       allModels.push(model.name);
-      this.composeRedisObject(model);
-    });
+      await this.composeRedisObject(model);
+    }));
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
   }
 
@@ -159,8 +218,8 @@ export class Platform {
             type == 'number'
               ? Number(value)
               : type == 'string'
-              ? String(value)
-              : value === 'true';
+                ? String(value)
+                : value === 'true';
         });
       }
       schema[fieldName] = fieldObj;
@@ -178,10 +237,10 @@ export class Platform {
         type == 'number'
           ? Number(value)
           : type == 'string'
-          ? String(value)
-          : type == 'boolean'
-          ? value === 'true'
-          : value;
+            ? String(value)
+            : type == 'boolean'
+              ? value === 'true'
+              : value;
     });
     console.log('return modelOptions', options);
     return options;
@@ -720,6 +779,7 @@ export class Platform {
     );
   }
 
+  @AfterHook
   private async syncModel(model: any, prevRecord?: any) {
     let redisObj: any = {};
     if (_.isEmpty(prevRecord)) {
@@ -745,8 +805,10 @@ export class Platform {
     );
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
     this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
+
   }
 
+  @AfterHook
   private async delModel(model: string) {
     let allModels: any = await this.mercury.cache.get('ALL_MODELS');
     allModels = JSON.parse(allModels);
@@ -755,6 +817,7 @@ export class Platform {
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
   }
 
+  @AfterHook
   private async syncModelFields(modelField: any, prevRecord?: any) {
     // if not present , need to fetch from db and compose again?
     let redisObj: any = await this.mercury.cache.get(
@@ -773,6 +836,7 @@ export class Platform {
     this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
   }
 
+  @AfterHook
   private async syncModelOptions(record: any, prevRecord?: any) {
     let redisObj: any = await this.mercury.cache.get(record.name.toUpperCase());
     redisObj = JSON.parse(redisObj);
@@ -788,6 +852,7 @@ export class Platform {
     this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
   }
 
+  @AfterHook
   private async syncFieldOptions(fieldOption: any, prevRecord?: any) {
     let redisObj: any = await this.mercury.cache.get(
       fieldOption.modelName.toUpperCase()

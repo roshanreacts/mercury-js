@@ -1,0 +1,10 @@
+{
+  "name": "@mercury-js/core/packages/platform",
+  "private": false,
+  "main": "../../dist/cjs/packages/platform/index.js",
+  "module": "../../dist/esm/packages/platform/index.js",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
