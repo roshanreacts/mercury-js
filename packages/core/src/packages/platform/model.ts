@@ -9,6 +9,11 @@ export default (mercury: Mercury) => {
         unique: true,
         required: true,
       },
+      label: {
+        type: 'string',
+        unique: true,
+        required: true,
+      },
       prefix: {
         type: 'string',
         required: true,
@@ -21,10 +26,12 @@ export default (mercury: Mercury) => {
       createdBy: {
         type: 'relationship',
         ref: 'User',
+        // required: true,
       },
       updatedBy: {
         type: 'relationship',
         ref: 'User',
+        // required: true,
       },
     },
     {
@@ -46,17 +53,25 @@ export default (mercury: Mercury) => {
       createdBy: {
         type: 'relationship',
         ref: 'User',
+        // required: true,
       },
       updatedBy: {
         type: 'relationship',
         ref: 'User',
+        // required: true,
       },
       fieldName: {
         type: 'string',
         required: true,
       },
+      // label: {
+      //   type: 'string',
+      //   required: true,
+      // },
       type: {
-        type: 'string',
+        type: 'enum',
+        enum: ['number', 'string', 'boolean'],
+        enumType: 'string',
         required: true,
       },
       required: {
@@ -90,6 +105,7 @@ export default (mercury: Mercury) => {
       managed: {
         type: 'boolean',
         required: true,
+        default: true
       },
       fieldOptions: {
         type: 'virtual',
@@ -129,11 +145,16 @@ export default (mercury: Mercury) => {
       managed: {
         type: 'boolean',
         required: true,
+        default: true
       },
       keyName: {
         type: 'string',
         required: true,
       },
+      // label: {
+      //   type: 'string',
+      //   required: true,
+      // },
       value: {
         type: 'string',
         required: true,
@@ -147,10 +168,12 @@ export default (mercury: Mercury) => {
       createdBy: {
         type: 'relationship',
         ref: 'User',
+        // required: true,
       },
       updatedBy: {
         type: 'relationship',
         ref: 'User',
+        // required: true,
       },
     },
     {
@@ -182,7 +205,10 @@ export default (mercury: Mercury) => {
         type: 'string',
         required: true,
       },
-
+      // label: {
+      //   type: 'string',
+      //   required: true,
+      // },
       type: {
         type: 'enum',
         enum: ['number', 'string', 'boolean'],
@@ -196,6 +222,7 @@ export default (mercury: Mercury) => {
       managed: {
         type: 'boolean',
         required: true,
+        default: true
       },
       prefix: {
         type: 'string',
