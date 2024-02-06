@@ -653,28 +653,28 @@ export class Platform {
   private subscribeToRecordHooks() {
     const _self = this; 
     this.mercury.hook.before('UPDATE_MODEL_RECORD', async function (this: any) {
-      if(!this.record.managed) throw new Error('This model is not managed!');
+      if(this.record.managed) throw new Error(`This model can't be edited`);
     });
     this.mercury.hook.before('DELETE_MODEL_RECORD', async function (this: any) {
-      if(!this.record.managed) throw new Error('This model is not managed!');
+      if(this.record.managed) throw new Error(`This model can't be deleted!`);
     });
     this.mercury.hook.before('UPDATE_MODELFIELD_RECORD', async function (this: any) {
-      if(!this.record.managed) throw new Error('This model field is not managed!');
+      if(this.record.managed) throw new Error(`This model field can't be edited!`);
     });
     this.mercury.hook.before('DELETE_MODELFIELD_RECORD', async function (this: any) {
-      if(!this.record.managed) throw new Error('This model field is not managed!');
+      if(this.record.managed) throw new Error(`This model field can't be deleted!`);
     });
     this.mercury.hook.before('UPDATE_MODELOPTION_RECORD', async function (this: any) {
-      if(!this.record.managed) throw new Error('This model option is not managed!');
+      if(this.record.managed) throw new Error(`This model option can't be edited!`);
     });
     this.mercury.hook.before('DELETE_MODELOPTION_RECORD', async function (this: any) {
-      if(!this.record.managed) throw new Error('This model option is not managed!');
+      if(this.record.managed) throw new Error(`This model option can't be deleted!`);
     });
     this.mercury.hook.before('UPDATE_FIELDOPTION_RECORD', async function (this: any) {
-      if(!this.record.managed) throw new Error('This field option is not managed!');
+      if(this.record.managed) throw new Error(`This field option can't be deeditedleted!`);
     });
     this.mercury.hook.before('DELETE_FIELDOPTION_RECORD', async function (this: any) {
-      if(!this.record.managed) throw new Error('This field option model is not managed!');
+      if(this.record.managed) throw new Error(`This field option  can't be deleted!`);
     });
     this.mercury.hook.after('CREATE_MODEL_RECORD', async function (this: any) {
       if (this.options.skipHook) return;
@@ -692,6 +692,7 @@ export class Platform {
     });
     this.mercury.hook.after('DELETE_MODEL_RECORD', async function (this: any) {
       if (this.options.skipHook) return;
+      _self.mercury.deleteModel(this.deletedRecord.name);
 			await _self.deleteMetaRecords(this.deletedRecord);
       await _self.delModel(this.deletedRecord.name);
     });
@@ -738,7 +739,7 @@ export class Platform {
       'CREATE_MODELOPTION_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const model = await _self.mercury.db.Model.get({ _id: this.record.model}, { id: "1", profile: "Admin"});
+        const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin"});
 				if(model.name !== this.record.name) throw new Error("Model name mismatch");
       }
     );
