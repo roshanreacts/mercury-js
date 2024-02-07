@@ -233,4 +233,45 @@ export default (mercury: Mercury) => {
       historyTracking: false,
     }
   );
+  const Tab = mercury.createModel(
+    'Tab',
+    {
+      icon: {
+        type: 'string',
+        required: true,
+      },
+      model: {
+        type: 'string',
+        required: true,
+      },
+      order: {
+        type: 'number',
+        required: true,
+      },
+      createdBy: {
+        type: 'relationship',
+        ref: 'User',
+        // required: true,
+      },
+      updatedBy: {
+        type: 'relationship',
+        ref: 'User',
+        // required: true,
+      },
+    },
+    {
+      historyTracking: false,
+    }
+  );
+  // const Component = mercury.createModel(
+  //   'Component',
+  //   {
+  //     code: {
+  //       type: 'string',
+  //     }
+  //   },
+  //   {
+  //     historyTracking: false,
+  //   }
+  // );
 };

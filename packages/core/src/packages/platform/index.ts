@@ -692,7 +692,7 @@ export class Platform {
     });
     this.mercury.hook.after('DELETE_MODEL_RECORD', async function (this: any) {
       if (this.options.skipHook) return;
-      _self.mercury.deleteModel(this.deletedRecord.name);
+      // _self.mercury.deleteModel(this.deletedRecord.name);
 			await _self.deleteMetaRecords(this.deletedRecord);
       await _self.delModel(this.deletedRecord.name);
     });
@@ -740,7 +740,7 @@ export class Platform {
       async function (this: any) {
         if (this.options.skipHook) return;
         const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin"});
-				if(model.name !== this.record.name) throw new Error("Model name mismatch");
+				if(model.name !== this.data.name) throw new Error("Model name mismatch");
       }
     );
     this.mercury.hook.after(
