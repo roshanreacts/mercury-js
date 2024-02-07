@@ -36,6 +36,17 @@ export default (mercury: Mercury) => {
     },
     {
       historyTracking: false,
+      indexes: [
+        {
+          fields: {
+            name: 1,
+            prefix: 1,
+          },
+          options: {
+            unique: true,
+          },
+        },
+      ],
     }
   );
   const ModelField = mercury.createModel(
@@ -241,6 +252,11 @@ export default (mercury: Mercury) => {
         required: true,
       },
       model: {
+        type: 'relationship',
+        ref: 'Model',
+        required: true,
+      },
+      label: {
         type: 'string',
         required: true,
       },
