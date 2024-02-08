@@ -94,6 +94,10 @@ export class Model {
     });
     let record = new this.mongoModel(data);
     record = await record.save();
+    record = await this.mongoModel.findById(record.id)
+      .populate(options.populate || [])
+      .select(options.select || [])
+      .exec();
     await new Promise((resolve, reject) => {
       hook.execAfter(
         `CREATE_${this.model.name.toUpperCase()}_RECORD`,
