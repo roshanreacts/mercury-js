@@ -3,6 +3,7 @@ import type { Mercury } from '../../mercury';
 
 type RedisCacheConfig = {
   prefix?: string;
+  url?: string;
 };
 
 declare module '../../mercury' {
@@ -75,7 +76,8 @@ export class Redis {
     if (config?.prefix) {
       this.prefix = config.prefix;
     }
-    this.client = createClient();
+    const redisConfig = config?.url ? { url: config.url } : undefined;
+    this.client = createClient(redisConfig);
     this.initializeClient();
   }
 
