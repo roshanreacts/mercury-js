@@ -279,15 +279,43 @@ export default (mercury: Mercury) => {
       historyTracking: false,
     }
   );
-  // const Component = mercury.createModel(
-  //   'Component',
-  //   {
-  //     code: {
-  //       type: 'string',
-  //     }
-  //   },
-  //   {
-  //     historyTracking: false,
-  //   }
-  // );
+  const Component = mercury.createModel(
+    'Component',
+    {
+      name: {
+        type: 'string',
+        required: true,
+      },
+      label: {
+        type: 'string',
+        required: true,
+      },
+      description: {
+        type: 'string',
+        required: true,
+      },
+      code: {
+        type: 'string',
+        required: true,
+      },
+      modules: {
+        type: 'string',
+        required: true,
+        many: true
+      },
+      createdBy: {
+        type: 'relationship',
+        ref: 'User',
+        // required: true,
+      },
+      updatedBy: {
+        type: 'relationship',
+        ref: 'User',
+        // required: true,
+      },
+    },
+    {
+      historyTracking: false,
+    }
+  );
 };
