@@ -1,9 +1,14 @@
-import { RedisClientType, createClient, SchemaFieldTypes } from 'redis';
+import { RedisClientType, RedisClientOptions, createClient, SchemaFieldTypes } from 'redis';
 import type { Mercury } from '../../mercury';
 
 type RedisCacheConfig = {
   prefix?: string;
-  url?: string;
+  client?: {
+    url?: string
+    socket: {
+      tls?: boolean
+    }
+  };
 };
 
 declare module '../../mercury' {
@@ -76,7 +81,7 @@ export class Redis {
     if (config?.prefix) {
       this.prefix = config.prefix;
     }
-    const redisConfig = config?.url ? { url: config.url } : undefined;
+    const redisConfig = config?.client ? config.client : undefined;
     this.client = createClient(redisConfig);
     this.initializeClient();
   }

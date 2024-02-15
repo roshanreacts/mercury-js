@@ -8,7 +8,6 @@ import { Mgraphql } from './graphql';
 import hook, { Hook } from './hooks';
 import access, { Access } from './access';
 import { DocumentNode } from 'graphql';
-import { Logger, ILogObj } from "tslog";
 
 export type ModelType = Model;
 
@@ -35,18 +34,6 @@ class Mercury {
     return mergeResolvers(this.resolversArr);
   }
 
-  // set debug(val: boolean) {
-  //   this._debug = val;
-  //   this.setLogger(new MercuryLogger({
-  //     ...loggerConfig,
-  //     minLevel: val ? 0 : 100
-  //   }))
-  // }
-  // public log = log;
-  // public setLogger(logger: any) {
-  //   setLogger(logger);
-  //   this.log = logger;
-  // }
   public addGraphqlSchema(typeDefs: string, resolvers: any) {
     this.typeDefsArr.push(typeDefs);
     this.resolversArr = mergeResolvers([this.resolversArr, resolvers]);
@@ -68,7 +55,6 @@ class Mercury {
     fields: TFields,
     options?: TOptions
   ): void {
-    // this.log.start(`Created model: ${name}`);
     // Define default options for the model
     const defaultOptions = {
       private: false,
@@ -81,7 +67,6 @@ class Mercury {
     const model: TModel = { name, fields, options };
 
     // Execute the CREATE_MODEL hook before creating the model
-    // this.log.start(`Before create model hook: ${name}`);
     this.hook.execBefore('CREATE_MODEL', model, (error: any) => {
       if (error) {
         throw error;
