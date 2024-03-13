@@ -68,8 +68,10 @@ export class Platform {
   protected mercury: Mercury;
   public config: PlatformConfig;
   public skipFields: string[];
+  public ctx: any;
   constructor(mercury: Mercury, config?: PlatformConfig) {
     this.mercury = mercury;
+    this.ctx = { id: "1", profile: "ADMIN"};
     this.config = config || {};
     this.skipFields = [
       'type',
@@ -160,9 +162,7 @@ export class Platform {
     } catch (err) {
       modelOptions = [];
     }
-    console.log('Model Fields', modelFields);
     const schema = this.composeSchema(modelFields, fieldOptions);
-    console.log('Schema', schema);
     const options = this.composeOptions(modelOptions);
     const redisObj = {
       name: model.name,
@@ -242,7 +242,6 @@ export class Platform {
               ? value === 'true'
               : value;
     });
-    console.log('return modelOptions', options);
     return options;
   }
 
@@ -259,7 +258,7 @@ export class Platform {
   private async subscribeHooks() {
     // Model create and update hooks has to be triggered
     // Record update also has to be triggered -> here we will update in the db and redis.
-    await this.subscribeToModelHooks();
+    // await this.subscribeToModelHooks();
     this.subscribeToRecordHooks();
   }
 
@@ -629,12 +628,12 @@ export class Platform {
     });
   }
 
-	private async createDefaultModelOptions(model: any) {
+	private async createDefaultModelOptions(model: TMetaModel) {
 		['historyTracking', 'private'].map((option: string) => {
 			this.createMetaRecords('ModelOption', {
 				model: model._id,
         name: model.name,
-        managed: true,
+        managed: false,
         keyName: option,
         value: false,
         type: "boolean",
@@ -777,8 +776,8 @@ export class Platform {
       'CREATE_FIELDOPTION_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const model = await _self.mercury.db.Model.get({ _id: this.record.model}, { id: "1", profile: "Admin"});
-				if(model.name !== this.record.modelName) throw new Error("Model name mismatch !!");
+        const model = await _self.mercury.db.Model.get({ _id: this.data.model}, { id: "1", profile: "Admin"});
+				if(model.name !== this.data.modelName) throw new Error("Model name mismatch !!");
       }
     );
     this.mercury.hook.after(

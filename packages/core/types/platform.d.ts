@@ -15,7 +15,7 @@ interface TModelField {
   _id: string,
   _doc: TModelField,
   model: string,
-  name: string,
+  modelName: string,
   createdBy: string,
   updatedBy: string,
   fieldName: string,
