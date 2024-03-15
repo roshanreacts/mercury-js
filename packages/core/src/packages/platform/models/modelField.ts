@@ -1,6 +1,6 @@
 import mercury from "../../../mercury";
 import _ from "lodash";
-import { composeSchema } from "../utility"
+import { AfterHook, composeSchema } from "../utility"
 
 export class ModelField {
   constructor() {
@@ -167,6 +167,7 @@ export class ModelField {
   }
 
   // after hook needs to be present
+  @AfterHook
   private async syncModelFields(modelField: TModelField, prevRecord?: TModelField) {
     let redisObj: TModel = JSON.parse(await mercury.cache.get(modelField.modelName.toUpperCase()) as string);
     if (!_.isEmpty(prevRecord)) {

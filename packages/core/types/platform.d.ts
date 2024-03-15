@@ -1,23 +1,23 @@
 // import { Schema } from "mongoose"
 
-interface TMetaModel {
+interface TCommon {
   id: string,
   _id: string,
+  createdBy?: string,
+  updatedBy?: string
+}
+
+interface TMetaModel extends TCommon {
   name: string,
   prefix: string,
   managed: boolean,
-  createdBy: string,
-  updatedBy: string
 }
 
-interface TModelField {
-  id: string,
-  _id: string,
+interface TModelField extends TCommon {
+
   _doc: TModelField,
   model: string,
   modelName: string,
-  createdBy: string,
-  updatedBy: string,
   fieldName: string,
   type: 'number' | 'string' | 'boolean'
   required: boolean,
@@ -33,31 +33,25 @@ interface TModelField {
   fieldOptions: string[] | TFieldOption[]  // string or populated one?
 }
 
-interface TFieldOption {
-  id: string,
-  _id: string,
+interface TFieldOption extends TCommon{
   model: string | TMetaModel,
   modelName: string,
   modelField: string | TModelField,
   fieldName: string,
   keyName: string,
   type: 'number' | 'string' | 'boolean',
-  value:  string,
+  value: string,
   managed: boolean,
-  prefix:  string
+  prefix: string
 }
 
-interface TModelOption {
-  id: string,
-  _id: string,
-  model: string | TMetaModel, 
+interface TModelOption extends TCommon{
+  model: string | TMetaModel,
   name: string,
   managed: boolean,
   keyName: string,
   value: string,
-  type: string,
-  createdBy: string,
-  updatedBy: string,
+  type: string
 }
 
 

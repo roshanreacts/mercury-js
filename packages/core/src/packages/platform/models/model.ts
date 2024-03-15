@@ -1,6 +1,6 @@
 import mercury from "../../../mercury";
 import _ from 'lodash';
-import { createDefaultModelOptions } from "../utility";
+import { AfterHook, createDefaultModelOptions } from "../utility";
 
 export class Model {
   constructor() {
@@ -104,6 +104,7 @@ export class Model {
   }
 
   // after hook 
+  @AfterHook
   private async syncModel(model: TMetaModel, prevRecord?: TMetaModel) {
     let redisObj: TModel = {} as TModel;
     if (_.isEmpty(prevRecord)) {
@@ -131,6 +132,7 @@ export class Model {
     mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
   }
 
+  @AfterHook
   private async delModel(model: string) {
     let allModels: string[] = JSON.parse(await mercury.cache.get('ALL_MODELS') as string);
     allModels = allModels.filter((rmodel: string) => rmodel !== model);
