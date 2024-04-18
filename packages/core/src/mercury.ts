@@ -1,4 +1,5 @@
-import { merge } from 'lodash';
+import _ from 'lodash';
+const { merge } = _;
 import { defaultTypeDefs, defaultResolvers } from './utility';
 // import { log, loggerConfig, setLogger, defaultTypeDefs, defaultResolvers, MercuryLogger } from './utility';
 import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';

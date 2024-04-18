@@ -1,4 +1,6 @@
-import { Schema, model as mongooseModel, models } from 'mongoose';
+import mongoose from 'mongoose';
+const { Schema, model, models } = mongoose;
+const mongooseModel = model;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import mongooseBcrypt from './mongoBcrypt';
@@ -7,8 +9,8 @@ import mongooseBcrypt from './mongoBcrypt';
 import * as mongoosePaginateV2 from 'mongoose-paginate-v2';
 import access from './access';
 import hook from './hooks';
-import { startCase } from 'lodash';
-
+import _ from 'lodash';
+const { startCase } = _;
 export class Model {
   public model: TModel;
   public mongoSchema: any;
@@ -94,7 +96,8 @@ export class Model {
     });
     let record = new this.mongoModel(data);
     record = await record.save();
-    record = await this.mongoModel.findById(record.id)
+    record = await this.mongoModel
+      .findById(record.id)
       .populate(options.populate || [])
       .select(options.select || [])
       .exec();

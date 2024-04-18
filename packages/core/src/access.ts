@@ -1,4 +1,5 @@
-import { mapKeys } from 'lodash';
+import _ from 'lodash';
+const { mapKeys } = _;
 import mercury from './mercury';
 export class Access {
   profiles: Profile[] = [];

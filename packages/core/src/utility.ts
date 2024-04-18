@@ -1,10 +1,6 @@
 import _ from 'lodash';
 import { fieldTypeMap } from './graphql';
-import {
-  Logger,
-  ISettingsParam,
-  ILogObjMeta,
-} from "tslog";
+import { Logger, ISettingsParam, ILogObjMeta } from 'tslog';
 
 import {
   DateTimeResolver,
@@ -39,7 +35,7 @@ import {
   JSONResolver,
   JSONObjectResolver,
 } from 'graphql-scalars';
-import { isEmpty } from 'lodash';
+const { isEmpty } = _;
 
 export const defaultResolvers = {
   DateTime: DateTimeResolver,
@@ -111,7 +107,7 @@ export const historySchema = (name: string): TFields => {
       required: true,
     },
     oldValue: {
-      type: 'string',  // Mixed
+      type: 'string', // Mixed
       required: true,
     },
   };
@@ -235,46 +231,46 @@ export const whereInputMap = (input: any, modelFields: TFields) => {
         querySchema._id = _.has(fieldReq, 'is')
           ? { $eq: fieldReq.is }
           : _.has(fieldReq, 'isNot')
-            ? { $ne: fieldReq.isNot }
-            : _.has(fieldReq, 'in')
-              ? { $in: fieldReq.in }
-              : _.has(fieldReq, 'notIn')
-                ? { $nin: fieldReq.notIn }
-                : null;
+          ? { $ne: fieldReq.isNot }
+          : _.has(fieldReq, 'in')
+          ? { $in: fieldReq.in }
+          : _.has(fieldReq, 'notIn')
+          ? { $nin: fieldReq.notIn }
+          : null;
         break;
       case 'relationship':
         querySchema[field] = _.has(fieldReq, 'is')
           ? { $eq: fieldReq.is }
           : _.has(fieldReq, 'isNot')
-            ? { $ne: fieldReq.isNot }
-            : _.has(fieldReq, 'in')
-              ? { $in: fieldReq.in }
-              : _.has(fieldReq, 'notIn')
-                ? { $nin: fieldReq.notIn }
-                : null;
+          ? { $ne: fieldReq.isNot }
+          : _.has(fieldReq, 'in')
+          ? { $in: fieldReq.in }
+          : _.has(fieldReq, 'notIn')
+          ? { $nin: fieldReq.notIn }
+          : null;
         break;
       case 'String':
         querySchema[field] = _.has(fieldReq, 'is')
           ? { $eq: fieldReq.is }
           : _.has(fieldReq, 'isNot')
-            ? { $ne: fieldReq.isNot }
-            : _.has(fieldReq, 'contains')
-              ? { $regex: `${fieldReq.contains}`, $options: 'i' }
-              : _.has(fieldReq, 'notContains')
-                ? { $regex: `^((?!${fieldReq.notContains}).)*$`, $options: 'i' }
-                : _.has(fieldReq, 'startsWith')
-                  ? { $regex: `^${fieldReq.startsWith}`, $options: 'i' }
-                  : _.has(fieldReq, 'notStartWith')
-                    ? { $not: { $regex: `^${fieldReq.notStartWith}.*`, $options: 'i' } }
-                    : _.has(fieldReq, 'endsWith')
-                      ? { $regex: `.*${fieldReq.endsWith}$`, $options: 'i' }
-                      : _.has(fieldReq, 'notEndsWith')
-                        ? { $not: { $regex: `.*${fieldReq.notEndsWith}$`, $options: 'i' } }
-                        : _.has(fieldReq, 'in')
-                          ? { $in: fieldReq.in }
-                          : _.has(fieldReq, 'notIn')
-                            ? { $nin: fieldReq.notIn }
-                            : null;
+          ? { $ne: fieldReq.isNot }
+          : _.has(fieldReq, 'contains')
+          ? { $regex: `${fieldReq.contains}`, $options: 'i' }
+          : _.has(fieldReq, 'notContains')
+          ? { $regex: `^((?!${fieldReq.notContains}).)*$`, $options: 'i' }
+          : _.has(fieldReq, 'startsWith')
+          ? { $regex: `^${fieldReq.startsWith}`, $options: 'i' }
+          : _.has(fieldReq, 'notStartWith')
+          ? { $not: { $regex: `^${fieldReq.notStartWith}.*`, $options: 'i' } }
+          : _.has(fieldReq, 'endsWith')
+          ? { $regex: `.*${fieldReq.endsWith}$`, $options: 'i' }
+          : _.has(fieldReq, 'notEndsWith')
+          ? { $not: { $regex: `.*${fieldReq.notEndsWith}$`, $options: 'i' } }
+          : _.has(fieldReq, 'in')
+          ? { $in: fieldReq.in }
+          : _.has(fieldReq, 'notIn')
+          ? { $nin: fieldReq.notIn }
+          : null;
         break;
       case 'enum':
         querySchema[field] = { $eq: fieldReq };
@@ -287,20 +283,20 @@ export const whereInputMap = (input: any, modelFields: TFields) => {
         querySchema[field] = _.has(fieldReq, 'is')
           ? { $eq: fieldReq.is }
           : _.has(fieldReq, 'isNot')
-            ? { $ne: fieldReq.isNot }
-            : _.has(fieldReq, 'lt')
-              ? { $lt: fieldReq.lt }
-              : _.has(fieldReq, 'lte')
-                ? { $lte: fieldReq.lte }
-                : _.has(fieldReq, 'gt')
-                  ? { $gt: fieldReq.gt }
-                  : _.has(fieldReq, 'gte')
-                    ? { $gte: fieldReq.gte }
-                    : _.has(fieldReq, 'in')
-                      ? { $in: fieldReq.in }
-                      : _.has(fieldReq, 'notIn')
-                        ? { $nin: fieldReq.notIn }
-                        : null;
+          ? { $ne: fieldReq.isNot }
+          : _.has(fieldReq, 'lt')
+          ? { $lt: fieldReq.lt }
+          : _.has(fieldReq, 'lte')
+          ? { $lte: fieldReq.lte }
+          : _.has(fieldReq, 'gt')
+          ? { $gt: fieldReq.gt }
+          : _.has(fieldReq, 'gte')
+          ? { $gte: fieldReq.gte }
+          : _.has(fieldReq, 'in')
+          ? { $in: fieldReq.in }
+          : _.has(fieldReq, 'notIn')
+          ? { $nin: fieldReq.notIn }
+          : null;
         break;
       default:
         break;
