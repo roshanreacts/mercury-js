@@ -214,7 +214,21 @@ describe('History Tracking', () => {
     const userHistoryList = await mercury.db.UserHistory.list({}, { id: "1", profile: "Admin" }, {});
     // const userHistoryList = await mercury.db.UserHistory.;
     console.log(userHistoryList);
-
+    const fields = ["name", "floatValue", "age", "check", "today", "account", "test", "roleType"];
+    const typeVariables: Record<string, string> = {
+      "name": "string",
+      "floatValue": "float",
+      "age": "number",
+      "check": "boolean",
+      "today": "date",
+      "account": "Account",
+      "test": "string",
+      "roleType": "enum"
+    }
+    userHistoryList.forEach((record: any) => {
+      if (fields.includes(record.fieldName))
+        expect(record.dataType).toBe(typeVariables[record.fieldName]);
+    })
     // expect(userHistoryList.length).toBe(7);
     // expect(acountHistoryList[0].operationType).toBe("UPDATE");
     // expect(acountHistoryList[0].dataType).toBe("string");
