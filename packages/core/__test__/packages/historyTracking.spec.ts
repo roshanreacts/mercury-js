@@ -209,7 +209,7 @@ describe('History Tracking', () => {
       roleType: "admin"
     }, { profile: "Admin", id: "132" });
     console.log(user);
-    
+
     await mercury.db.User.delete(user.id, { id: "1", profile: "Admin" });
     const userHistoryList = await mercury.db.UserHistory.list({}, { id: "1", profile: "Admin" }, {});
     // const userHistoryList = await mercury.db.UserHistory.;
@@ -222,5 +222,32 @@ describe('History Tracking', () => {
   })
 
 
+  it("check for updated variables records", async () => {
+    const account = await mercury.db.Account.create({
+      name: "Account_1"
+    }, { id: '1', profile: "Admin" });
+    const user = await mercury.db.User.create({
+      name: "TestCase",
+      floatValue: 121.2545,
+      today: "2024-04-19T12:47:40.891Z",
+      age: 12,
+      check: true,
+      account: account.id,
+      test: ["st1", "st2", "st3", "st4"],
+      roleType: "admin"
+    }, { profile: "Admin", id: "132" });
+    console.log(user);
+
+    await mercury.db.User.update(user.id, { check: false, age: 20 }, { id: "1", profile: "Admin" });
+    const userHistoryList = await mercury.db.UserHistory.list({}, { id: "1", profile: "Admin" }, {});
+    console.log(userHistoryList);
+
+    expect(userHistoryList.length).toBe(2);
+    expect(userHistoryList[0].fieldName).toBe("check");
+    expect(userHistoryList[0].newValue).toBe("false");
+    expect(userHistoryList[1].fieldName).toBe("age");
+    expect(userHistoryList[1].newValue).toBe("20");
+
+  })
 
 })
