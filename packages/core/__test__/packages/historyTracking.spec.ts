@@ -37,6 +37,15 @@ describe('History Tracking', () => {
           delete: true,
         },
       },
+      {
+        modelName: 'AccountHistory',
+        access: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
+        },
+      },
     ];
     access.createProfile(name, rules);
     await db.setUp();
@@ -45,9 +54,9 @@ describe('History Tracking', () => {
         name: {
           type: "string",
         },
-        // floatValue: {
-        //   type: "float",
-        // },
+        floatValue: {
+          type: "float",
+        },
         today: {
           type: "date",
         },
@@ -93,7 +102,10 @@ describe('History Tracking', () => {
         type: "relationship",
         ref: "User",
       },
-    });
+    },
+      {
+        historyTracking: true
+      });
     mercury.package([historyTracking()]);
   })
   afterEach(async () => {
@@ -107,29 +119,108 @@ describe('History Tracking', () => {
     const account = await mercury.db.Account.create({
       name: "Account_1"
     }, { id: '1', profile: "Admin" });
-    const user = await mercury.db.User.create({
-      // "test": [
-      //   "test",
-      //   "Field"
-      // ],
-      // "accPass": "accPassfield",
-      // "account": account._id,
-      // "name": "nameField",
-      // "roleType": "admin",
-      "age": 22,
-      "check": true,
-    }, { id: "1", profile: "Admin" });
-    const account_2 = await mercury.db.Account.create({
-      name: "Account_2"
-    }, { id: '1', profile: "Admin" });
-    // await mercury.db.User.update(user.id, { name: "kratos", age: 23, account: account_2._id , today: Date.now() }, { id: "1", profile: "Admin" });
-    await mercury.db.Account.update(account.id, { name: "update_account"}, { id: "1", profile: "Admin" });
-    const userHistoryList = await mercury.db.UserHistory.list({}, { id: "1", profile: "Admin" });
-    // expect(userHistoryList.length).toBe(3);
-    // console.log("list models", mercury.list);
-    // console.log("User history Update action records", await mercury.db.UserHistory.list({}, { id: "1", profile: "Admin" }));
-    // console.log("Account history update action records", await mercury.db.AccountHistory?.list({}, { id: "1", profile: "Admin" }));
-    await mercury.db.User.delete(user.id, { id: "1", profile: "Admin" });
-    console.log("User history delete action records", await mercury.db.UserHistory.list({}, { id: "1", profile: "Admin" }));
+    await mercury.db.Account.update(account.id, { name: "update_account" }, { id: "1", profile: "Admin" });
+    const acountHistoryList = await mercury.db.AccountHistory.list({}, { id: "1", profile: "Admin" });
+    expect(acountHistoryList.length).toBe(1);
+    expect(acountHistoryList[0].operationType).toBe("UPDATE");
+    expect(acountHistoryList[0].dataType).toBe("string");
+    expect(acountHistoryList[0].fieldName).toBe("name");
   })
+
+  it("check the updated values before and after", async () => {
+    const account = await mercury.db.Account.create({
+      name: "Account_1"
+    }, { id: '1', profile: "Admin" });
+    await mercury.db.Account.update(account.id, { name: "update_account" }, { id: "1", profile: "Admin" });
+    const acountHistoryList = await mercury.db.AccountHistory.list({}, { id: "1", profile: "Admin" });
+    expect(acountHistoryList.length).toBe(1);
+    expect(acountHistoryList[0].oldValue).toBe("Account_1");
+    expect(acountHistoryList[0].newValue).toBe("update_account");
+
+  })
+
+  it("check that history record is getting created for delete record", async () => {
+    const account = await mercury.db.Account.create({
+      name: "Account_1"
+    }, { id: '1', profile: "Admin" });
+    await mercury.db.Account.delete(account.id, { id: "1", profile: "Admin" });
+    const acountHistoryList = await mercury.db.AccountHistory.list({}, { id: "1", profile: "Admin" });
+    console.log(acountHistoryList);
+
+    expect(acountHistoryList.length).toBe(1);
+    expect(acountHistoryList[0].operationType).toBe("DELETE");
+
+  })
+
+  it("check for delete record should have proper values", async () => {
+    const account = await mercury.db.Account.create({
+      name: "Account_1"
+    }, { id: '1', profile: "Admin" });
+    await mercury.db.Account.delete(account.id, { id: "1", profile: "Admin" });
+    const acountHistoryList = await mercury.db.AccountHistory.list({}, { id: "1", profile: "Admin" });
+    console.log(acountHistoryList);
+
+    expect(acountHistoryList.length).toBe(1);
+    expect(acountHistoryList[0].operationType).toBe("DELETE");
+    expect(acountHistoryList[0].newValue).toBe("UNKNOWN");
+    expect(acountHistoryList[0].oldValue).toBe("Account_1");
+
+  })
+
+  it("check for updated variables type to be string.", async () => {
+    const account = await mercury.db.Account.create({
+      name: "Account_1"
+    }, { id: '1', profile: "Admin" });
+    await mercury.db.Account.update(account.id, { name: "Test Type" }, { id: "1", profile: "Admin" });
+    const acountHistoryList = await mercury.db.AccountHistory.list({}, { id: "1", profile: "Admin" });
+    console.log(acountHistoryList);
+
+    expect(acountHistoryList.length).toBe(1);
+    expect(acountHistoryList[0].operationType).toBe("UPDATE");
+    expect(acountHistoryList[0].dataType).toBe("string");
+
+  })
+  it("check for updated variables type to be string.", async () => {
+    const account = await mercury.db.Account.create({
+      name: "Account_1"
+    }, { id: '1', profile: "Admin" });
+    await mercury.db.Account.update(account.id, { name: "Test Type" }, { id: "1", profile: "Admin" });
+    const acountHistoryList = await mercury.db.AccountHistory.list({}, { id: "1", profile: "Admin" });
+    console.log(acountHistoryList);
+
+    expect(acountHistoryList.length).toBe(1);
+    expect(acountHistoryList[0].operationType).toBe("UPDATE");
+    expect(acountHistoryList[0].dataType).toBe("string");
+
+  })
+
+  it("check for updated variables types", async () => {
+    const account = await mercury.db.Account.create({
+      name: "Account_1"
+    }, { id: '1', profile: "Admin" });
+    const user = await mercury.db.User.create({
+      name: "TestCase",
+      floatValue: 121.2545,
+      today: "2024-04-19T12:47:40.891Z",
+      age: 12,
+      check: true,
+      account: account.id,
+      test: ["st1", "st2", "st3", "st4"],
+      roleType: "admin"
+    }, { profile: "Admin", id: "132" });
+    console.log(user);
+    
+    await mercury.db.User.delete(user.id, { id: "1", profile: "Admin" });
+    const userHistoryList = await mercury.db.UserHistory.list({}, { id: "1", profile: "Admin" }, {});
+    // const userHistoryList = await mercury.db.UserHistory.;
+    console.log(userHistoryList);
+
+    // expect(userHistoryList.length).toBe(7);
+    // expect(acountHistoryList[0].operationType).toBe("UPDATE");
+    // expect(acountHistoryList[0].dataType).toBe("string");
+
+  })
+
+
+
 })
