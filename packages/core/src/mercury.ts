@@ -31,7 +31,7 @@ class Mercury {
     return mergeTypeDefs(this.typeDefsArr);
   }
 
-  get resolvers() {
+  get resolvers(): ReturnType<typeof mergeResolvers> {
     return mergeResolvers(this.resolversArr);
   }
 
