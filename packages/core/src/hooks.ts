@@ -18,12 +18,12 @@ export class Hook {
 
   // Execute all functions added to be executed before a hook
   public execBefore = (type: THookType, ...args: any) => {
-    this.kareemHookInstance.execPre.apply(type, args);
+    this.kareemHookInstance.execPre(type, ...args);
   };
 
   // Execute all functions added to be executed after a hook
   public execAfter = (type: THookType, ...args: any) => {
-    this.kareemHookInstance.execPost.apply(type, args);
+    this.kareemHookInstance.execPost(type, ...args);
   };
 }
 
