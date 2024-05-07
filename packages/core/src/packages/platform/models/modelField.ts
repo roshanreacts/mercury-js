@@ -1,15 +1,20 @@
 import mercury from "../../../mercury";
+import type { Mercury } from '../../../mercury';
 import _ from "lodash";
-import { AfterHook, composeSchema } from "../utility"
+import { AfterHook, Utility } from "../utility"
 
 export class ModelField {
-  constructor() {
-    this.createModel();
+  protected mercury: Mercury;
+  protected utility;
+  constructor(mercury: Mercury) {
+    this.mercury = mercury;
+    this.utility = new Utility(this.mercury);
+    this.createModelField();
     this.subscribeHooks();
   }
 
-  private async createModel() {
-    mercury.createModel(
+  private async createModelField() {
+    this.mercury.createModel(
       'ModelField',
       {
         model: {
@@ -39,7 +44,7 @@ export class ModelField {
           type: 'string',
           required: true,
         },
-        type: {
+        type: { // need to a look on this
           type: 'enum',
           enum: ['number', 'string', 'boolean'],
           enumType: 'string',
@@ -111,33 +116,34 @@ export class ModelField {
 
   private async createModelFieldHook() {
     const _self = this;
-    mercury.hook.before(
+    this.mercury.hook.before(
       'CREATE_MODELFIELD_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const model = await mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
-        if (model.name !== this.data.name) throw new Error("Model name mismatch");
+        const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
+        if (model.name !== this.data.modelName) throw new Error("Model name mismatch");
       }
     );
-    mercury.hook.after(
+    this.mercury.hook.after(
       'CREATE_MODELFIELD_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        await _self.syncModelFields(this.record);
+        const modelField = await _self.mercury.db.ModelField.get({ _id: this.record._id }, { id: "1", profile: "Admin" });
+        await _self.syncModelFields(modelField);
       }
     );
   }
 
   private updateModelFieldHook() {
     const _self = this;
-    mercury.hook.before('UPDATE_MODELFIELD_RECORD', async function (this: any) {
+    this.mercury.hook.before('UPDATE_MODELFIELD_RECORD', async function (this: any) {
       if (this.record.managed) throw new Error(`This model field can't be edited!`);
     });
-    mercury.hook.after(
+    this.mercury.hook.after(
       'UPDATE_MODELFIELD_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const record = await mercury.db.ModelField.get(
+        const record = await _self.mercury.db.ModelField.get(
           { _id: this.record._id },
           { id: '1', profile: 'Admin' }
         );
@@ -146,22 +152,26 @@ export class ModelField {
     );
   }
 
+  @AfterHook
   private deleteModelFieldHook() {
-    mercury.hook.before('DELETE_MODELFIELD_RECORD', async function (this: any) {
+    const _self = this;
+    this.mercury.hook.before('DELETE_MODELFIELD_RECORD', async function (this: any) {
       if (this.record.managed) throw new Error(`This model field can't be deleted!`);
     });
-    mercury.hook.after(
+    this.mercury.hook.after(
       'DELETE_MODELFIELD_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        let redisObj: TModel = JSON.parse(await mercury.cache.get(
-          this.deletedRecord.name.toUpperCase()
+        let redisObj: TModel = JSON.parse(await _self.mercury.cache.get(
+          this.deletedRecord.modelName.toUpperCase()
         ) as string);
         delete redisObj.fields[this.deletedRecord.fieldName];
-        await mercury.cache.set(
+        await _self.mercury.cache.set(
           `${redisObj.name.toUpperCase()}`,
           JSON.stringify(redisObj)
         );
+        if(!_.isEmpty(redisObj.fields))
+        _self.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
       }
     );
   }
@@ -169,17 +179,17 @@ export class ModelField {
   // after hook needs to be present
   @AfterHook
   private async syncModelFields(modelField: TModelField, prevRecord?: TModelField) {
-    let redisObj: TModel = JSON.parse(await mercury.cache.get(modelField.modelName.toUpperCase()) as string);
+    let redisObj: TModel = JSON.parse(await this.mercury.cache.get(modelField.modelName.toUpperCase()) as string);
     if (!_.isEmpty(prevRecord)) {
       delete redisObj.fields[prevRecord.fieldName];
     }
-    const fieldSchema = composeSchema([modelField]);
+    const fieldSchema = this.utility.composeSchema([modelField]);
     redisObj.fields[modelField.fieldName] = fieldSchema[modelField.fieldName];
-    await mercury.cache.set(
+    await this.mercury.cache.set(
       `${redisObj.name.toUpperCase()}`,
       JSON.stringify(redisObj)
     );
-    mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
+    this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
   }
 
 }

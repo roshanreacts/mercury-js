@@ -2,13 +2,8 @@ import type { Mercury } from '../../mercury';
 import createMetaModels from './model';
 // import { Redis } from '../redisCache';
 import _ from 'lodash';
-import { Model } from './models/model';
-import { ModelOption } from './models/modelOption';
-import { FieldOption } from './models/fieldOption';
-import { ModelField } from './models/modelField';
-import { Tab } from './models/tab';
-import { Component } from './models/component';
-import { composeOptions, composeSchema, createMetaRecords } from './utility';
+import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout } from './models';
+import { Utility } from './utility';
 
 type PlatformConfig = {
   prefix?: string;
@@ -24,60 +19,18 @@ export default (config?: PlatformConfig) => {
   return (mercury: Mercury) => {
     mercury.platform = new Platform(mercury, config);
     mercury.platform.initialize();
-    mercury.platform.start();
+    // mercury.platform.start();
   };
 };
-
-// function AfterHook(
-//   target: any,
-//   propertyKey: string,
-//   descriptor: PropertyDescriptor
-// ) {
-//   const originalMethod = descriptor.value;
-
-//   descriptor.value = async function (this: Platform, ...args: any[]) {
-//     try {
-//       // before hook
-//       // after hook
-//       const result = originalMethod.apply(this, args);
-//       if (result instanceof Promise) {
-//         return result.then(async (res: any) => {
-//           await new Promise((resolve, reject) => {
-//             this.mercury.hook.execAfter(
-//               `PLATFORM_INITIALIZE`,
-//               {},
-//               [],
-//               function (error: any) {
-//                 if (error) {
-//                   // Reject the Promise if there is an error
-//                   reject(error);
-//                 } else {
-//                   // Resolve the Promise if there is no error
-//                   resolve(true);
-//                 }
-//               }
-//             );
-//           });
-//           return res;
-//         });
-//       } else {
-//         return result;
-//       }
-//     } catch (error: any) {
-//       console.log('Platform Error: ', error);
-//     }
-//   };
-
-//   return descriptor;
-// }
-
 export class Platform {
   protected mercury: Mercury;
   public config: PlatformConfig;
   public skipFields: string[];
   public ctx: any;
+  protected utility;
   constructor(mercury: Mercury, config?: PlatformConfig) {
     this.mercury = mercury;
+    this.utility = new Utility(this.mercury);
     this.ctx = { id: "1", profile: "ADMIN" };
     this.config = config || {};
     this.skipFields = [
@@ -110,12 +63,13 @@ export class Platform {
 
   public async initialize() {
     // createMetaModels(this.mercury);
-    new Model();
-    new ModelField();
-    new ModelOption();
-    new FieldOption();
-    new Tab();
-    new Component();
+    new Model(this.mercury);
+    new ModelField(this.mercury);
+    new ModelOption(this.mercury);
+    new FieldOption(this.mercury);
+    new Tab(this.mercury);
+    new Component(this.mercury);
+    new Layout(this.mercury);
 
     await this.composeAllRedisSchemas();
     await new Promise((resolve, reject) => {
@@ -137,9 +91,7 @@ export class Platform {
   }
 
   public async composeAllRedisSchemas() {
-    const models: TMetaModel[] = await this.mercury.db['Model'].mongoModel.find(
-      {}
-    );
+    const models: TMetaModel[] = await this.mercury.db['Model'].list({}, { id: '1', profile: 'Admin' }, {});
     const allModels: string[] = [];
     await Promise.all(models.map(async (model: TMetaModel) => {
       allModels.push(model.name);
@@ -152,9 +104,9 @@ export class Platform {
     let modelFields, modelOptions, fieldOptions = [];
     try {
       modelFields = await this.mercury.db['ModelField'].list(
-        { model: model._id, name: model.name },
-        { id: 'khsd', profile: 'Admin' },
-        { limit: 100 }
+        { model: model._id, modelName: model.name },
+        { id: '1', profile: 'Admin' },
+        {}
       );
     } catch (err) {
       modelFields = [];
@@ -162,8 +114,8 @@ export class Platform {
     try {
       fieldOptions = await this.mercury.db['FieldOption'].list(
         { model: model._id },
-        { id: 'khsd', profile: 'Admin' },
-        { limit: 100 }
+        { id: '1', profile: 'Admin' },
+        {}
       );
     } catch (err) {
       fieldOptions = [];
@@ -171,14 +123,14 @@ export class Platform {
     try {
       modelOptions = await this.mercury.db['ModelOption'].list(
         { model: model._id },
-        { id: 'khsd', profile: 'Admin' },
-        { limit: 100 }
+        { id: '1', profile: 'Admin' },
+        {}
       );
     } catch (err) {
       modelOptions = [];
     }
-    const schema = composeSchema(modelFields, fieldOptions);
-    const options = composeOptions(modelOptions);
+    const schema = this.utility.composeSchema(modelFields, fieldOptions);
+    const options = this.utility.composeOptions(modelOptions);
     const redisObj = {
       name: model.name,
       fields: schema,
@@ -333,7 +285,7 @@ export class Platform {
     remFields: any,
     fieldName: string
   ) {
-    return await createMetaRecords('ModelField', {
+    return await this.utility.createMetaRecords('ModelField', {
       model: model._id,
       name: model.name,
       fieldName: fieldName,
@@ -343,7 +295,7 @@ export class Platform {
 
   private async createFieldOptions(modelField: any, fieldOptions: any) {
     Object.entries(fieldOptions).forEach(async ([fkey, fvalue]: any) => {
-      await createMetaRecords('FieldOption', {
+      await this.utility.createMetaRecords('FieldOption', {
         model: modelField.model,
         modelField: modelField._id,
         fieldName: modelField.fieldName,
@@ -427,7 +379,7 @@ export class Platform {
       { id: 'qe34', profile: 'Admin' }
     );
     if (_.isEmpty(fieldOption)) {
-      await createMetaRecords('FieldOption', {
+      await this.utility.createMetaRecords('FieldOption', {
         model: modelField.model,
         modelField: modelField._id,
         fieldName: modelField.fieldName,
@@ -521,7 +473,7 @@ export class Platform {
   private async createRecords(modelObj: any) {
     console.log('INSIDE_CREATE_RECORD');
     // create model, model fields and etc
-    const model = await createMetaRecords('Model', {
+    const model = await this.utility.createMetaRecords('Model', {
       name: modelObj.name,
       prefix: modelObj.prefix,
       managed: modelObj.managed,
@@ -532,7 +484,7 @@ export class Platform {
     // this is not working
     // model fields and model options creation
     Object.entries(modelObj.fields).map(async ([key, value]: any) => {
-      const modelField = await createMetaRecords('ModelField', {
+      const modelField = await this.utility.createMetaRecords('ModelField', {
         model: model._id,
         name: model.name,
         fieldName: key,
@@ -554,7 +506,7 @@ export class Platform {
         Object.entries(value).map(async ([fkey, fvalue]: any) => {
           // skip field options
           if (this.skipFields.includes(fkey)) return;
-          await createMetaRecords('FieldOption', {
+          await this.utility.createMetaRecords('FieldOption', {
             model: model._id,
             modelField: modelField._id,
             fieldName: key,
@@ -569,7 +521,7 @@ export class Platform {
       );
     });
     Object.entries(modelObj.options).map(async ([key, value]: any) => {
-      await createMetaRecords('ModelOption', {
+      await this.utility.createMetaRecords('ModelOption', {
         model: model._id,
         name: model.name,
         managed: model.managed,

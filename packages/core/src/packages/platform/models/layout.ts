@@ -1,36 +1,31 @@
 import type { Mercury } from '../../../mercury';
 
-export class Component {
+export class Layout {
   protected mercury: Mercury;
   constructor(mercury: Mercury) {
     this.mercury = mercury;
     this.subscribeHooks();
-    this.createComponent();
+    this.createLayout();
   }
-  private createComponent() {
+  private createLayout() {
     this.mercury.createModel(
-      'Component',
+      'Layout',
       {
-        name: {
+        model: {
+          type: 'relationship',
+          ref: 'Model',
+          required: true,
+        },
+        modelName: {
           type: 'string',
           required: true,
         },
-        label: {
-          type: 'string',
+        viewType: {
+          type: 'enum',
+          enum: ['Record', 'List'],
+          enumType: 'string',
+          default: 'Record',
           required: true,
-        },
-        description: {
-          type: 'string',
-          required: true,
-        },
-        code: {
-          type: 'string',
-          required: true,
-        },
-        modules: {
-          type: 'string',
-          required: true,
-          many: true,
         },
         createdBy: {
           type: 'relationship',
