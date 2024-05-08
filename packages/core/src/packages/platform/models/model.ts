@@ -85,9 +85,9 @@ export class Model {
   }
 
   private updateModelHook() {
-    const _self = this; 
+    const _self = this;
     this.mercury.hook.before('UPDATE_MODEL_RECORD', async function (this: any) {
-      if(this.record.managed) throw new Error(`This model can't be edited`);
+      if (this.record.managed) throw new Error(`This model can't be edited`);
     });
     this.mercury.hook.after('UPDATE_MODEL_RECORD', async function (this: any) {
       if (this.options.skipHook) return;
@@ -102,12 +102,12 @@ export class Model {
   private deleteModelHook() {
     const _self = this;
     this.mercury.hook.before('DELETE_MODEL_RECORD', async function (this: any) {
-      if(this.record.managed) throw new Error(`This model can't be deleted!`);
+      if (this.record.managed) throw new Error(`This model can't be deleted!`);
     });
     this.mercury.hook.after('DELETE_MODEL_RECORD', async function (this: any) {
       if (this.options.skipHook) return;
       // _self.this.mercury.deleteModel(this.deletedRecord.name);
-			await _self.deleteMetaRecords(this.deletedRecord);
+      await _self.deleteMetaRecords(this.deletedRecord);
       await _self.delModel(this.deletedRecord.name);
     });
   }
@@ -129,6 +129,7 @@ export class Model {
         redisObj = JSON.parse((await this.mercury.cache.get(prevRecord.name.toUpperCase())) as string);
         await this.delModel(prevRecord.name);
         redisObj.name = model.name;
+        this.updateMetaRecords(model);
       } else return;
     }
     let allModels: string[] = JSON.parse((await this.mercury.cache.get('ALL_MODELS')) as string);
@@ -138,8 +139,8 @@ export class Model {
       JSON.stringify(redisObj)
     );
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
-    if(!_.isEmpty(redisObj.fields))
-    this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
+    if (!_.isEmpty(redisObj.fields))
+      this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
   }
 
   @AfterHook
@@ -152,10 +153,21 @@ export class Model {
 
   @AfterHook
   private async deleteMetaRecords(model: any) {
-		['ModelField', 'ModelOption', 'FieldOption'].map(async (modelName: string) => {
-			await this.mercury.db[modelName].mongoModel.deleteMany({
-				model: model._id,
-			});
-		})
-	}
+    ['ModelField', 'ModelOption', 'FieldOption'].map(async (modelName: string) => {
+      await this.mercury.db[modelName].mongoModel.deleteMany({
+        model: model._id,
+      });
+    })
+  }
+
+  @AfterHook
+  private async updateMetaRecords(model: TMetaModel) {
+    ['ModelField', 'ModelOption', 'FieldOption'].map(async (modelName: string) => {
+      await this.mercury.db[modelName].mongoModel.updateMany({
+        model: model._id,
+      }, {
+        $set: { modelName: model.name }
+      });
+    })
+  }
 }

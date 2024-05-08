@@ -83,7 +83,7 @@ export class Utility {
     ['historyTracking', 'private'].map((option: string) => {
       this.createMetaRecords('ModelOption', {
         model: model._id,
-        name: model.name,
+        modelName: model.name,
         managed: false,
         keyName: option,
         value: false,

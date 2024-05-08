@@ -89,7 +89,7 @@ export class FieldOption {
   private updateFieldOptionHook() {
     const _self = this;
     this.mercury.hook.before('UPDATE_FIELDOPTION_RECORD', async function (this: any) {
-      if (this.record.managed) throw new Error(`This field option can't be deeditedleted!`);
+      if (this.record.managed) throw new Error(`This field option can't be edited!`);
     });
     this.mercury.hook.after(
       'UPDATE_FIELDOPTION_RECORD',
@@ -110,7 +110,10 @@ export class FieldOption {
       async function (this: any) {
         if (this.options.skipHook) return;
         const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
+        const modelField =  await _self.mercury.db.ModelField.get({ _id: this.data.modelField }, { id: "1", profile: "Admin" });
         if (model.name !== this.data.modelName) throw new Error("Model name mismatch !!");
+        if (modelField.model.toString() !== this.data.model) throw new Error("Model Field doesn't belongs to this model!!");
+        if (modelField.fieldName !== this.data.fieldName) throw new Error("Field name mismatch !!");
       }
     );
     this.mercury.hook.after(

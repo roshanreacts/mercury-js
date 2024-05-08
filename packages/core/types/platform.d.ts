@@ -47,7 +47,7 @@ interface TFieldOption extends TCommon{
 
 interface TModelOption extends TCommon{
   model: string | TMetaModel,
-  name: string,
+  modelName: string,
   managed: boolean,
   keyName: string,
   value: string,

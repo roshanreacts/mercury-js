@@ -20,7 +20,7 @@ export class ModelOption {
           ref: 'Model',
           required: true,
         },
-        name: {
+        modelName: {
           type: 'string',
           required: true,
         },
@@ -75,7 +75,7 @@ export class ModelOption {
       async function (this: any) {
         if (this.options.skipHook) return;
         let redisObj: any = await _self.mercury.cache.get(
-          this.deletedRecord.name.toUpperCase()
+          this.deletedRecord.modelName.toUpperCase()
         );
         redisObj = JSON.parse(redisObj);
         delete redisObj.options[this.deletedRecord.keyName];
@@ -108,7 +108,7 @@ export class ModelOption {
       async function (this: any) {
         if (this.options.skipHook) return;
         const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
-        if (model.name !== this.data.name) throw new Error("Model name mismatch");
+        if (model.name !== this.data.modelName) throw new Error("Model name mismatch");
       }
     );
 
@@ -126,7 +126,7 @@ export class ModelOption {
   //after hook should be called (decorator)
   @AfterHook
   private async syncModelOptions(record: TModelOption, prevRecord?: TModelOption) {
-    let redisObj: TModel = JSON.parse(await this.mercury.cache.get(record.name.toUpperCase()) as string);
+    let redisObj: TModel = JSON.parse(await this.mercury.cache.get(record.modelName.toUpperCase()) as string);
     if (!_.isEmpty(prevRecord)) {
       delete redisObj?.options?.[prevRecord.keyName];
     }

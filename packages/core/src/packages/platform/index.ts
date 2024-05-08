@@ -91,6 +91,7 @@ export class Platform {
   }
 
   public async composeAllRedisSchemas() {
+    // Write one single mongo query to get all the data ( reduce number of memory reads )
     const models: TMetaModel[] = await this.mercury.db['Model'].list({}, { id: '1', profile: 'Admin' }, {});
     const allModels: string[] = [];
     await Promise.all(models.map(async (model: TMetaModel) => {
@@ -287,7 +288,7 @@ export class Platform {
   ) {
     return await this.utility.createMetaRecords('ModelField', {
       model: model._id,
-      name: model.name,
+      modelName: model.name,
       fieldName: fieldName,
       ...remFields,
     });
@@ -352,7 +353,7 @@ export class Platform {
         deleteField
       );
       const modelField = await this.mercury.db['ModelField'].get(
-        { model: modelData._id, name: modelData.name, fieldName: deleteField },
+        { model: modelData._id, modelName: modelData.name, fieldName: deleteField },
         { id: 'sdf', profile: 'Admin' }
       );
       await this.mercury.db['FieldOption'].mongoModel.deleteMany({
@@ -486,7 +487,7 @@ export class Platform {
     Object.entries(modelObj.fields).map(async ([key, value]: any) => {
       const modelField = await this.utility.createMetaRecords('ModelField', {
         model: model._id,
-        name: model.name,
+        modelName: model.name,
         fieldName: key,
         type: value.type,
         createdBy: modelObj.ctx?.id,
@@ -523,7 +524,7 @@ export class Platform {
     Object.entries(modelObj.options).map(async ([key, value]: any) => {
       await this.utility.createMetaRecords('ModelOption', {
         model: model._id,
-        name: model.name,
+        modelName: model.name,
         managed: model.managed,
         keyName: key,
         value: value.value,
@@ -560,14 +561,14 @@ export class Platform {
     value: any
   ) {
     const modelOption = await this.mercury.db['ModelOption'].get(
-      { model: modelData._id, name: modelData.name, keyName: keyName },
+      { model: modelData._id, modelName: modelData.name, keyName: keyName },
       { id: 'aer', profile: 'Admin' }
     );
     if (_.isEmpty(modelOption)) {
       await this.mercury.db['ModelOption'].create(
         {
           model: modelData._id,
-          name: modelData.name,
+          modelName: modelData.name,
           keyName: keyName,
           value: value,
           type: typeof value,
