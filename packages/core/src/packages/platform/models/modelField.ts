@@ -46,7 +46,7 @@ export class ModelField {
         },
         type: { // need to a look on this
           type: 'enum',
-          enum: ['number', 'string', 'boolean'],
+          enum: ['number', 'string', 'boolean', 'relationship', 'virtual', 'date', 'float', 'enum'],
           enumType: 'string',
           required: true,
         },
@@ -170,8 +170,8 @@ export class ModelField {
           `${redisObj.name.toUpperCase()}`,
           JSON.stringify(redisObj)
         );
-        if(!_.isEmpty(redisObj.fields))
-        _self.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
+        if (!_.isEmpty(redisObj.fields))
+          _self.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
       }
     );
   }
