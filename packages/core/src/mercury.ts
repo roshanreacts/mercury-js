@@ -74,7 +74,14 @@ class Mercury {
       }
     });
     // Add the model to the list of models
-    this.list.push(model);
+    if (options.update) {
+      // If the model is an update model, find the existing model and update it
+      const index = this.list.findIndex((m) => m.name === name);
+      this.list[index] = model;
+    } else {
+      // If the model is not an update model, add it to the list of models
+      this.list.push(model);
+    }
 
     // Create a new Model instance for the model and add it to the database
     (this.db as any)[model.name] = new Model(model);
@@ -82,9 +89,22 @@ class Mercury {
     // If the model is private, do not add graphql typedefs
     if (!options.private) {
       // Create graphql typedefs
-      this.typeDefsArr.push(
-        Mgraphql.genModel(model.name, model.fields, model.options)
+      const typeDefs = Mgraphql.genModel(
+        model.name,
+        model.fields,
+        model.options
       );
+      // To avoid duplicate typeDefs, we will replace typeDefs if it does already exist
+      if (options.update) {
+        const index = this.typeDefsArr.findIndex((td) =>
+          td.includes(`get${model.name}`)
+        );
+        this.typeDefsArr[index] = typeDefs;
+      } else {
+        this.typeDefsArr.push(typeDefs);
+      }
+
+      // Same for resolvers
       const createResolvers = Mgraphql.genResolvers(
         model.name,
         (this.db as any)[model.name]
