@@ -139,7 +139,7 @@ export class FieldOption {
       `${redisObj.name.toUpperCase()}`,
       JSON.stringify(redisObj)
     );
-    this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
+    this.mercury.createModel(redisObj.name, redisObj.fields,  { ...redisObj.options, update: true } as TOptions);
   }
 
   // after hook should be called (decorators)

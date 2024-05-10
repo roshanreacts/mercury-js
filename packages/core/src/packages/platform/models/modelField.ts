@@ -152,10 +152,14 @@ export class ModelField {
     );
   }
 
-  @AfterHook
   private deleteModelFieldHook() {
     const _self = this;
     this.mercury.hook.before('DELETE_MODELFIELD_RECORD', async function (this: any) {
+      const modelFields = await _self.mercury.db.ModelField.list(
+        { model: this.record.model },
+        { id: '1', profile: 'Admin' }
+      );
+      if (modelFields.length == 1) throw new Error('Model has only one field thus it cant be deleted');
       if (this.record.managed) throw new Error(`This model field can't be deleted!`);
     });
     this.mercury.hook.after(
@@ -165,13 +169,9 @@ export class ModelField {
         let redisObj: TModel = JSON.parse(await _self.mercury.cache.get(
           this.deletedRecord.modelName.toUpperCase()
         ) as string);
+        await _self.syncModelFieldOptions(this.deletedRecord);
         delete redisObj.fields[this.deletedRecord.fieldName];
-        await _self.mercury.cache.set(
-          `${redisObj.name.toUpperCase()}`,
-          JSON.stringify(redisObj)
-        );
-        if (!_.isEmpty(redisObj.fields))
-          _self.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
+        await _self.setRedisAfterDel(redisObj);
       }
     );
   }
@@ -189,9 +189,23 @@ export class ModelField {
       `${redisObj.name.toUpperCase()}`,
       JSON.stringify(redisObj)
     );
-    this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
+    this.mercury.createModel(redisObj.name, redisObj.fields, { ...redisObj.options, update: redisObj.name in this.mercury.db } as TOptions);
   }
 
+  @AfterHook
+  private async setRedisAfterDel(redisObj: TModel) {
+    await this.mercury.cache.set(
+      `${redisObj.name.toUpperCase()}`,
+      JSON.stringify(redisObj)
+    );
+    this.mercury.createModel(redisObj.name, redisObj.fields, { ...redisObj.options, update: true } as TOptions);
+  }
+
+  private async syncModelFieldOptions(modelField: TModelField) {
+    await this.mercury.db['FieldOption'].mongoModel.deleteMany({
+      modelField: modelField._id,
+    });
+  }
 }
 
 // compose schema is an utility method? - done

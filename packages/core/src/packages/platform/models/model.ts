@@ -139,8 +139,10 @@ export class Model {
       JSON.stringify(redisObj)
     );
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
-    if (!_.isEmpty(redisObj.fields))
-      this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
+    if (!_.isEmpty(prevRecord)) {
+      this.mercury.deleteModel(prevRecord.name);
+      this.mercury.createModel(redisObj.name, redisObj.fields, { ...redisObj.options } as TOptions);
+    }
   }
 
   @AfterHook
@@ -149,6 +151,7 @@ export class Model {
     allModels = allModels.filter((rmodel: string) => rmodel !== model);
     await this.mercury.cache.delete(model.toUpperCase());
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
+    this.mercury.deleteModel(model);
   }
 
   @AfterHook

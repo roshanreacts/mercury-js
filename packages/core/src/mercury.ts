@@ -97,7 +97,7 @@ class Mercury {
       // To avoid duplicate typeDefs, we will replace typeDefs if it does already exist
       if (options.update) {
         const index = this.typeDefsArr.findIndex((td) =>
-          td.includes(`get${model.name}`)
+          td.includes(`get${model.name}(`)
         );
         this.typeDefsArr[index] = typeDefs;
       } else {
@@ -111,6 +111,24 @@ class Mercury {
       );
       this.resolversArr = mergeResolvers([this.resolversArr, createResolvers]);
     }
+  }
+
+  public deleteModel(model: string) {
+    this.typeDefsArr = this.typeDefsArr.filter((td) =>
+      !td.includes(`get${model}(`)
+    );
+    delete this.db[model];
+    this.list = this.list.filter((om: TModel) => om.name !== model);
+    //@ts-ignore
+    delete this.resolversArr.Query['get' + model];
+    //@ts-ignore
+    delete this.resolversArr.Query['list' + model + 's'];
+    ['create', 'update', 'delete'].map((prefix: string) => {
+      //@ts-ignore
+      delete this.resolversArr.Mutation[prefix + model];
+      //@ts-ignore
+      delete this.resolversArr.Mutation[prefix + model + 's'];
+    })
   }
 }
 
