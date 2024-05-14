@@ -23,6 +23,7 @@ interface TModelField extends TCommon {
   required: boolean,
   default: string,
   rounds: number,
+  many: boolean,
   unique: boolean,
   ref: string,
   localField: string,

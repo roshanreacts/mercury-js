@@ -29,7 +29,7 @@ export class Model {
         },
         prefix: {
           type: 'string',
-          required: true,
+          // required: true,
         },
         managed: {
           type: 'boolean',

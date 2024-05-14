@@ -2,7 +2,7 @@ import type { Mercury } from '../../mercury';
 import createMetaModels from './model';
 // import { Redis } from '../redisCache';
 import _ from 'lodash';
-import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout } from './models';
+import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout, Profile } from './models';
 import { Utility } from './utility';
 
 type PlatformConfig = {
@@ -70,6 +70,7 @@ export class Platform {
     new Tab(this.mercury);
     new Component(this.mercury);
     new Layout(this.mercury);
+    new Profile(this.mercury);
 
     await this.composeAllRedisSchemas();
     await new Promise((resolve, reject) => {

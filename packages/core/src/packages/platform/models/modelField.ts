@@ -53,6 +53,10 @@ export class ModelField {
         required: {
           type: 'boolean',
         },
+        many: {
+          type: 'boolean',
+          default: false,
+        },
         default: {
           type: 'string',
         },
