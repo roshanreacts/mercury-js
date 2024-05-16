@@ -84,7 +84,6 @@ export class FieldPermission {
     });
   }
 
-  // What to do for update?
   private updateFieldPermissionHook() {
     const _self = this;
     this.mercury.hook.before("UPDATE_FIELDPERMISSION_RECORD", async function (this: any) {
@@ -95,6 +94,13 @@ export class FieldPermission {
         { _id: this.record._id },
         { id: '1', profile: 'Admin' }
       );
+      const rules = JSON.parse(await _self.mercury.cache.get(this.prevRecord.profileName) as string);
+      const index = rules.findIndex((r: any) => r.modelName === this.prevRecord.modelName);
+      delete rules[index]['fields'][this.prevRecord.fieldName][this.prevRecord.action];
+      if (_.isEmpty(rules[index]['fields'][record.fieldName])) rules[index]['fields'][record.fieldName] = {};
+      rules[index]['fields'][record.fieldName][record.action] = false;
+      _self.mercury.access.updateProfile(record.profileName, rules);
+      await _self.mercury.cache.set(record.profileName, JSON.stringify(rules));
     })
   }
 

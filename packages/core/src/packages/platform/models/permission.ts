@@ -62,7 +62,7 @@ export class Permission {
   private subscribeHooks() {
     this.createPermissionHook();
     this.updatePermissionHook();
-    // this.deleteAccessHook();
+    this.deletePermissionHook();
   }
 
   private createPermissionHook() {
@@ -83,7 +83,7 @@ export class Permission {
       );
       const rules = JSON.parse(await _self.mercury.cache.get(record.profileName) as string);
       const access = _self.utility.composeModelPermission(record);
-      rules.push( { modelName: record.modelName, access: access, fieldLevelAccess: record.fieldLevelAccess });
+      rules.push({ modelName: record.modelName, access: access, fieldLevelAccess: record.fieldLevelAccess });
       await _self.mercury.cache.set(record.profileName, JSON.stringify(rules));
       _self.mercury.access.updateProfile(record.profileName, rules);
     });
@@ -108,13 +108,24 @@ export class Permission {
     })
   }
 
-  private deleteAccessHook() {
+  private deletePermissionHook() {
     const _self = this;
     this.mercury.hook.before("DELETE_PERMISSION_RECORD", async function (this: any) {
 
     })
     this.mercury.hook.after("DELETE_PERMISSION_RECORD", async function (this: any) {
-
+      let rules: Rule[] = JSON.parse(await _self.mercury.cache.get(this.deletedRecord.profileName) as string);
+      rules = rules.filter((r: any) => r.modelName !== this.deletedRecord.modelName);
+      await _self.deleteFieldPermissions(this.deletedRecord.profile, this.deletedRecord.model);
+      await _self.mercury.cache.set(this.deletedRecord.profileName, JSON.stringify(rules));
+      _self.mercury.access.updateProfile(this.deletedRecord.profileName, rules);
     })
+  }
+
+  private async deleteFieldPermissions(profile: any, model: any) {
+    await this.mercury.db['FieldPermission'].mongoModel.deleteMany({
+      profile: profile,
+      model: model,
+    });
   }
 }
