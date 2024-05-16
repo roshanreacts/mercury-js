@@ -5,6 +5,7 @@ export class Profile {
   constructor(mercury: Mercury) {
     this.mercury = mercury;
     this.createProfile();
+    this.subscribeHooks();
   }
   private createProfile() {
     this.mercury.createModel(
@@ -17,6 +18,13 @@ export class Profile {
         label: {
           type: 'string',
           required: true,
+        },
+        permissions: {
+          type: 'virtual',
+          ref: 'Permission',
+          localField: '_id',
+          foreignField: 'profile',
+          many: true,
         },
         createdBy: {
           type: 'relationship',
@@ -31,5 +39,20 @@ export class Profile {
         historyTracking: false,
       }
     )
+  }
+
+  private subscribeHooks() {
+    this.createProfileHook();
+  }
+  private createProfileHook() {
+    const _self = this;
+    this.mercury.hook.after("CREATE_PROFILE_RECORD", async function (this: any) {
+      if (this.options.skipHook) return;
+      const record = await _self.mercury.db.Profile.get(
+        { _id: this.record._id },
+        { id: '1', profile: 'Admin' }
+      );
+      await _self.mercury.cache.set(record.profileName, JSON.stringify([]));
+    })
   }
 }

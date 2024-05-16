@@ -2,7 +2,7 @@ import type { Mercury } from '../../mercury';
 import createMetaModels from './model';
 // import { Redis } from '../redisCache';
 import _ from 'lodash';
-import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout, Profile } from './models';
+import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout, Profile, Permission, FieldPermission } from './models';
 import { Utility } from './utility';
 
 type PlatformConfig = {
@@ -71,8 +71,10 @@ export class Platform {
     new Component(this.mercury);
     new Layout(this.mercury);
     new Profile(this.mercury);
-
+    new Permission(this.mercury);
+    new FieldPermission(this.mercury);
     await this.composeAllRedisSchemas();
+    await this.composeAllProfilesPermissions();
     await new Promise((resolve, reject) => {
       this.mercury.hook.execAfter(
         `PLATFORM_INITIALIZE`,
@@ -90,6 +92,32 @@ export class Platform {
       );
     });
   }
+
+  public async composeAllProfilesPermissions() {
+    const allProfiles = await this.mercury.db.Profile.list({}, { id: '1', profile: 'Admin' }, { populate: [{ path: 'permissions' }] });
+    await Promise.all(allProfiles.map(async (profile: any) => {
+      await this.composeProfilePermission(profile, profile.permissions);
+    }))
+  }
+
+  public async composeProfilePermission(profile: any, permissions: any = []) {
+    const rules: Rule[] = [];
+    await Promise.all(permissions.map(async (permission: any) => {
+      const rule: Rule = {
+        modelName: permission.modelName,
+        access: this.utility.composeModelPermission(permission)
+      }
+      if (permission.fieldLevelAccess) {
+        const fieldPermissions = await this.mercury.db.FieldPermission.list({ profile: profile._id, model: permission.model }, { id: '1', profile: 'Admin' }, {});
+        rule['fieldLevelAccess'] = permission.fieldLevelAccess;
+        rule['fields'] = this.utility.composeFieldPermissions(fieldPermissions);
+      }
+      rules.push(rule);
+    }));
+    await this.mercury.cache.set(profile.name, JSON.stringify(rules));
+    this.mercury.access.createProfile(profile.name, rules);
+  }
+
 
   public async composeAllRedisSchemas() {
     // Write one single mongo query to get all the data ( reduce number of memory reads )

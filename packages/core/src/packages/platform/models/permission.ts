@@ -1,0 +1,120 @@
+import type { Mercury } from '../../../mercury';
+import { AfterHook, Utility } from "../utility";
+import _ from "lodash";
+
+export class Permission {
+  protected mercury: Mercury;
+  protected utility;
+  constructor(mercury: Mercury) {
+    this.mercury = mercury;
+    this.utility = new Utility(this.mercury);
+    this.createPermission();
+    this.subscribeHooks();
+  }
+  private createPermission() {
+    this.mercury.createModel(
+      "Permission",
+      {
+        profile: {
+          type: 'relationship',
+          ref: 'Profile',
+        },
+        profileName: {
+          type: 'string',
+          required: true,
+        },
+        model: {
+          type: 'relationship',
+          ref: 'Model',
+        },
+        modelName: {
+          type: 'string',
+          required: true,
+        },
+        create: {
+          type: 'boolean',
+          required: true,
+        },
+        update: {
+          type: 'boolean',
+          required: true,
+        },
+        delete: {
+          type: 'boolean',
+          required: true,
+        },
+        read: {
+          type: 'boolean',
+          required: true,
+        },
+        fieldLevelAccess: {
+          type: 'boolean',
+          required: true,
+          default: false
+        },
+      },
+      {
+        historyTracking: false,
+      }
+    )
+  }
+
+  private subscribeHooks() {
+    this.createPermissionHook();
+    this.updatePermissionHook();
+    // this.deleteAccessHook();
+  }
+
+  private createPermissionHook() {
+    const _self = this;
+    this.mercury.hook.before("CREATE_PERMISSION_RECORD", async function (this: any) {
+      if (this.options.skipHook) return;
+      const record = await _self.mercury.db.Permission.get(
+        { model: this.data.model, profile: this.data.profile },
+        { id: '1', profile: 'Admin' }
+      );
+      if (!_.isEmpty(record)) throw new Error("Permissions are already defined to this model for this profile");
+    })
+    this.mercury.hook.after("CREATE_PERMISSION_RECORD", async function (this: any) {
+      if (this.options.skipHook) return;
+      const record = await _self.mercury.db.Permission.get(
+        { _id: this.record._id },
+        { id: '1', profile: 'Admin' }
+      );
+      const rules = JSON.parse(await _self.mercury.cache.get(record.profileName) as string);
+      const access = _self.utility.composeModelPermission(record);
+      rules.push( { modelName: record.modelName, access: access, fieldLevelAccess: record.fieldLevelAccess });
+      await _self.mercury.cache.set(record.profileName, JSON.stringify(rules));
+      _self.mercury.access.updateProfile(record.profileName, rules);
+    });
+  }
+
+  private updatePermissionHook() {
+    const _self = this;
+    this.mercury.hook.before("UPDATE_PERMISSION_RECORD", async function (this: any) {
+
+    })
+    this.mercury.hook.after("UPDATE_PERMISSION_RECORD", async function (this: any) {
+      const record = await _self.mercury.db.Permission.get(
+        { _id: this.record._id },
+        { id: '1', profile: 'Admin' }
+      );
+      const rules = JSON.parse(await _self.mercury.cache.get(record.profileName) as string);
+      const index = rules.findIndex((r: any) => r.modelName === record.modelName);
+      rules[index]['access'] = _self.utility.composeModelPermission(record);
+      rules[index]['fieldLevelAccess'] = record.fieldLevelAccess;
+      await _self.mercury.cache.set(record.profileName, JSON.stringify(rules));
+      _self.mercury.access.updateProfile(record.profileName, rules);
+    })
+  }
+
+  private deleteAccessHook() {
+    const _self = this;
+    this.mercury.hook.before("DELETE_PERMISSION_RECORD", async function (this: any) {
+
+    })
+    this.mercury.hook.after("DELETE_PERMISSION_RECORD", async function (this: any) {
+
+    })
+  }
+}

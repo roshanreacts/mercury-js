@@ -55,11 +55,11 @@ export class Access {
       const allAccess: boolean[] = select.map((val) => {
         const childPopulate: boolean = val.populate
           ? this.validateDeepAccess(
-              model.fields[val.path]?.ref || '',
-              val.populate,
-              action,
-              user
-            )
+            model.fields[val.path]?.ref || '',
+            val.populate,
+            action,
+            user
+          )
           : true;
         return (
           childPopulate &&
@@ -89,6 +89,11 @@ export class Access {
       throw new Error(`Profile ${name} does not exist.`);
     }
     profile.rules = profile.rules.concat(rules);
+  }
+
+  updateProfile(name: string, rules: Rule[]) {
+    const index = this.profiles.findIndex((profile) => profile.name === name);
+    this.profiles[index] = { name, rules };
   }
 }
 

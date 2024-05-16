@@ -1,4 +1,5 @@
 import { Platform } from ".";
+import _ from "lodash";
 import mercury from "../../mercury";
 import type { Mercury } from '../../mercury';
 
@@ -8,10 +9,27 @@ export class Utility {
     this.mercury = mercury;
   }
 
-  public composeSchema (
+  // give type to profile
+  public composeModelPermission(permission: any) {
+    const access: any = {};
+    ['create', 'update', 'delete', 'read'].map((action: string) => {
+      access[action] = permission[action];
+    });
+    return access;
+  }
+
+  public composeFieldPermissions(fieldPermissions: any) {
+    const fields: any = {}
+    fieldPermissions.map((fieldPermission: any) => {
+      if (_.isEmpty(fields[fieldPermission.fieldName])) fields[fieldPermission.fieldName] = {};
+      fields[fieldPermission.fieldName][fieldPermission.action] = false;
+    })
+    return fields;
+  }
+  public composeSchema(
     modelFields: TModelField[],
     fieldOptions?: TFieldOption[]
-  )  {
+  ) {
     const skipFields = [
       'id',
       '_id',
@@ -61,8 +79,8 @@ export class Utility {
     });
     return schema;
   }
-  
-  public composeOptions (modelOptions: TModelOption[]) {
+
+  public composeOptions(modelOptions: TModelOption[]) {
     let options: any = {};
     modelOptions.map((modelOption: TModelOption) => {
       let type = modelOption.type;
@@ -78,8 +96,8 @@ export class Utility {
     });
     return options;
   }
-  
-  public async createDefaultModelOptions (model: TMetaModel) {
+
+  public async createDefaultModelOptions(model: TMetaModel) {
     ['historyTracking', 'private'].map((option: string) => {
       this.createMetaRecords('ModelOption', {
         model: model._id,
@@ -91,8 +109,8 @@ export class Utility {
       });
     })
   }
-  
-  public async createMetaRecords (modelName: string, data: any)  {
+
+  public async createMetaRecords(modelName: string, data: any) {
     return await this.mercury.db[modelName].create(
       data,
       {
