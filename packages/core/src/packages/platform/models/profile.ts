@@ -14,6 +14,7 @@ export class Profile {
         name: {
           type: 'string',
           required: true,
+          unique: true
         },
         label: {
           type: 'string',
@@ -50,9 +51,10 @@ export class Profile {
       if (this.options.skipHook) return;
       const record = await _self.mercury.db.Profile.get(
         { _id: this.record._id },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'Admin' },
+        { select: "name" }
       );
-      await _self.mercury.cache.set(record.profileName, JSON.stringify([]));
+      await _self.mercury.cache.set(record.name, JSON.stringify([]));
     })
   }
 }
