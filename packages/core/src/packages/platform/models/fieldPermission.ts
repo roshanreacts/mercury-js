@@ -18,6 +18,7 @@ export class FieldPermission {
         profile: {
           type: 'relationship',
           ref: 'Profile',
+          required: true,
         },
         profileName: {
           type: 'string',
@@ -25,13 +26,13 @@ export class FieldPermission {
         model: {
           type: 'relationship',
           ref: 'Model',
+          required: true,
         },
         modelName: {
           type: 'string',
         },
         fieldName: {
           type: 'string',
-          required: true,
         },
         create: {
           type: 'boolean',
@@ -56,13 +57,8 @@ export class FieldPermission {
         modelField: {
           type: 'relationship',
           ref: 'ModelField',
-        },
-        action: {
-          type: 'enum',
-          enum: ['create', 'read', 'update', 'delete'],
-          enumType: 'string',
           required: true,
-        }
+        },
       },
       {
         historyTracking: false,
@@ -82,6 +78,10 @@ export class FieldPermission {
       if (this.options.skipHook) return;
       const permission = await _self.mercury.db.Permission.get({ profile: this.data.profile, model: this.data.model }, { id: '1', profile: 'Admin' });
       if (!permission.fieldLevelAccess) throw new Error("Field Level access is not enabled to this model for this profile");
+      const modelField = await _self.mercury.db.ModelField.get({ _id: this.data.modelField }, { id: '1', profile: 'Admin' }, { select: "fieldName" });
+      this.data.fieldName = modelField.fieldName;
+      this.data.modelName = permission.modelName;
+      this.data.profileName = permission.profileName;
     })
     this.mercury.hook.after("CREATE_FIELDPERMISSION_RECORD", async function (this: any) {
       if (this.options.skipHook) return;

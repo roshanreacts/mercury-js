@@ -18,18 +18,18 @@ export class Permission {
         profile: {
           type: 'relationship',
           ref: 'Profile',
+          required: true,
         },
         profileName: {
           type: 'string',
-          required: true,
         },
         model: {
           type: 'relationship',
           ref: 'Model',
+          required: true,
         },
         modelName: {
           type: 'string',
-          required: true,
         },
         create: {
           type: 'boolean',
@@ -74,6 +74,10 @@ export class Permission {
         { id: '1', profile: 'Admin' }
       );
       if (!_.isEmpty(record)) throw new Error("Permissions are already defined to this model for this profile");
+      const profile = await _self.mercury.db.Profile.get({ _id: this.data.profile }, { id: '1', profile: 'Admin' }, { select: "name" });
+      const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: '1', profile: 'Admin' }, { select: "name" });
+      this.data.profileName = profile.name;
+      this.data.modelName = model.name;
     })
     this.mercury.hook.after("CREATE_PERMISSION_RECORD", async function (this: any) {
       if (this.options.skipHook) return;
