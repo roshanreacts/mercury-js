@@ -78,6 +78,11 @@ export class FieldPermission {
       if (this.options.skipHook) return;
       const permission = await _self.mercury.db.Permission.get({ profile: this.data.profile, model: this.data.model }, { id: '1', profile: 'Admin' });
       if (!permission.fieldLevelAccess) throw new Error("Field Level access is not enabled to this model for this profile");
+      const record = await _self.mercury.db.FieldPermission.get(
+        { model: this.data.model, profile: this.data.profile, modelField: this.data.modelField },
+        { id: '1', profile: 'Admin' }
+      );
+      if (!_.isEmpty(record)) throw new Error("Field Level access is already defined for this profile");
       const modelField = await _self.mercury.db.ModelField.get({ _id: this.data.modelField }, { id: '1', profile: 'Admin' }, { select: "fieldName" });
       this.data.fieldName = modelField.fieldName;
       this.data.modelName = permission.modelName;
