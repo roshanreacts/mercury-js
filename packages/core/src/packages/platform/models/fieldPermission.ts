@@ -33,6 +33,26 @@ export class FieldPermission {
           type: 'string',
           required: true,
         },
+        create: {
+          type: 'boolean',
+          required: true,
+          default: false,
+        },
+        update: {
+          type: 'boolean',
+          required: true,
+          default: false,
+        },
+        delete: {
+          type: 'boolean',
+          required: true,
+          default: false,
+        },
+        read: {
+          type: 'boolean',
+          required: true,
+          default: false,
+        },
         modelField: {
           type: 'relationship',
           ref: 'ModelField',
@@ -53,7 +73,7 @@ export class FieldPermission {
   private subscribeHooks() {
     this.createFieldPermissionHook();
     this.updateFieldPermissionHook();
-    this.deleteFieldPermissionHook();
+    // this.deleteFieldPermissionHook();
   }
 
   private createFieldPermissionHook() {
@@ -61,12 +81,7 @@ export class FieldPermission {
     this.mercury.hook.before("CREATE_FIELDPERMISSION_RECORD", async function (this: any) {
       if (this.options.skipHook) return;
       const permission = await _self.mercury.db.Permission.get({ profile: this.data.profile, model: this.data.model }, { id: '1', profile: 'Admin' });
-      if (!permission.fieldLevelAccess) throw new Error("Field Level access is not enabled to this model for this particular profile");
-      const record = await _self.mercury.db.FieldPermission.get(
-        { model: this.data.model, profile: this.data.profile, modelField: this.data.modelField, action: this.data.action },
-        { id: '1', profile: 'Admin' }
-      );
-      if (!_.isEmpty(record)) throw new Error("Field Level access is already defined for this profile");
+      if (!permission.fieldLevelAccess) throw new Error("Field Level access is not enabled to this model for this profile");
     })
     this.mercury.hook.after("CREATE_FIELDPERMISSION_RECORD", async function (this: any) {
       if (this.options.skipHook) return;
@@ -77,8 +92,8 @@ export class FieldPermission {
       const rules = JSON.parse(await _self.mercury.cache.get(record.profileName) as string);
       const index = rules.findIndex((m: any) => m.modelName === record.modelName);
       if (_.isEmpty(rules[index]['fields'])) rules[index]['fields'] = {};
-      if (_.isEmpty(rules[index]['fields'][record.fieldName])) rules[index]['fields'][record.fieldName] = {};
-      rules[index]['fields'][record.fieldName][record.action] = false;
+      rules[index]['fields'][record.fieldName] = {};
+      rules[index]['fields'][record.fieldName] = _self.utility.composeFieldPermissions([record])[record.fieldName];
       _self.mercury.access.updateProfile(record.profileName, rules);
       await _self.mercury.cache.set(record.profileName, JSON.stringify(rules));
     });
@@ -86,9 +101,6 @@ export class FieldPermission {
 
   private updateFieldPermissionHook() {
     const _self = this;
-    this.mercury.hook.before("UPDATE_FIELDPERMISSION_RECORD", async function (this: any) {
-
-    })
     this.mercury.hook.after("UPDATE_FIELDPERMISSION_RECORD", async function (this: any) {
       const record = await _self.mercury.db.FieldPermission.get(
         { _id: this.record._id },
@@ -96,9 +108,13 @@ export class FieldPermission {
       );
       const rules = JSON.parse(await _self.mercury.cache.get(this.prevRecord.profileName) as string);
       const index = rules.findIndex((r: any) => r.modelName === this.prevRecord.modelName);
-      delete rules[index]['fields'][this.prevRecord.fieldName][this.prevRecord.action];
-      if (_.isEmpty(rules[index]['fields'][record.fieldName])) rules[index]['fields'][record.fieldName] = {};
-      rules[index]['fields'][record.fieldName][record.action] = false;
+      let fieldPermissions = _self.utility.composeFieldPermissions([record])[record.fieldName];
+      if (_.isEqual(rules[index]['access'], fieldPermissions)) {
+        delete rules[index]['fields'][record.fieldName];
+        await _self.mercury.db.FieldPermission.delete(record._id, { id: '1', profile: 'Admin' }, { skipHook: true });
+      } else {
+        rules[index]['fields'][record.fieldName] = fieldPermissions;
+      }
       _self.mercury.access.updateProfile(record.profileName, rules);
       await _self.mercury.cache.set(record.profileName, JSON.stringify(rules));
     })
@@ -112,7 +128,7 @@ export class FieldPermission {
     this.mercury.hook.after("DELETE_FIELDPERMISSION_RECORD", async function (this: any) {
       const rules = JSON.parse(await _self.mercury.cache.get(this.deletedRecord.profileName) as string);
       const index = rules.findIndex((r: any) => r.modelName === this.deletedRecord.modelName);
-      delete rules[index]['fields'][this.deletedRecord.fieldName][this.deletedRecord.action];
+      delete rules[index]['fields'][this.deletedRecord.fieldName];
       _self.mercury.access.updateProfile(this.deletedRecord.profileName, rules);
       await _self.mercury.cache.set(this.deletedRecord.profileName, JSON.stringify(rules));
     })

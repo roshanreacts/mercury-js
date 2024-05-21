@@ -320,7 +320,7 @@ export class Model {
       .populate(options.populate || [])
       .select(options.select || [])
       .exec();
-    if (!record) {
+    if (_.isEmpty(record)) {
       return {};
     }
     await new Promise((resolve, reject) => {

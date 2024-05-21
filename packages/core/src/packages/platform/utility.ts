@@ -22,7 +22,9 @@ export class Utility {
     const fields: any = {}
     fieldPermissions.map((fieldPermission: any) => {
       if (_.isEmpty(fields[fieldPermission.fieldName])) fields[fieldPermission.fieldName] = {};
-      fields[fieldPermission.fieldName][fieldPermission.action] = false;
+      ['create', 'update', 'delete', 'read'].map((action: string) => {
+        fields[fieldPermission.fieldName][action] = fieldPermission[action];
+      });
     })
     return fields;
   }
