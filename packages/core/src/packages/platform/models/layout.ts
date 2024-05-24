@@ -16,27 +16,27 @@ export class Layout {
           ref: 'Model',
           required: true,
         },
-        modelName: {
+        profile: {
+          type: 'relationship',
+          ref: 'Profile',
+          many: true,
+        },
+        name: {
           type: 'string',
           required: true,
         },
-        viewType: {
-          type: 'enum',
-          enum: ['Record', 'List'],
-          enumType: 'string',
-          default: 'Record',
+        label: {
+          type: 'string',
           required: true,
         },
-        createdBy: {
-          type: 'relationship',
-          ref: 'User',
-          // required: true,
+        structures: {
+          type: 'virtual',
+          ref: 'LayoutStructure',
+          localField: "_id",
+          foreignField:"layout",
+          many: true,
         },
-        updatedBy: {
-          type: 'relationship',
-          ref: 'User',
-          // required: true,
-        },
+
       },
       {
         historyTracking: false,
@@ -44,23 +44,23 @@ export class Layout {
     );
   }
   private subscribeHooks() {
-    this.createComponentHook();
-    this.updateComponentHook();
-    this.deleteComponentHook();
+    this.createLayoutHook();
+    this.updateLayoutHook();
+    this.deleteLayoutHook();
   }
-  private deleteComponentHook() {
+  private deleteLayoutHook() {
     const _self = this;
-    this.mercury.hook.after('DELETE_COMPONENT_HOOK', async function (this: any) {});
-    this.mercury.hook.before('DELETE_COMPONENT_HOOK', async function (this: any) {});
+    this.mercury.hook.after('DELETE_LAYOUT_HOOK', async function (this: any) {});
+    this.mercury.hook.before('DELETE_LAYOUT_HOOK', async function (this: any) {});
   }
-  private updateComponentHook() {
+  private updateLayoutHook() {
     const _self = this;
-    this.mercury.hook.after('UPDATE_COMPONENT_HOOK', async function (this: any) {});
-    this.mercury.hook.before('UPDATE_COMPONENT_HOOK', async function (this: any) {});
+    this.mercury.hook.after('UPDATE_LAYOUT_HOOK', async function (this: any) {});
+    this.mercury.hook.before('UPDATE_LAYOUT_HOOK', async function (this: any) {});
   }
-  private createComponentHook() {
+  private createLayoutHook() {
     const _self = this;
-    this.mercury.hook.after('CREATE_COMPONENT_HOOK', async function (this: any) {});
-    this.mercury.hook.before('CREATE_COMPONENT_HOOK', async function (this: any) {});
+    this.mercury.hook.after('CREATE_LAYOUT_HOOK', async function (this: any) {});
+    this.mercury.hook.before('CREATE_LAYOUT_HOOK', async function (this: any) {});
   }
 }
