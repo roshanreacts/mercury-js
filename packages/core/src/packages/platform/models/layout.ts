@@ -16,7 +16,7 @@ export class Layout {
           ref: 'Model',
           required: true,
         },
-        profile: {
+        profiles: {
           type: 'relationship',
           ref: 'Profile',
           many: true,
