@@ -27,6 +27,7 @@ export class Tab {
         order: {
           type: 'number',
           required: true,
+          unique: true,
         },
         createdBy: {
           type: 'relationship',

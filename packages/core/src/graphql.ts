@@ -35,10 +35,10 @@ export class Mgraphql {
         value.type == 'enum' && value.enumType
           ? `${name}${startCase(key).replace(/ /g, '')}EnumType`
           : value.type === 'relationship' && value.ref
-          ? value.ref
-          : value.type === 'virtual' && value.ref
-          ? value.ref
-          : fieldTypeMap[value.type];
+            ? value.ref
+            : value.type === 'virtual' && value.ref
+              ? value.ref
+              : fieldTypeMap[value.type];
       if (value.many) {
         fieldType = `[${fieldType}]`;
       }
@@ -86,8 +86,8 @@ export class Mgraphql {
         value.type == 'enum' && value.enumType
           ? `${name}${startCase(key).replace(/ /g, '')}EnumType`
           : value.type === 'relationship' && value.ref
-          ? 'String'
-          : fieldTypeMap[value.type];
+            ? 'String'
+            : fieldTypeMap[value.type];
       if (value.required) {
         fieldType += '!';
       }
@@ -116,8 +116,8 @@ export class Mgraphql {
         value.type == 'enum' && value.enumType
           ? `${name}${startCase(key).replace(/ /g, '')}EnumType`
           : value.type === 'relationship' && value.ref
-          ? 'String'
-          : fieldTypeMap[value.type];
+            ? 'String'
+            : fieldTypeMap[value.type];
 
       if (value.many) {
         fieldType = `[${fieldType}]`;
@@ -350,7 +350,7 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
         // update a record, resolver
         [`update${name}`]: async (
           root: any,
-          args: { input: { id: string; [x: string]: any } },
+          args: { input: { id: string;[x: string]: any } },
           ctx: any,
           resolveInfo: any
         ) => {
@@ -373,7 +373,7 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
         // update mutilple records, resolver
         [`update${name}s`]: async (
           root: any,
-          args: { input: { id: string; [x: string]: any } },
+          args: { input: { id: string;[x: string]: any } },
           ctx: any,
           resolveInfo: any
         ) => {
@@ -422,7 +422,7 @@ ${query}\n\n${input}\n\n${updateInput}\n\n${whereInput}\n\n${sortInput}
               async (item) =>
                 await model.delete(item, ctx.user, {
                   root,
-                  args: item,
+                  args: { id: item },
                   ctx,
                   internal: false,
                 })

@@ -1,9 +1,11 @@
 import type { Mercury } from '../../../mercury';
-
+import { Utility } from "../utility";
 export class Profile {
   protected mercury: Mercury;
+  protected utility;
   constructor(mercury: Mercury) {
     this.mercury = mercury;
+    this.utility = new Utility(this.mercury);
     this.createProfile();
     this.subscribeHooks();
   }
@@ -19,6 +21,7 @@ export class Profile {
         label: {
           type: 'string',
           required: true,
+          unique: true
         },
         permissions: {
           type: 'virtual',
@@ -47,6 +50,10 @@ export class Profile {
   }
   private createProfileHook() {
     const _self = this;
+    this.mercury.hook.before("CREATE_PROFILE_RECORD", async function (this: any) {
+      if (this.options.skipHook) return;
+      this.data.name = _self.utility.titleCase(this.data.name);
+    })
     this.mercury.hook.after("CREATE_PROFILE_RECORD", async function (this: any) {
       if (this.options.skipHook) return;
       const record = await _self.mercury.db.Profile.get(
@@ -58,3 +65,7 @@ export class Profile {
     })
   }
 }
+
+// two approaches
+//1. dont crreate permission records for meta mdoels
+//2.create permissionj recorsd for meta odels

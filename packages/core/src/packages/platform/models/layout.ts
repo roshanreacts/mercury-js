@@ -20,6 +20,7 @@ export class Layout {
           type: 'relationship',
           ref: 'Profile',
           many: true,
+          unique: true
         },
         name: {
           type: 'string',
@@ -33,7 +34,7 @@ export class Layout {
           type: 'virtual',
           ref: 'LayoutStructure',
           localField: "_id",
-          foreignField:"layout",
+          foreignField: "layout",
           many: true,
         },
 
@@ -50,13 +51,13 @@ export class Layout {
   }
   private deleteLayoutHook() {
     const _self = this;
-    this.mercury.hook.after('DELETE_LAYOUT_HOOK', async function (this: any) {});
-    this.mercury.hook.before('DELETE_LAYOUT_HOOK', async function (this: any) {});
+    this.mercury.hook.after('DELETE_LAYOUT_HOOK', async function (this: any) { });
+    this.mercury.hook.before('DELETE_LAYOUT_HOOK', async function (this: any) { });
   }
   private updateLayoutHook() {
     const _self = this;
-    this.mercury.hook.after('UPDATE_LAYOUT_HOOK', async function (this: any) {});
-    this.mercury.hook.before('UPDATE_LAYOUT_HOOK', async function (this: any) {});
+    this.mercury.hook.after('UPDATE_LAYOUT_HOOK', async function (this: any) { });
+    this.mercury.hook.before('UPDATE_LAYOUT_HOOK', async function (this: any) { });
   }
   private createLayoutHook() {
     const _self = this;

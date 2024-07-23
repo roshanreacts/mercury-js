@@ -65,6 +65,7 @@ export class Permission {
     this.deletePermissionHook();
   }
 
+  // permissions are not deleted for the profile delete
   private createPermissionHook() {
     const _self = this;
     this.mercury.hook.before("CREATE_PERMISSION_RECORD", async function (this: any) {

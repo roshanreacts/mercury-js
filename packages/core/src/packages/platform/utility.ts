@@ -74,7 +74,9 @@ export class Utility {
               ? Number(value)
               : type == 'string'
                 ? String(value)
-                : value === 'true';
+                : type == 'boolean'
+                  ? value === 'true'
+                  : Boolean(value);
         });
       }
       schema[fieldName] = fieldObj;
@@ -121,6 +123,31 @@ export class Utility {
       },
       { skipHook: true }
     );
+  }
+
+  // public async createAdminPermissions(admin: any) {
+  //   console.log("List of models", this.mercury.list)
+  //   await Promise.all([this.mercury.list.map(async (model: TModel) => {
+  //     // meta models skip - approach 1
+  //     const modelRecord = await this.mercury.db.Model.mongoModel.findOne({ name: model.name });
+  //     if (!_.isEmpty(modelRecord)) {
+  //       const permission = {
+  //         profile: admin._id,
+  //         profileName: 'Admin',
+  //         model: modelRecord._id,
+  //         modelName: model.name,
+  //         create: true,
+  //         update: true,
+  //         delete: true,
+  //         read: true
+  //       }
+  //       await this.mercury.db.Permission.mongoModel.update(permission, permission, { upsert: true, new: true });
+  //     }
+  //   })])
+  // }
+
+  public titleCase(str: string) {
+    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }
 }
 

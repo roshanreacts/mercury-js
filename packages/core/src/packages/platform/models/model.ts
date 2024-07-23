@@ -72,6 +72,9 @@ export class Model {
 
   private createModelHook() {
     const _self = this;
+    this.mercury.hook.before('CREATE_MODEL_RECORD', function (this: any) {
+      this.data.name = _self.utility.titleCase(this.data.name);
+    })
     this.mercury.hook.after('CREATE_MODEL_RECORD', async function (this: any) {
       if (this.options.skipHook) return;
       // create options
@@ -81,6 +84,7 @@ export class Model {
       );
       await _self.utility.createDefaultModelOptions(record);
       _self.syncModel(record);
+      _self.provideAdminAccess(record);
     });
   }
 
@@ -97,6 +101,29 @@ export class Model {
       );
       _self.syncModel(record, this.prevRecord);
     });
+  }
+
+  @AfterHook
+  private async provideAdminAccess(model: TMetaModel) {
+    const admin = await this.mercury.db.Profile.get({ name: 'Admin' }, { profile: 'Admin', id: '1' });
+    const permission = await this.mercury.db.Permission.create({
+      profile: admin._id,
+      profileName: 'Admin',
+      model: model._id,
+      modelName: model.name,
+      create: true,
+      update: true,
+      delete: true,
+      read: true
+    }, { id: '1', profile: 'Admin' });
+    const rule: Rule = {
+      modelName: permission.modelName,
+      access: this.utility.composeModelPermission(permission)
+    }
+    const adminRules = JSON.parse(await this.mercury.cache.get('Admin') as string);
+    adminRules.push(rule);
+    this.mercury.access.updateProfile('Admin', adminRules);
+    await this.mercury.cache.set('Admin', JSON.stringify(adminRules));
   }
 
   private deleteModelHook() {

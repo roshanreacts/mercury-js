@@ -4,6 +4,7 @@ import createMetaModels from './model';
 import _ from 'lodash';
 import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout, Profile, Permission, FieldPermission, LayoutStructure } from './models';
 import { Utility } from './utility';
+import { rules } from './rules';
 
 type PlatformConfig = {
   prefix?: string;
@@ -62,6 +63,7 @@ export class Platform {
   }
 
   public async initialize() {
+    // Create Admin profile
     // createMetaModels(this.mercury);
     new Model(this.mercury);
     new ModelField(this.mercury);
@@ -74,8 +76,9 @@ export class Platform {
     new Profile(this.mercury);
     new Permission(this.mercury);
     new FieldPermission(this.mercury);
-    await this.composeAllRedisSchemas();
+    await this.composeAdminProfile();
     await this.composeAllProfilesPermissions();
+    await this.composeAllRedisSchemas();
     await new Promise((resolve, reject) => {
       this.mercury.hook.execAfter(
         `PLATFORM_INITIALIZE`,
@@ -94,9 +97,25 @@ export class Platform {
     });
   }
 
+  private async composeAdminProfile() {
+    let adminProfile = await this.mercury.db.Profile.mongoModel.findOne({ name: 'Admin' }).populate('permissions');
+    if (_.isEmpty(adminProfile)) {
+      adminProfile = await this.mercury.db.Profile.mongoModel.create({
+        name: 'Admin',
+        label: 'Admin'
+      });
+    }
+    await this.composeProfilePermission(adminProfile, adminProfile.permissions ?? [])
+    const adminRules = JSON.parse(await this.mercury.cache.get('Admin') as string);
+    adminRules.push(...rules);
+    this.mercury.access.updateProfile('Admin', adminRules);
+    this.mercury.cache.set('Admin', JSON.stringify(adminRules));
+  }
+
   public async composeAllProfilesPermissions() {
     const allProfiles = await this.mercury.db.Profile.list({}, { id: '1', profile: 'Admin' }, { populate: [{ path: 'permissions' }] });
     await Promise.all(allProfiles.map(async (profile: any) => {
+      if (profile.name != 'Admin') 
       await this.composeProfilePermission(profile, profile.permissions);
     }))
   }
@@ -171,6 +190,7 @@ export class Platform {
       `${model.name.toUpperCase()}`,
       JSON.stringify(redisObj)
     );
+    if(!_.isEmpty(schema))
     this.mercury.createModel(model.name, schema, options);
   }
   // public composeSchema(

@@ -22,7 +22,9 @@ export class LayoutStructure {
           required: true,
         },
         order: {
-          type: "number"
+          type: "number",
+          required: true,
+          unique: true,
         },
         row: {
           type: "number"
