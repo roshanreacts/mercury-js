@@ -72,11 +72,11 @@ export class Permission {
       if (this.options.skipHook) return;
       const record = await _self.mercury.db.Permission.get(
         { model: this.data.model, profile: this.data.profile },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'SystemAdmin' }
       );
       if (!_.isEmpty(record)) throw new Error("Permissions are already defined to this model for this profile");
-      const profile = await _self.mercury.db.Profile.get({ _id: this.data.profile }, { id: '1', profile: 'Admin' }, { select: "name" });
-      const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: '1', profile: 'Admin' }, { select: "name" });
+      const profile = await _self.mercury.db.Profile.get({ _id: this.data.profile }, { id: '1', profile: 'SystemAdmin' }, { select: "name" });
+      const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: '1', profile: 'SystemAdmin' }, { select: "name" });
       this.data.profileName = profile.name;
       this.data.modelName = model.name;
     })
@@ -84,7 +84,7 @@ export class Permission {
       if (this.options.skipHook) return;
       const record = await _self.mercury.db.Permission.get(
         { _id: this.record._id },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'SystemAdmin' }
       );
       const rules = JSON.parse(await _self.mercury.cache.get(record.profileName) as string);
       const access = _self.utility.composeModelPermission(record);
@@ -102,7 +102,7 @@ export class Permission {
     this.mercury.hook.after("UPDATE_PERMISSION_RECORD", async function (this: any) {
       const record = await _self.mercury.db.Permission.get(
         { _id: this.record._id },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'SystemAdmin' }
       );
       const rules = JSON.parse(await _self.mercury.cache.get(record.profileName) as string);
       const index = rules.findIndex((r: any) => r.modelName === record.modelName);

@@ -76,14 +76,14 @@ export class FieldPermission {
     const _self = this;
     this.mercury.hook.before("CREATE_FIELDPERMISSION_RECORD", async function (this: any) {
       if (this.options.skipHook) return;
-      const permission = await _self.mercury.db.Permission.get({ profile: this.data.profile, model: this.data.model }, { id: '1', profile: 'Admin' });
+      const permission = await _self.mercury.db.Permission.get({ profile: this.data.profile, model: this.data.model }, { id: '1', profile: 'SystemAdmin' });
       if (!permission.fieldLevelAccess) throw new Error("Field Level access is not enabled to this model for this profile");
       const record = await _self.mercury.db.FieldPermission.get(
         { model: this.data.model, profile: this.data.profile, modelField: this.data.modelField },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'SystemAdmin' }
       );
       if (!_.isEmpty(record)) throw new Error("Field Level access is already defined for this profile");
-      const modelField = await _self.mercury.db.ModelField.get({ _id: this.data.modelField }, { id: '1', profile: 'Admin' }, { select: "fieldName" });
+      const modelField = await _self.mercury.db.ModelField.get({ _id: this.data.modelField }, { id: '1', profile: 'SystemAdmin' }, { select: "fieldName" });
       this.data.fieldName = modelField.fieldName;
       this.data.modelName = permission.modelName;
       this.data.profileName = permission.profileName;
@@ -92,7 +92,7 @@ export class FieldPermission {
       if (this.options.skipHook) return;
       const record = await _self.mercury.db.FieldPermission.get(
         { _id: this.record._id },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'SystemAdmin' }
       );
       const rules = JSON.parse(await _self.mercury.cache.get(record.profileName) as string);
       const index = rules.findIndex((m: any) => m.modelName === record.modelName);
@@ -109,14 +109,14 @@ export class FieldPermission {
     this.mercury.hook.after("UPDATE_FIELDPERMISSION_RECORD", async function (this: any) {
       const record = await _self.mercury.db.FieldPermission.get(
         { _id: this.record._id },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'SystemAdmin' }
       );
       const rules = JSON.parse(await _self.mercury.cache.get(this.prevRecord.profileName) as string);
       const index = rules.findIndex((r: any) => r.modelName === this.prevRecord.modelName);
       let fieldPermissions = _self.utility.composeFieldPermissions([record])[record.fieldName];
       if (_.isEqual(rules[index]['access'], fieldPermissions)) {
         delete rules[index]['fields'][record.fieldName];
-        await _self.mercury.db.FieldPermission.delete(record._id, { id: '1', profile: 'Admin' }, { skipHook: true });
+        await _self.mercury.db.FieldPermission.delete(record._id, { id: '1', profile: 'SystemAdmin' }, { skipHook: true });
       } else {
         rules[index]['fields'][record.fieldName] = fieldPermissions;
       }

@@ -52,11 +52,17 @@
       "require": "./dist/cjs/packages/platform/index.js",
       "import": "./dist/esm/packages/platform/index.js",
       "types": "./dist/esm/src/packages/platform/index.d.ts"
+    },
+    "./plugins/logify": {
+      "require": "./dist/cjs/plugins/logify/index.js",
+      "import": "./dist/esm/plugins/logify/index.js",
+      "types": "./dist/esm/src/plugins/logify/index.d.ts"
     }
   },
   "files": [
     "dist",
-    "packages"
+    "packages",
+    "plugins"
   ],
   "publishConfig": {
     "access": "public"

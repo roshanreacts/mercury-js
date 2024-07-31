@@ -9,3 +9,4 @@ export { Profile } from "./profile";
 export { Permission } from "./permission";
 export { FieldPermission } from "./fieldPermission";
 export { LayoutStructure } from "./layoutStructure";
+export { User } from "./user";

@@ -80,11 +80,11 @@ export class Model {
       // create options
       const record = await _self.mercury.db.Model.get(
         { _id: this.record._id },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'SystemAdmin' }
       );
       await _self.utility.createDefaultModelOptions(record);
       _self.syncModel(record);
-      _self.provideAdminAccess(record);
+      _self.provideSystemAdminAccess(record);
     });
   }
 
@@ -97,33 +97,33 @@ export class Model {
       if (this.options.skipHook) return;
       const record = await _self.mercury.db.Model.get(
         { _id: this.record._id },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'SystemAdmin' }
       );
       _self.syncModel(record, this.prevRecord);
     });
   }
 
   @AfterHook
-  private async provideAdminAccess(model: TMetaModel) {
-    const admin = await this.mercury.db.Profile.get({ name: 'Admin' }, { profile: 'Admin', id: '1' });
+  private async provideSystemAdminAccess(model: TMetaModel) {
+    const systemAdmin = await this.mercury.db.Profile.get({ name: 'SystemAdmin' }, { profile: 'SystemAdmin', id: '1' });
     const permission = await this.mercury.db.Permission.create({
-      profile: admin._id,
-      profileName: 'Admin',
+      profile: systemAdmin._id,
+      profileName: 'SystemAdmin',
       model: model._id,
       modelName: model.name,
       create: true,
       update: true,
       delete: true,
       read: true
-    }, { id: '1', profile: 'Admin' });
+    }, { id: '1', profile: 'SystemAdmin' });
     const rule: Rule = {
       modelName: permission.modelName,
       access: this.utility.composeModelPermission(permission)
     }
-    const adminRules = JSON.parse(await this.mercury.cache.get('Admin') as string);
-    adminRules.push(rule);
-    this.mercury.access.updateProfile('Admin', adminRules);
-    await this.mercury.cache.set('Admin', JSON.stringify(adminRules));
+    const systemAdminRules = JSON.parse(await this.mercury.cache.get('SystemAdmin') as string);
+    systemAdminRules.push(rule);
+    this.mercury.access.updateProfile('SystemAdmin', systemAdminRules);
+    await this.mercury.cache.set('SystemAdmin', JSON.stringify(systemAdminRules));
   }
 
   private deleteModelHook() {

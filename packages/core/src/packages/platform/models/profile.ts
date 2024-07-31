@@ -55,10 +55,11 @@ export class Profile {
       this.data.name = _self.utility.titleCase(this.data.name);
     })
     this.mercury.hook.after("CREATE_PROFILE_RECORD", async function (this: any) {
+      // create meta models default read access
       if (this.options.skipHook) return;
       const record = await _self.mercury.db.Profile.get(
         { _id: this.record._id },
-        { id: '1', profile: 'Admin' },
+        { id: '1', profile: 'SystemAdmin' },
         { select: "name" }
       );
       await _self.mercury.cache.set(record.name, JSON.stringify([]));

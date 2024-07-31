@@ -1,10 +1,9 @@
 import type { Mercury } from '../../mercury';
-import createMetaModels from './model';
 // import { Redis } from '../redisCache';
 import _ from 'lodash';
-import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout, Profile, Permission, FieldPermission, LayoutStructure } from './models';
+import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout, Profile, Permission, FieldPermission, LayoutStructure, User } from './models';
 import { Utility } from './utility';
-import { rules } from './rules';
+import { SystemAdminRules } from './rules';
 
 type PlatformConfig = {
   prefix?: string;
@@ -32,7 +31,7 @@ export class Platform {
   constructor(mercury: Mercury, config?: PlatformConfig) {
     this.mercury = mercury;
     this.utility = new Utility(this.mercury);
-    this.ctx = { id: "1", profile: "ADMIN" };
+    this.ctx = { id: "1", profile: "SystemAdmin" };
     this.config = config || {};
     this.skipFields = [
       'type',
@@ -63,7 +62,7 @@ export class Platform {
   }
 
   public async initialize() {
-    // Create Admin profile
+    // Create SystemSystemAdmin profile
     // createMetaModels(this.mercury);
     new Model(this.mercury);
     new ModelField(this.mercury);
@@ -76,7 +75,8 @@ export class Platform {
     new Profile(this.mercury);
     new Permission(this.mercury);
     new FieldPermission(this.mercury);
-    await this.composeAdminProfile();
+    new User(this.mercury);
+    await this.composeSystemAdminProfile();
     await this.composeAllProfilesPermissions();
     await this.composeAllRedisSchemas();
     await new Promise((resolve, reject) => {
@@ -97,25 +97,25 @@ export class Platform {
     });
   }
 
-  private async composeAdminProfile() {
-    let adminProfile = await this.mercury.db.Profile.mongoModel.findOne({ name: 'Admin' }).populate('permissions');
-    if (_.isEmpty(adminProfile)) {
-      adminProfile = await this.mercury.db.Profile.mongoModel.create({
-        name: 'Admin',
-        label: 'Admin'
+  private async composeSystemAdminProfile() {
+    let systemAdminProfile = await this.mercury.db.Profile.mongoModel.findOne({ name: 'SystemAdmin' }).populate('permissions');
+    if (_.isEmpty(systemAdminProfile)) {
+      systemAdminProfile = await this.mercury.db.Profile.mongoModel.create({
+        name: 'SystemAdmin',
+        label: 'SystemAdmin'
       });
     }
-    await this.composeProfilePermission(adminProfile, adminProfile.permissions ?? [])
-    const adminRules = JSON.parse(await this.mercury.cache.get('Admin') as string);
-    adminRules.push(...rules);
-    this.mercury.access.updateProfile('Admin', adminRules);
-    this.mercury.cache.set('Admin', JSON.stringify(adminRules));
+    await this.composeProfilePermission(systemAdminProfile, systemAdminProfile.permissions ?? [])
+    const systemAdminRules = JSON.parse(await this.mercury.cache.get('SystemAdmin') as string);
+    systemAdminRules.push(...SystemAdminRules);
+    this.mercury.access.updateProfile('SystemAdmin', systemAdminRules);
+    this.mercury.cache.set('SystemAdmin', JSON.stringify(systemAdminRules));
   }
 
   public async composeAllProfilesPermissions() {
-    const allProfiles = await this.mercury.db.Profile.list({}, { id: '1', profile: 'Admin' }, { populate: [{ path: 'permissions' }] });
+    const allProfiles = await this.mercury.db.Profile.list({}, { id: '1', profile: 'SystemAdmin' }, { populate: [{ path: 'permissions' }] });
     await Promise.all(allProfiles.map(async (profile: any) => {
-      if (profile.name != 'Admin') 
+      if (profile.name != 'SystemAdmin') 
       await this.composeProfilePermission(profile, profile.permissions);
     }))
   }
@@ -128,7 +128,7 @@ export class Platform {
         access: this.utility.composeModelPermission(permission)
       }
       if (permission.fieldLevelAccess) {
-        const fieldPermissions = await this.mercury.db.FieldPermission.list({ profile: profile._id, model: permission.model }, { id: '1', profile: 'Admin' }, {});
+        const fieldPermissions = await this.mercury.db.FieldPermission.list({ profile: profile._id, model: permission.model }, { id: '1', profile: 'SystemAdmin' }, {});
         rule['fieldLevelAccess'] = permission.fieldLevelAccess;
         rule['fields'] = this.utility.composeFieldPermissions(fieldPermissions);
       }
@@ -141,7 +141,7 @@ export class Platform {
 
   public async composeAllRedisSchemas() {
     // Write one single mongo query to get all the data ( reduce number of memory reads )
-    const models: TMetaModel[] = await this.mercury.db['Model'].list({}, { id: '1', profile: 'Admin' }, {});
+    const models: TMetaModel[] = await this.mercury.db['Model'].list({}, { id: '1', profile: 'SystemAdmin' }, {});
     const allModels: string[] = [];
     await Promise.all(models.map(async (model: TMetaModel) => {
       allModels.push(model.name);
@@ -155,7 +155,7 @@ export class Platform {
     try {
       modelFields = await this.mercury.db['ModelField'].list(
         { model: model._id, modelName: model.name },
-        { id: '1', profile: 'Admin' },
+        { id: '1', profile: 'SystemAdmin' },
         {}
       );
     } catch (err) {
@@ -164,7 +164,7 @@ export class Platform {
     try {
       fieldOptions = await this.mercury.db['FieldOption'].list(
         { model: model._id },
-        { id: '1', profile: 'Admin' },
+        { id: '1', profile: 'SystemAdmin' },
         {}
       );
     } catch (err) {
@@ -173,7 +173,7 @@ export class Platform {
     try {
       modelOptions = await this.mercury.db['ModelOption'].list(
         { model: model._id },
-        { id: '1', profile: 'Admin' },
+        { id: '1', profile: 'SystemAdmin' },
         {}
       );
     } catch (err) {
@@ -382,7 +382,7 @@ export class Platform {
       await this.mercury.db['ModelField'].update(
         modelField._id,
         { ...updateData },
-        { id: 'qwe', profile: 'Admin' },
+        { id: 'qwe', profile: 'SystemAdmin' },
         { skipHook: true }
       );
   }
@@ -404,7 +404,7 @@ export class Platform {
       );
       const modelField = await this.mercury.db['ModelField'].get(
         { model: modelData._id, modelName: modelData.name, fieldName: deleteField },
-        { id: 'sdf', profile: 'Admin' }
+        { id: 'sdf', profile: 'SystemAdmin' }
       );
       await this.mercury.db['FieldOption'].mongoModel.deleteMany({
         model: modelData._id,
@@ -427,7 +427,7 @@ export class Platform {
         fieldName: modelField.fieldName,
         keyName: keyName,
       },
-      { id: 'qe34', profile: 'Admin' }
+      { id: 'qe34', profile: 'SystemAdmin' }
     );
     if (_.isEmpty(fieldOption)) {
       await this.utility.createMetaRecords('FieldOption', {
@@ -442,7 +442,7 @@ export class Platform {
       await this.mercury.db['FieldOption'].update(
         fieldOption._id,
         { value: value },
-        { id: '123', profile: 'Admin' },
+        { id: '123', profile: 'SystemAdmin' },
         { skipHook: true }
       );
     }
@@ -481,13 +481,13 @@ export class Platform {
   private async modifyModelFields(modelObj: any, redisObj: any) {
     const modelData = await this.mercury.db['Model'].get(
       { name: modelObj.name },
-      { id: 'af', profile: 'Admin' }
+      { id: 'af', profile: 'SystemAdmin' }
     );
     const diffFieldObj = this.getDiffFieldObj(redisObj, modelObj);
     Object.entries(diffFieldObj).forEach(async ([key, value]: any) => {
       const modelField: TModelField = await this.mercury.db['ModelField'].get(
         { model: modelData._id, fieldName: key },
-        { id: 'saf', profile: 'Admin' }
+        { id: 'saf', profile: 'SystemAdmin' }
       );
       if (_.isEmpty(modelField)) {
         const newModelField = await this.createModelFields(
@@ -515,7 +515,7 @@ export class Platform {
   //     data,
   //     {
   //       id: 'q2',
-  //       profile: 'Admin',
+  //       profile: 'SystemAdmin',
   //     },
   //     { skipHook: true }
   //   );
@@ -589,7 +589,7 @@ export class Platform {
   private async modifyModelOptions(redisObj: any, modelObj: any) {
     const modelData = await this.mercury.db['Model'].get(
       { name: modelObj.name },
-      { id: 'af', profile: 'Admin' }
+      { id: 'af', profile: 'SystemAdmin' }
     );
     const diffOptionObj = _.omitBy(modelObj.options, (value, key) => {
       return _.isEqual(value, redisObj.options[key]);
@@ -612,7 +612,7 @@ export class Platform {
   ) {
     const modelOption = await this.mercury.db['ModelOption'].get(
       { model: modelData._id, modelName: modelData.name, keyName: keyName },
-      { id: 'aer', profile: 'Admin' }
+      { id: 'aer', profile: 'SystemAdmin' }
     );
     if (_.isEmpty(modelOption)) {
       await this.mercury.db['ModelOption'].create(
@@ -623,7 +623,7 @@ export class Platform {
           value: value,
           type: typeof value,
         },
-        { id: '123', profile: 'Admin' },
+        { id: '123', profile: 'SystemAdmin' },
         { skipHook: true }
       );
     } else {
@@ -631,7 +631,7 @@ export class Platform {
       await this.mercury.db['ModelOption'].update(
         modelOption._id,
         { keyName: keyName, value: value, type: typeof value },
-        { id: '123', profile: 'Admin' },
+        { id: '123', profile: 'SystemAdmin' },
         { skipHook: true }
       );
     }
@@ -703,7 +703,7 @@ export class Platform {
   //     if (this.options.skipHook) return;
   //     const record = await _self.mercury.db.Model.get(
   //       { _id: this.record._id },
-  //       { id: '1', profile: 'Admin' }
+  //       { id: '1', profile: 'SystemAdmin' }
   //     );
   //     _self.syncModel(record, this.prevRecord);
   //   });
@@ -717,7 +717,7 @@ export class Platform {
   //     'CREATE_MODELFIELD_RECORD',
   //     async function (this: any) {
   //       if (this.options.skipHook) return;
-  //       const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
+  //       const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "SystemAdmin" });
   //       if (model.name !== this.data.name) throw new Error("Model name mismatch");
   //     }
   //   );
@@ -734,7 +734,7 @@ export class Platform {
   //       if (this.options.skipHook) return;
   //       const record = await _self.mercury.db.ModelField.get(
   //         { _id: this.record._id },
-  //         { id: '1', profile: 'Admin' }
+  //         { id: '1', profile: 'SystemAdmin' }
   //       );
   //       await _self.syncModelFields(record, this.prevRecord);
   //     }
@@ -756,7 +756,7 @@ export class Platform {
   //     'CREATE_MODELOPTION_RECORD',
   //     async function (this: any) {
   //       if (this.options.skipHook) return;
-  //       const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
+  //       const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "SystemAdmin" });
   //       if (model.name !== this.data.name) throw new Error("Model name mismatch");
   //     }
   //   );
@@ -773,7 +773,7 @@ export class Platform {
   //       if (this.options.skipHook) return;
   //       const record = await _self.mercury.db.ModelOption.get(
   //         { _id: this.record._id },
-  //         { id: '1', profile: 'Admin' }
+  //         { id: '1', profile: 'SystemAdmin' }
   //       );
   //       await _self.syncModelOptions(record, this.prevRecord);
   //     }
@@ -794,7 +794,7 @@ export class Platform {
   //     'CREATE_FIELDOPTION_RECORD',
   //     async function (this: any) {
   //       if (this.options.skipHook) return;
-  //       const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
+  //       const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "SystemAdmin" });
   //       if (model.name !== this.data.modelName) throw new Error("Model name mismatch !!");
   //     }
   //   );
@@ -811,7 +811,7 @@ export class Platform {
   //       if (this.options.skipHook) return;
   //       const record = await _self.mercury.db.FieldOption.get(
   //         { _id: this.record._id },
-  //         { id: '1', profile: 'Admin' }
+  //         { id: '1', profile: 'SystemAdmin' }
   //       );
   //       await _self.syncFieldOptions(record, this.prevRecord);
   //     }

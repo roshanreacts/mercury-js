@@ -119,7 +119,7 @@ export class Utility {
       data,
       {
         id: '1',
-        profile: 'Admin',
+        profile: 'SystemAdmin',
       },
       { skipHook: true }
     );

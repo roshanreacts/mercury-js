@@ -97,7 +97,7 @@ export class FieldOption {
         if (this.options.skipHook) return;
         const record = await _self.mercury.db.FieldOption.get(
           { _id: this.record._id },
-          { id: '1', profile: 'Admin' }
+          { id: '1', profile: 'SystemAdmin' }
         );
         await _self.syncFieldOptions(record, this.prevRecord);
       }
@@ -109,8 +109,8 @@ export class FieldOption {
       'CREATE_FIELDOPTION_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
-        const modelField =  await _self.mercury.db.ModelField.get({ _id: this.data.modelField }, { id: "1", profile: "Admin" });
+        const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "SystemAdmin" });
+        const modelField =  await _self.mercury.db.ModelField.get({ _id: this.data.modelField }, { id: "1", profile: "SystemAdmin" });
         if (model.name !== this.data.modelName) throw new Error("Model name mismatch !!");
         if (modelField.model.toString() !== this.data.model) throw new Error("Model Field doesn't belongs to this model!!");
         if (modelField.fieldName !== this.data.fieldName) throw new Error("Field name mismatch !!");
@@ -120,7 +120,7 @@ export class FieldOption {
       'CREATE_FIELDOPTION_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const fieldOption = await _self.mercury.db.FieldOption.get({ _id: this.record._id }, { id: "1", profile: "Admin" });
+        const fieldOption = await _self.mercury.db.FieldOption.get({ _id: this.record._id }, { id: "1", profile: "SystemAdmin" });
         await _self.syncFieldOptions(fieldOption);
       }
     );

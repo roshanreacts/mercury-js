@@ -10,7 +10,8 @@ const folderBuilds = [
   'packages/salesCloud',
   'packages/recordOwner',
   'packages/historyTracking',
-  'packages/platform'
+  'packages/platform',
+  'plugins/logify'
 ].map((folder) => ({
   input: `src/${folder}/index.ts`,
   output: [

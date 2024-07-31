@@ -124,7 +124,7 @@ export class ModelField {
       'CREATE_MODELFIELD_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
+        const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "SystemAdmin" });
         if (model.name !== this.data.modelName) throw new Error("Model name mismatch");
       }
     );
@@ -132,7 +132,7 @@ export class ModelField {
       'CREATE_MODELFIELD_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const modelField = await _self.mercury.db.ModelField.get({ _id: this.record._id }, { id: "1", profile: "Admin" });
+        const modelField = await _self.mercury.db.ModelField.get({ _id: this.record._id }, { id: "1", profile: "SystemAdmin" });
         await _self.syncModelFields(modelField);
       }
     );
@@ -149,7 +149,7 @@ export class ModelField {
         if (this.options.skipHook) return;
         const record = await _self.mercury.db.ModelField.get(
           { _id: this.record._id },
-          { id: '1', profile: 'Admin' }
+          { id: '1', profile: 'SystemAdmin' }
         );
         await _self.syncModelFields(record, this.prevRecord);
       }
@@ -161,7 +161,7 @@ export class ModelField {
     this.mercury.hook.before('DELETE_MODELFIELD_RECORD', async function (this: any) {
       const modelFields = await _self.mercury.db.ModelField.list(
         { model: this.record.model },
-        { id: '1', profile: 'Admin' }
+        { id: '1', profile: 'SystemAdmin' }
       );
       if (modelFields.length == 1) throw new Error('Model has only one field thus it cant be deleted');
       if (this.record.managed) throw new Error(`This model field can't be deleted!`);

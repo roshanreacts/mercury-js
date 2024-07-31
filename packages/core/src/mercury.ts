@@ -43,6 +43,11 @@ class Mercury {
   public package(packages: Array<(mercury: Mercury) => void>) {
     packages.map((pkg) => pkg(this as Mercury));
   }
+
+  public plugins(plugins: Array<(mercury: Mercury) => void>) {
+    plugins.map((plugin) => plugin(this as Mercury));
+  }
+
   public connect(path: string) {
     mongoose.connect(path);
   }

@@ -95,7 +95,7 @@ export class ModelOption {
         if (this.options.skipHook) return;
         const record = await _self.mercury.db.ModelOption.get(
           { _id: this.record._id },
-          { id: '1', profile: 'Admin' }
+          { id: '1', profile: 'SystemAdmin' }
         );
         await _self.syncModelOptions(record, this.prevRecord);
       }
@@ -107,7 +107,7 @@ export class ModelOption {
       'CREATE_MODELOPTION_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "Admin" });
+        const model = await _self.mercury.db.Model.get({ _id: this.data.model }, { id: "1", profile: "SystemAdmin" });
         if (model.name !== this.data.modelName) throw new Error("Model name mismatch");
       }
     );
@@ -116,7 +116,7 @@ export class ModelOption {
       'CREATE_MODELOPTION_RECORD',
       async function (this: any) {
         if (this.options.skipHook) return;
-        const modelOption = await _self.mercury.db.ModelOption.get({ _id: this.record._id }, { id: "1", profile: "Admin" });
+        const modelOption = await _self.mercury.db.ModelOption.get({ _id: this.record._id }, { id: "1", profile: "SystemAdmin" });
         await _self.syncModelOptions(modelOption);
       }
     );
