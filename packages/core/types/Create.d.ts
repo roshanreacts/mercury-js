@@ -57,10 +57,10 @@ interface AccessType {
   default?: boolean;
   acl: Array<{
     [key: string]:
-    | boolean
-    | VerboseAccessFunctionType
-    | AccessFunctionType
-    | verboseAccessType;
+      | boolean
+      | VerboseAccessFunctionType
+      | AccessFunctionType
+      | verboseAccessType;
   }>;
 }
 
@@ -87,6 +87,7 @@ interface listSchema {
   public?: boolean | Function | verboseAccessType;
   hooks?: HookType;
   enableHistoryTracking?: boolean;
+  historyHooks?: HookType;
   isHistory?: boolean;
   extendType?: Array<{
     type: string;

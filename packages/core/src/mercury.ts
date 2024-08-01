@@ -231,6 +231,7 @@ class Mercury {
           isRequired: true,
         },
       },
+      hooks: schema.historyHooks,
       access: schema.access,
       isHistory: true,
     };
