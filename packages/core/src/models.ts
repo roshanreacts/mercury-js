@@ -177,7 +177,7 @@ export class Model {
       );
     });
     const updateRecord = await this.mongoModel
-      .findByIdAndUpdate(id, data, { new: true })
+      .findByIdAndUpdate(id, data, { new: true, runValidators: true })
       .populate(options.populate || [])
       .select(options.select || [])
       .exec();
