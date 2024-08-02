@@ -134,16 +134,18 @@ export class Platform {
     this.mercury.access.createProfile(profile.name, rules);
   }
 
-  public createModel() {
+  public async createModel(model: PModel) {
     // create meta records, compose inside redis, create from mercury
-    console.log("This mdel is geting called")
-    // this.mercury.createModel(model.info.name, model.fields, model.options);
-    // this.mercury.cache.set(model.info.name.toUpperCase(), JSON.stringify(model));
-    // const metaModel = await this.createMetaModel(model.info);
-    // await Promise.all([
-    //   this.createMetaModelFields(model.fields, metaModel),
-    //   this.createMetaModelOptions(model.options, metaModel)
-    // ]);
+    this.mercury.createModel(model.info.name, model.fields, model.options);
+    this.mercury.cache.set(model.info.name.toUpperCase(), JSON.stringify(model));
+    let metaModel = await this.mercury.db.Model.mongoModel.findOne({ name: model.info.name });
+    if (!_.isEmpty(metaModel)) return;
+    metaModel = await this.createMetaModel(model.info);
+    await Promise.all([
+      // this.createSystemAdminPermission(metaModel),
+      this.createMetaModelFields(model.fields, metaModel),
+      this.createMetaModelOptions(model.options, metaModel)
+    ]);
   }
 
   private async createMetaModel(model: ModelInfo) {
@@ -156,11 +158,35 @@ export class Platform {
     })
   }
 
+  // private async createSystemAdminPermission(model: TMetaModel) {
+  //   let systemAdmin = await this.mercury.db.Profile.mongoModel.findOne({ name: 'SystemAdmin' });
+  //   if (_.isEmpty(systemAdmin)) {
+  //     systemAdmin = await this.mercury.db.Profile.mongoModel.create({
+  //       name: 'SystemAdmin',
+  //       label: 'SystemAdmin'
+  //     });
+  //   }
+  //   await this.mercury.db.Permission.mongoModel.create({
+  //     profile: systemAdmin._id,
+  //     profileName: 'SystemAdmin',
+  //     model: model._id,
+  //     modelName: model.name,
+  //     create: true,
+  //     read: true,
+  //     update: true,
+  //     delete: true,
+  //   });
+  //   const rules = JSON.parse(await this.mercury.cache.get('SystemAdmin') as string);
+  //   rules.push({ modelName: model.name, access: { create: true, update: true, read: true, delete: true }, });
+  //   await this.mercury.cache.set('SystemAdmin', JSON.stringify(rules));
+  //   this.mercury.access.updateProfile('SystemAdmin', rules);
+  // }
+
   // this.createMetaFieldOptions()  --> enchancement
   private async createMetaModelFields(fields: TFields, model: TMetaModel) {
     await Promise.all(
       Object.entries(fields).map(async ([fname, fvalue]) => {
-        await this.mercury.db.Model.mongoModel.create({
+        await this.mercury.db.ModelField.mongoModel.create({
           model: model._id,
           modelName: model.name,
           fieldName: fname,
@@ -185,7 +211,7 @@ export class Platform {
   private async createMetaModelOptions(options: TOptions, model: TMetaModel) {
     await Promise.all(
       Object.entries(options).map(async ([option, value]) => {
-        await this.mercury.db.Model.mongoModel.create({
+        await this.mercury.db.ModelOption.mongoModel.create({
           model: model._id,
           modelName: model.name,
           keyName: option,
