@@ -27,6 +27,9 @@ export class Model {
           unique: true,
           required: true,
         },
+        description: {
+          type: 'string',
+        },
         prefix: {
           type: 'string',
           // required: true,

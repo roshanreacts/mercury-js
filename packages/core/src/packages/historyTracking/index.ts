@@ -106,7 +106,9 @@ async function createHistoryRecord(
   fieldName: String,
   ctx: any
 ) {
-  const historyRecord = await mercury.db[model].create(
+
+  // setting context
+  const historyRecord = await mercury.db[model].mongoModel.create(
     {
       recordId: recordId,
       operationType: operationType,
@@ -115,9 +117,7 @@ async function createHistoryRecord(
       fieldName: fieldName,
       newValue: ifStringAndNotNull(newValue),
       oldValue: ifStringAndNotNull(oldValue),
-    },
-    ctx,
-    {}
+    }
   );
 }
 

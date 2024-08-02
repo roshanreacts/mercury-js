@@ -7,6 +7,19 @@ interface TCommon {
   updatedBy?: string
 }
 
+interface PModel {
+  info: ModelInfo
+  fields: TFields,
+  options: TOptions
+}
+
+interface ModelInfo {
+  name: string,
+  label: string,
+  description: string,
+  managed: boolean,
+  prefix: string,
+}
 interface TMetaModel extends TCommon {
   name: string,
   prefix: string,
@@ -34,7 +47,7 @@ interface TModelField extends TCommon {
   fieldOptions: string[] | TFieldOption[]  // string or populated one?
 }
 
-interface TFieldOption extends TCommon{
+interface TFieldOption extends TCommon {
   model: string | TMetaModel,
   modelName: string,
   modelField: string | TModelField,
@@ -46,7 +59,7 @@ interface TFieldOption extends TCommon{
   prefix: string
 }
 
-interface TModelOption extends TCommon{
+interface TModelOption extends TCommon {
   model: string | TMetaModel,
   modelName: string,
   managed: boolean,

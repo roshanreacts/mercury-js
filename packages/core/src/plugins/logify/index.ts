@@ -3,13 +3,14 @@ import { GraphQLError } from "graphql";
 import _ from 'lodash';
 import bcrypt from "bcryptjs";
 import { AfterHook } from "../../packages/platform/utility";
+import type { Platform } from '../../packages/platform';
 
 export interface LogifyConfig {
-  options?: any;
+  platform: Platform;
 }
-export default (config?: LogifyConfig) => {
+export default (config: LogifyConfig) => {
   return (mercury: Mercury) => {
-    const logify = new Logify(mercury);
+    const logify = new Logify(mercury, config.platform);
     logify.init(mercury);
     logify.run();
   };
@@ -17,8 +18,10 @@ export default (config?: LogifyConfig) => {
 
 class Logify {
   public mercury: Mercury;
-  constructor(mercury: Mercury) {
+  public platform: Platform;
+  constructor(mercury: Mercury, platform: Platform) {
     this.mercury = mercury;
+    this.platform = platform;
   }
 
   init(mercury: Mercury) {

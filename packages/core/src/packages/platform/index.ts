@@ -57,10 +57,6 @@ export class Platform {
     await this.subscribeToModelHooks();
   }
 
-  public createModelApi(name: string, fields: TFields, options?: TOptions) {
-    this.mercury.createModel(name, fields, options);
-  }
-
   public async initialize() {
     // Create SystemSystemAdmin profile
     // createMetaModels(this.mercury);
@@ -115,8 +111,8 @@ export class Platform {
   public async composeAllProfilesPermissions() {
     const allProfiles = await this.mercury.db.Profile.list({}, { id: '1', profile: 'SystemAdmin' }, { populate: [{ path: 'permissions' }] });
     await Promise.all(allProfiles.map(async (profile: any) => {
-      if (profile.name != 'SystemAdmin') 
-      await this.composeProfilePermission(profile, profile.permissions);
+      if (profile.name != 'SystemAdmin')
+        await this.composeProfilePermission(profile, profile.permissions);
     }))
   }
 
@@ -137,6 +133,69 @@ export class Platform {
     await this.mercury.cache.set(profile.name, JSON.stringify(rules));
     this.mercury.access.createProfile(profile.name, rules);
   }
+
+  public async createModel(model: PModel) {
+    // create meta records, compose inside redis, create from mercury
+    this.mercury.createModel(model.info.name, model.fields, model.options);
+    this.mercury.cache.set(model.info.name.toUpperCase(), JSON.stringify(model));
+    const metaModel = await this.createMetaModel(model.info);
+    await Promise.all([
+      this.createMetaModelFields(model.fields, metaModel),
+      this.createMetaModelOptions(model.options, metaModel)
+    ]);
+  }
+
+  private async createMetaModel(model: ModelInfo) {
+    return await this.mercury.db.Model.mongoModel.create({
+      name: model.name,
+      label: model.name.toUpperCase(),
+      description: model.description,
+      managed: model.managed,
+      prefix: model.prefix
+    })
+  }
+
+  // this.createMetaFieldOptions()  --> enchancement
+  private async createMetaModelFields(fields: TFields, model: TMetaModel) {
+    await Promise.all(
+      Object.entries(fields).map(async ([fname, fvalue]) => {
+        await this.mercury.db.Model.mongoModel.create({
+          model: model._id,
+          modelName: model.name,
+          fieldName: fname,
+          label: fname,
+          type: fvalue.type,
+          defaultValue: fvalue.default,
+          required: fvalue.required,
+          many: fvalue.many,
+          rounds: fvalue.rounds,
+          unique: fvalue.unique,
+          ref: fvalue.ref,
+          localField: fvalue.localField,
+          foreignField: fvalue.foreignField,
+          enumType: fvalue.enumType,
+          enumValues: fvalue.enumValues,
+          managed: false
+        });
+      })
+    );
+  }
+
+  private async createMetaModelOptions(options: TOptions, model: TMetaModel) {
+    await Promise.all(
+      Object.entries(options).map(async ([option, value]) => {
+        await this.mercury.db.Model.mongoModel.create({
+          model: model._id,
+          modelName: model.name,
+          keyName: option,
+          value: value,
+          type: typeof value,
+          managed: false
+        });
+      })
+    );
+  }
+
 
 
   public async composeAllRedisSchemas() {
@@ -190,8 +249,8 @@ export class Platform {
       `${model.name.toUpperCase()}`,
       JSON.stringify(redisObj)
     );
-    if(!_.isEmpty(schema))
-    this.mercury.createModel(model.name, schema, options);
+    if (!_.isEmpty(schema))
+      this.mercury.createModel(model.name, schema, options);
   }
   // public composeSchema(
   //   modelFields: TModelField[],
