@@ -53,6 +53,11 @@
       "import": "./dist/esm/packages/platform/index.js",
       "types": "./dist/esm/src/packages/platform/index.d.ts"
     },
+    "./packages/ecommerce": {
+      "require": "./dist/cjs/packages/ecommerce/index.js",
+      "import": "./dist/esm/packages/ecommerce/index.js",
+      "types": "./dist/esm/src/packages/ecommerce/index.d.ts"
+    },
     "./plugins/logify": {
       "require": "./dist/cjs/plugins/logify/index.js",
       "import": "./dist/esm/plugins/logify/index.js",

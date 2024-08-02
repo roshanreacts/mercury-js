@@ -11,6 +11,7 @@ const folderBuilds = [
   'packages/recordOwner',
   'packages/historyTracking',
   'packages/platform',
+  'packages/ecommerce',
   'plugins/logify'
 ].map((folder) => ({
   input: `src/${folder}/index.ts`,

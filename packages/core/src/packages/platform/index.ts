@@ -134,15 +134,16 @@ export class Platform {
     this.mercury.access.createProfile(profile.name, rules);
   }
 
-  public async createModel(model: PModel) {
+  public createModel() {
     // create meta records, compose inside redis, create from mercury
-    this.mercury.createModel(model.info.name, model.fields, model.options);
-    this.mercury.cache.set(model.info.name.toUpperCase(), JSON.stringify(model));
-    const metaModel = await this.createMetaModel(model.info);
-    await Promise.all([
-      this.createMetaModelFields(model.fields, metaModel),
-      this.createMetaModelOptions(model.options, metaModel)
-    ]);
+    console.log("This mdel is geting called")
+    // this.mercury.createModel(model.info.name, model.fields, model.options);
+    // this.mercury.cache.set(model.info.name.toUpperCase(), JSON.stringify(model));
+    // const metaModel = await this.createMetaModel(model.info);
+    // await Promise.all([
+    //   this.createMetaModelFields(model.fields, metaModel),
+    //   this.createMetaModelOptions(model.options, metaModel)
+    // ]);
   }
 
   private async createMetaModel(model: ModelInfo) {
