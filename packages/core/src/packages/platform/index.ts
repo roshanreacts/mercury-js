@@ -7,6 +7,7 @@ import { SystemAdminRules } from './rules';
 
 type PlatformConfig = {
   prefix?: string;
+  plugins?: Array<(platform: Platform) => void>;
 };
 
 declare module '../../mercury' {
@@ -28,8 +29,11 @@ export class Platform {
   public skipFields: string[];
   public ctx: any;
   protected utility;
+  private plugins: Array<(platform: Platform) => void> = [];
   constructor(mercury: Mercury, config?: PlatformConfig) {
     this.mercury = mercury;
+    //@ts-ignore
+    this.plugins = config?.plugins || [];
     this.utility = new Utility(this.mercury);
     this.ctx = { id: "1", profile: "SystemAdmin" };
     this.config = config || {};
@@ -75,6 +79,8 @@ export class Platform {
     await this.composeSystemAdminProfile();
     await this.composeAllProfilesPermissions();
     await this.composeAllRedisSchemas();
+    // Platform initialization check mandatory!!!
+    this.installPlugins();
     await new Promise((resolve, reject) => {
       this.mercury.hook.execAfter(
         `PLATFORM_INITIALIZE`,
@@ -91,6 +97,10 @@ export class Platform {
         }
       );
     });
+  }
+
+  private installPlugins() {
+    this.plugins.map((pkg) => pkg(this as Platform));
   }
 
   private async composeSystemAdminProfile() {
@@ -137,12 +147,15 @@ export class Platform {
   public async createModel(model: PModel) {
     // create meta records, compose inside redis, create from mercury
     this.mercury.createModel(model.info.name, model.fields, model.options);
-    this.mercury.cache.set(model.info.name.toUpperCase(), JSON.stringify(model));
+    const allModels = await this.listModels();
+    allModels.push(model.info.name);
+    await this.mercury.cache.set("ALL_MODELS", JSON.stringify(allModels));
+    await this.mercury.cache.set(model.info.name.toUpperCase(), JSON.stringify({ name: model.info.name, fields: model.fields, options: model.options }));
     let metaModel = await this.mercury.db.Model.mongoModel.findOne({ name: model.info.name });
     if (!_.isEmpty(metaModel)) return;
     metaModel = await this.createMetaModel(model.info);
     await Promise.all([
-      // this.createSystemAdminPermission(metaModel),
+      this.createSystemAdminPermission(metaModel),
       this.createMetaModelFields(model.fields, metaModel),
       this.createMetaModelOptions(model.options, metaModel)
     ]);
@@ -158,29 +171,29 @@ export class Platform {
     })
   }
 
-  // private async createSystemAdminPermission(model: TMetaModel) {
-  //   let systemAdmin = await this.mercury.db.Profile.mongoModel.findOne({ name: 'SystemAdmin' });
-  //   if (_.isEmpty(systemAdmin)) {
-  //     systemAdmin = await this.mercury.db.Profile.mongoModel.create({
-  //       name: 'SystemAdmin',
-  //       label: 'SystemAdmin'
-  //     });
-  //   }
-  //   await this.mercury.db.Permission.mongoModel.create({
-  //     profile: systemAdmin._id,
-  //     profileName: 'SystemAdmin',
-  //     model: model._id,
-  //     modelName: model.name,
-  //     create: true,
-  //     read: true,
-  //     update: true,
-  //     delete: true,
-  //   });
-  //   const rules = JSON.parse(await this.mercury.cache.get('SystemAdmin') as string);
-  //   rules.push({ modelName: model.name, access: { create: true, update: true, read: true, delete: true }, });
-  //   await this.mercury.cache.set('SystemAdmin', JSON.stringify(rules));
-  //   this.mercury.access.updateProfile('SystemAdmin', rules);
-  // }
+  private async createSystemAdminPermission(model: TMetaModel) {
+    let systemAdmin = await this.mercury.db.Profile.mongoModel.findOne({ name: 'SystemAdmin' });
+    // if (_.isEmpty(systemAdmin)) {
+    //   systemAdmin = await this.mercury.db.Profile.mongoModel.create({
+    //     name: 'SystemAdmin',
+    //     label: 'SystemAdmin'
+    //   });
+    // }
+    await this.mercury.db.Permission.mongoModel.create({
+      profile: systemAdmin._id,
+      profileName: 'SystemAdmin',
+      model: model._id,
+      modelName: model.name,
+      create: true,
+      read: true,
+      update: true,
+      delete: true,
+    });
+    const rules = JSON.parse(await this.mercury.cache.get('SystemAdmin') as string);
+    rules.push({ modelName: model.name, access: { create: true, update: true, read: true, delete: true }, });
+    await this.mercury.cache.set('SystemAdmin', JSON.stringify(rules));
+    this.mercury.access.updateProfile('SystemAdmin', rules);
+  }
 
   // this.createMetaFieldOptions()  --> enchancement
   private async createMetaModelFields(fields: TFields, model: TMetaModel) {
