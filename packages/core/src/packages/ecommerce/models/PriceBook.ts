@@ -13,11 +13,12 @@ export const PriceBook: PModel = {
     name: {
       type: "string"
     },
-    priceBookItem: {
+    priceBookItems: {
       type: "virtual",
       ref: "PriceBookItem",
       localField: "_id",
       foreignField: "priceBook",
+      many: true,
     },
 
   },
