@@ -20,6 +20,10 @@ export const ProductItem:PModel={
         },
         media : {
           type : "string"//array
+        },
+        catalog: {
+          type : "relationship",
+          ref : "Catalog"
         }
       
       },
