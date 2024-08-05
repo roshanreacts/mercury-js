@@ -1,5 +1,6 @@
 import type { Mercury } from '../../mercury';
 import type { Platform } from '../../packages/platform';
+import { AfterHook } from '../platform/utility';
 import { Cart, Catalog, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, User } from './models';
 
 export interface EcommerceConfig {
@@ -28,18 +29,26 @@ class Ecommerce {
   //     options: { historyTracking: false }
   //   });
   // }
+  // @AfterHook()
   async createModels() {
-    await this.platform.createModel(Product)
-    await this.platform.createModel(User)
-    await this.platform.createModel(Cart)
-    await this.platform.createModel(Catalog)
-    await this.platform.createModel(Coupon)
-    await this.platform.createModel(Market)
-    await this.platform.createModel(Order)
-    await this.platform.createModel(Payment)
-    await this.platform.createModel(PriceBook)
-    await this.platform.createModel(PriceBookItem)
-    await this.platform.createModel(ProductAttribute)
-    await this.platform.createModel(ProductItem)
+    const models = [Product, Cart, Catalog, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem];
+    const modelCreation = models.map(model => this.platform.createModel(model));
+    await Promise.all(modelCreation);
+    await new Promise((resolve, reject) => {
+      this.platform.mercury.hook.execAfter(
+        `PLATFORM_INITIALIZE`,
+        {},
+        [],
+        function (error: any) {
+          if (error) {
+            // Reject the Promise if there is an error
+            reject(error);
+          } else {
+            // Resolve the Promise if there is no error
+            resolve(true);
+          }
+        }
+      );
+    });
   }
 }

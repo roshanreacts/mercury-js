@@ -11,11 +11,11 @@ export const Payment:PModel={
         type : "relationship",
         ref : "Order"
        },
-       method : {
-        type : "enum",
-        enumType : "string",
-        enum : ["OFFLINE","ONLINE"]
-       },
+      //  method : {
+      //   type : "enum",
+      //   enumType : "string",
+      //   enum : ["OFFLINE","ONLINE"]
+      //  },
        amount : {
         type : "string"
        },

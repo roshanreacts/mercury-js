@@ -17,11 +17,11 @@ export const Order:PModel={
        totalAmount : {
         type : "string"
        },
-       status : {
-        type : "enum",
-        enumType : "string",
-        enum:["ADMIN","USER"]
-       }
+      //  status : {
+      //   type : "enum",
+      //   enumType : "string",
+      //   enum:["ADMIN","USER"]
+      //  }
       
       },
       options: {

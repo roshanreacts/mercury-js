@@ -24,7 +24,7 @@ export default (config?: PlatformConfig) => {
   };
 };
 export class Platform {
-  protected mercury: Mercury;
+  public mercury: Mercury;
   public config: PlatformConfig;
   public skipFields: string[];
   public ctx: any;

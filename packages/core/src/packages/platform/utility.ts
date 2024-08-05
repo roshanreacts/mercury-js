@@ -57,10 +57,12 @@ export class Utility {
         // Return for some fields
         if (skipFields.includes(key)) return;
         if (
-          key != 'enumValues' ||
-          (key == 'enumValues' && modelField[key].length)
+          key != 'enumValues'
         )
           fieldObj[key] = modelField[key];
+          if(key == 'enumValues' && modelField[key].length) {
+            fieldObj['enum'] = modelField[key];
+          }
       });
       if (fieldOptions) {
         const fieldOption = fieldOptions.filter((fieldOption: any) =>
