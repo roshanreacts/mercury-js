@@ -18,7 +18,7 @@ declare module '../../mercury' {
 }
 
 export default (config?: RedisCacheConfig) => {
-  return (mercury: Mercury) => {
+  return async (mercury: Mercury) => {
     // extend mercury to include a cache property
 
     mercury.cache = new Redis(config);

@@ -17,9 +17,9 @@ declare module '../../mercury' {
 }
 
 export default (config?: PlatformConfig) => {
-  return (mercury: Mercury) => {
+  return async (mercury: Mercury) => {
     mercury.platform = new Platform(mercury, config);
-    mercury.platform.initialize();
+    await mercury.platform.initialize();
     // mercury.platform.start();
   };
 };
@@ -80,7 +80,7 @@ export class Platform {
     await this.composeAllProfilesPermissions();
     await this.composeAllRedisSchemas();
     // Platform initialization check mandatory!!!
-    this.installPlugins();
+    await this.installPlugins();
     await new Promise((resolve, reject) => {
       this.mercury.hook.execAfter(
         `PLATFORM_INITIALIZE`,
@@ -99,8 +99,8 @@ export class Platform {
     });
   }
 
-  private installPlugins() {
-    this.plugins.map((pkg) => pkg(this as Platform));
+  private async installPlugins() {
+    await Promise.all(this.plugins.map(pkg => pkg(this as Platform)));
   }
 
   private async composeSystemAdminProfile() {
@@ -214,7 +214,7 @@ export class Platform {
           localField: fvalue.localField,
           foreignField: fvalue.foreignField,
           enumType: fvalue.enumType,
-          enumValues: fvalue.enumValues,
+          enumValues: fvalue.enum,
           managed: false
         });
       })

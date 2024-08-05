@@ -8,7 +8,7 @@ export interface EcommerceConfig {
 }
 
 export default (config?: EcommerceConfig) => {
-  return (platform: Platform) => {
+  return async (platform: Platform) => {
     const ecommerce = new Ecommerce(platform);
     ecommerce.createModels();
   };

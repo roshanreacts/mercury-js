@@ -19,16 +19,16 @@ export const User:PModel={
         mobile:{
           type:"string"
         },
-        // role:{
-        //   type:"enum",
-        //   enumType:"string",
-        //   enum:["ADMIN","USER"]
-        // },
-        // status:{
-        //   type:"enum",
-        //   enumType:"string",
-        //   enum:["ACTIVE","INACTIVE"]
-        // }
+        role:{
+          type:"enum",
+          enumType:"string",
+          enum:["ADMIN","USER"]
+        },
+        status:{
+          type:"enum",
+          enumType:"string",
+          enum:["ACTIVE","IN_ACTIVE"]
+        }
       
       },
       options: {

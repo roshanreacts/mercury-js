@@ -1,6 +1,6 @@
 
-export const Cart :PModel={
-    info: {
+export const Cart: PModel = {
+  info: {
     name: 'Cart',
     label: 'Cart',
     description: 'Cart model',
@@ -8,20 +8,20 @@ export const Cart :PModel={
     prefix: 'CART'
   },
   fields: {
-    customer : {
-      type : "relationship",
-      ref : "User"
+    customer: {
+      type: "relationship",
+      ref: "User"
     },
-    totalAmount : {
-      type : "string",  
+    totalAmount: {
+      type: "string",
     },
-    createdDate : {
-      type : "date",
+    createdDate: {
+      type: "date",
     }
-  
+
   },
-  
+
   options: {
-   historyTracking: false
+    historyTracking: false
   }
 }
