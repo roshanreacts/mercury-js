@@ -35,7 +35,6 @@ export class Layout {
           ref: 'LayoutStructure',
           localField: "_id",
           foreignField: "layout",
-          many: true,
         },
 
       },

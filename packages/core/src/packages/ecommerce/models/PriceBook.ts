@@ -18,7 +18,6 @@ export const PriceBook: PModel = {
       ref: "PriceBookItem",
       localField: "_id",
       foreignField: "priceBook",
-      many: true,
     },
 
   },

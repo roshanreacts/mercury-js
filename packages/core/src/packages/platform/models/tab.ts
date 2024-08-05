@@ -19,6 +19,7 @@ export class Tab {
           type: 'relationship',
           ref: 'Model',
           required: true,
+          unique: true
         },
         label: {
           type: 'string',
