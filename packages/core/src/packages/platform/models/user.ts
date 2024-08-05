@@ -25,8 +25,7 @@ export class User {
         },
         profile: {
           type: 'relationship',
-          ref: 'Model',
-          required: true,
+          ref: 'Model'
         },
         password: {
           type: 'string'
