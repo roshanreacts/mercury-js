@@ -9,7 +9,7 @@ export const Catalog: PModel = {
   fields: {
     productItem: {
       type: "virtual",
-      ref: "Catalog",
+      ref: "ProductItem",
       localField: "_id",
       foreignField: "catalog",
       many: true,
