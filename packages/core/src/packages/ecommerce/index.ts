@@ -1,5 +1,6 @@
 import type { Mercury } from '../../mercury';
 import type { Platform } from '../../packages/platform';
+import { Cart, Catalog, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, User } from './models';
 
 export interface EcommerceConfig {
   options?: any;
@@ -20,13 +21,25 @@ class Ecommerce {
 
 
   // check the flow 
+  // async createModels() {
+  //   await this.platform.createModel({
+  //     info: { name: "User", label: "User", description: "User model", managed: true, prefix: "USR" },
+  //     fields: User,
+  //     options: { historyTracking: false }
+  //   });
+  // }
   async createModels() {
-    await this.platform.createModel({
-      info: { name: "Testmodel", label: "testmodel", description: "desc", managed: false, prefix: "prefio" }, fields: {
-        name: {
-          type: 'string'
-        }
-      }, options: { historyTracking: false }
-    });
+    await this.platform.createModel(Product)
+    await this.platform.createModel(User)
+    await this.platform.createModel(Cart)
+    await this.platform.createModel(Catalog)
+    await this.platform.createModel(Coupon)
+    await this.platform.createModel(Market)
+    await this.platform.createModel(Order)
+    await this.platform.createModel(Payment)
+    await this.platform.createModel(PriceBook)
+    await this.platform.createModel(PriceBookItem)
+    await this.platform.createModel(ProductAttribute)
+    await this.platform.createModel(ProductItem)
   }
 }
