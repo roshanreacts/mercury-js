@@ -19,7 +19,8 @@ export const ProductItem:PModel={
           ref : "ProductAttribute"
         },
         media : {
-          type : "string"//array
+          type : "string",
+          many : true
         },
         catalog: {
           type : "relationship",
