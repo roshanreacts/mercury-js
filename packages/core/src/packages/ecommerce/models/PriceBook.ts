@@ -8,7 +8,7 @@ export const PriceBook: PModel = {
   },
   fields: {
     currency: {
-      type: "float"
+      type: "string"
     },
     name: {
       type: "string"
