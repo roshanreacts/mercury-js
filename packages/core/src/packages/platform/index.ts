@@ -24,9 +24,6 @@ export default (config?: PlatformConfig) => {
   };
 };
 export class Platform {
-  static createModel(arg0: string, User: { userName: { type: string; }; email: { type: string; }; role: { type: string; enumType: string; enum: string[]; default: string; }; status: { type: string; enumType: string; enum: string[]; }; }) {
-      throw new Error("Method not implemented.");
-  }
   protected mercury: Mercury;
   public config: PlatformConfig;
   public skipFields: string[];
