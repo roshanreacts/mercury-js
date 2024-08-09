@@ -1,7 +1,7 @@
 import type { Mercury } from '../../mercury';
 // import { Redis } from '../redisCache';
 import _ from 'lodash';
-import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout, Profile, Permission, FieldPermission, LayoutStructure, User } from './models';
+import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout, Profile, Permission, FieldPermission, LayoutStructure, User ,File} from './models';
 import { Utility } from './utility';
 import { SystemAdminRules } from './rules';
 
@@ -76,6 +76,7 @@ export class Platform {
     new Permission(this.mercury);
     new FieldPermission(this.mercury);
     new User(this.mercury);
+    new File(this.mercury)
     await this.composeSystemAdminProfile();
     await this.composeAllProfilesPermissions();
     await this.composeAllRedisSchemas();
@@ -144,7 +145,7 @@ export class Platform {
     this.mercury.access.createProfile(profile.name, rules);
   }
 
-  public async createModel(model: PModel) {
+  public async createModel( model: PModel) {
     // create meta records, compose inside redis, create from mercury
     this.mercury.createModel(model.info.name, model.fields, model.options);
     const allModels = await this.listModels();
@@ -159,6 +160,34 @@ export class Platform {
       this.createMetaModelFields(model.fields, metaModel),
       this.createMetaModelOptions(model.options, metaModel)
     ]);
+  }
+public async createTab(modelNames:string[]){
+  try {
+     const model=await this.mercury.db.Model.mongoModel.get({modelNames})
+     const existingTab = await this.mercury.db.Tab.mongoModel.findOne({ model: model._id });
+     if (!existingTab) {
+      await this.mercury.db.Tab.mongoModel.create({
+        icon: 'defaultIcon',
+        model: model._id,
+        label: model.name,
+        order: model.order
+      });
+    }
+  } catch (error:any) {
+    console.error('Error creating tabs for models', error);
+  }
+}
+  public async createComponent(models:any){
+    const createdComponents = await Promise.all(models.map(async (component: any) => {
+      const newComponent = await this.mercury.db.Component.mongoModel.create({
+        name: component.name,
+        label: component.label,
+        description: component.description, 
+        code: component.code,
+      });
+      return newComponent;
+    }));
+    return createdComponents;
   }
 
   private async createMetaModel(model: ModelInfo) {
@@ -220,6 +249,7 @@ export class Platform {
       })
     );
   }
+  
 
   private async createMetaModelOptions(options: TOptions, model: TMetaModel) {
     await Promise.all(
@@ -366,7 +396,10 @@ export class Platform {
     let allModels: string | null = await this.mercury.cache.get('ALL_MODELS');
     return allModels == null ? [] : JSON.parse(allModels);
   }
-
+public async listTabs(){
+  let allTabs:string|null=await this.mercury.cache.get('ALL_TABS');
+  return allTabs==null?[]:JSON.parse(allTabs);
+}
   public async getModel(modelName: string) {
     let model: string | TModel | null = await this.mercury.cache.get(modelName);
     return model == null ? {} : JSON.parse(model);
