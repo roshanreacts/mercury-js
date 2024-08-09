@@ -9,4 +9,6 @@ export { PriceBook } from "./PriceBook";
 export { PriceBookItem } from "./PriceBookItem";
 export { Product } from "./Product";
 export { ProductAttribute } from "./ProductAttribute";
-export { ProductItem } from "./ProductItem"
+export { ProductItem } from "./ProductItem";
+export { CartItem } from "./CartItem";
+export { Category } from "./Category";

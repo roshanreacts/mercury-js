@@ -15,14 +15,11 @@ export const Cart: PModel = {
     totalAmount: {
       type: "string",
     },
-    productItems:{
+    cartItems:{
       type: "relationship",
-      ref: "ProductItem",
+      ref: "CartItem",
       many: true
     },
-    createdDate: {
-      type: "date",
-    }
   },
   options: {
     historyTracking: false

@@ -4,12 +4,13 @@ export const PriceBookItem: PModel = {
     label: 'PriceBookItem',
     description: 'PriceBookItem model',
     managed: true,
-    prefix: 'PriceBookItem'
+    prefix: 'PRICE_BOOK_ITEM',
   },
+  // coupons handle it from here
   fields: {
-    productItem: {
+    product: {
       type: "relationship",
-      ref: "ProductItem"
+      ref: "Product"
     },
     price: {
       type: "number"

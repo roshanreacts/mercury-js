@@ -13,9 +13,7 @@ export const Catalog: PModel = {
     description: {
       type: "string",
     },
-    // why to have product items in the first place - we can have products simply ( items will be virutal to products ) - better flexibity
-    productItem: {
-      // belongs to catalog or not - can be mapped to many catalogs?! - discuss
+    productItems: {
       type: "relationship",
       ref: "ProductItem",
       many: true,
@@ -24,7 +22,6 @@ export const Catalog: PModel = {
       type: "relationship",
       ref: "PriceBook"
     },
-    // catalog belongs to which market - !
     market: {
       type: "relationship",
       ref: "Market",

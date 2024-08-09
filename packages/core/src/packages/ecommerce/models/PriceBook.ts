@@ -4,7 +4,7 @@ export const PriceBook: PModel = {
     label: 'PriceBook',
     description: 'PriceBook model',
     managed: true,
-    prefix: 'PRICEBOOK'
+    prefix: 'PRICE_BOOK'
   },
   fields: {
     currency: {
@@ -20,7 +20,6 @@ export const PriceBook: PModel = {
       foreignField: "priceBook",
       many: true,
     },
-
   },
   options: {
     historyTracking: false

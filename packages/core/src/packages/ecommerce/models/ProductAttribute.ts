@@ -4,7 +4,7 @@ export const ProductAttribute: PModel = {
     label: 'ProductAttribute',
     description: 'ProductAttribute model',
     managed: true,
-    prefix: 'PRODUCTATTRIBUTE'
+    prefix: 'PRODUCT_ATTRIBUTE'
   },
   fields: {
     colour: {
@@ -15,13 +15,6 @@ export const ProductAttribute: PModel = {
     },
     weight: {
       type: "number"
-    },
-    // is this better approach
-    name: {
-      type: "string"
-    },
-    value: {
-      type: "string"
     },
   },
   options: {

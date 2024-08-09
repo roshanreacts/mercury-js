@@ -13,12 +13,17 @@ export const Product: PModel = {
     description: {
       type: "string"
     },
-    // this product belongs to how many market ->
-    market: {
+    category: {
       type: "relationship",
-      ref: "Market",
-      many: true
+      ref: "Category",
+      // many: true -> research
     }
+    // productItems: {
+    //   type: "virtual",
+    //   ref: "ProductItem",
+    //   foreignField: 'product',
+    //   localField: '_id'
+    // }
   },
   options: {
     historyTracking: false
