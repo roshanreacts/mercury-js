@@ -1,7 +1,7 @@
 import type { Mercury } from '../../mercury';
 import type { Platform } from '../../packages/platform';
 import { AfterHook } from '../platform/utility';
-import { Cart, Catalog, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, User } from './models';
+import { Cart, Catalog, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, User } from './models';
 
 export interface EcommerceConfig {
   options?: any;
@@ -31,7 +31,7 @@ class Ecommerce {
   // }
   // @AfterHook()
   async createModels() {
-    const models = [Product, Cart, Catalog, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem];
+    const models = [Product, Cart, Catalog, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category];
     const modelCreation = models.map(model => this.platform.createModel(model));
     await Promise.all(modelCreation);
     await new Promise((resolve, reject) => {
