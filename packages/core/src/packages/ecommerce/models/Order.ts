@@ -7,7 +7,7 @@ export const Order: PModel = {
     prefix: 'Order'
   },
   fields: {
-    user: {
+    customer: {
       type: "relationship",
       ref: "User"
     },
@@ -28,3 +28,5 @@ export const Order: PModel = {
     historyTracking: false
   }
 }
+
+// need to create order items

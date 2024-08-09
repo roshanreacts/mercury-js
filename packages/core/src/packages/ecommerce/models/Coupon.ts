@@ -10,13 +10,23 @@ export const Coupon: PModel = {
     code: {
       type: "string"
     },
-    discount: {
-      type: "string"
+    discountType: {
+      type: "enum",
+      enum: ["PERCENTAGE", "FIXED_AMOUNT"],
+      enumType: 'string',
+    },
+    discountValue: {
+      type: "number"
+    },
+    maxDiscountPrice: {
+      type: "number"
+    },
+    minOrderPrice: {
+      type: "number"
     },
     expiryDate: {
       type: "date"
     }
-
   },
   options: {
     historyTracking: false

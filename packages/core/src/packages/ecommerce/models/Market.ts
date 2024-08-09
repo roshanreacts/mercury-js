@@ -10,17 +10,23 @@ export const Market: PModel = {
     name: {
       type: "string",
     },
+    description: {
+      type: "string",
+    },
+    location: {
+      type: "string",
+    },
+    isActive: {
+      type: "boolean",
+    },
     currency: {
-      type: "float"
+      type: "string"
     },
     catalog: {
       type: "relationship",
-      ref: "Catalog"
+      ref: "Catalog",
+      many: true
     },
-    user: {
-      type: "relationship",
-      ref: "User"
-    }
   },
   options: {
     historyTracking: false
