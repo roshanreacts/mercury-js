@@ -4,6 +4,7 @@
 dist
 tmp
 /out-tsc
+.nx
 
 # dependencies
 node_modules
@@ -41,3 +42,6 @@ Thumbs.db
 
 # Next.js
 .next
+
+
+storybook-static
