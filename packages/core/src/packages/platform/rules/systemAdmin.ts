@@ -107,5 +107,14 @@ export const SystemAdminRules = [
       delete: true,
     },
   },
+  {
+    modelName: "File",
+    access: {
+      create: true,
+      read: true,
+      update: true,
+      delete: true,
+    },
+  },
 ];
 
