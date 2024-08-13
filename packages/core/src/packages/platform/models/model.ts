@@ -30,6 +30,10 @@ export class Model {
         description: {
           type: 'string',
         },
+        key: {
+          type: "relationship",
+          ref: "ModelField"
+        },
         prefix: {
           type: 'string',
           // required: true,

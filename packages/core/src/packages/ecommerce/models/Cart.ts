@@ -15,9 +15,15 @@ export const Cart: PModel = {
     totalAmount: {
       type: "string",
     },
+    cartToken:{
+      type: "string",
+      unique: true
+    },
     cartItems:{
-      type: "relationship",
+      type: "virtual",
       ref: "CartItem",
+      localField: "_id",
+      foreignField: "cart",
       many: true
     },
   },

@@ -21,6 +21,10 @@ export const CartItem: PModel = {
     },
     amount: {
       type: "number",
+    },
+    cart: {
+      type: "relationship",
+      ref: "Cart"
     }
   },
   options: {
