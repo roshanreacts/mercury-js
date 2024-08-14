@@ -62,6 +62,11 @@
       "require": "./dist/cjs/plugins/logify/index.js",
       "import": "./dist/esm/plugins/logify/index.js",
       "types": "./dist/esm/src/plugins/logify/index.d.ts"
+    },
+    "./plugins/razorpay": {
+      "require": "./dist/cjs/plugins/razorpay/index.js",
+      "import": "./dist/esm/plugins/razorpay/index.js",
+      "types": "./dist/esm/src/plugins/razorpay/index.d.ts"
     }
   },
   "files": [

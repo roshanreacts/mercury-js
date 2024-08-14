@@ -2,38 +2,36 @@
 import type { Platform } from '../../packages/platform';
 //@ts-ignore
 import { v4 as uuidv4 } from 'uuid';
-import { Cart, CartItem, Catalog, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, User } from './models';
+import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, User } from './models';
 import { handleAddToCartForExistingCart } from './utils';
 
 export interface EcommerceConfig {
   options?: any;
+  plugins?: any;
 }
 
 export default (config?: EcommerceConfig) => {
   return async (platform: Platform) => {
-    const ecommerce = new Ecommerce(platform);
+    const ecommerce = new Ecommerce(platform, config?.plugins);
     ecommerce.createModels();
+    await ecommerce.installPlugins();
   };
 };
 
-class Ecommerce {
+export class Ecommerce {
   public platform: Platform;
-  constructor(platform: Platform) {
+  public plugins: Array<(commerce: Ecommerce) => void> = [];;
+  constructor(platform: Platform, plugins: any = []) {
     this.platform = platform;
+    this.plugins = plugins;
   }
 
+  async installPlugins() {
+    await Promise.all(this.plugins.map(pkg => pkg(this as Ecommerce)));
+  }
 
-  // check the flow 
-  // async createModels() {
-  //   await this.platform.createModel({
-  //     info: { name: "User", label: "User", description: "User model", managed: true, prefix: "USR" },
-  //     fields: User,
-  //     options: { historyTracking: false }
-  //   });
-  // }
-  // @AfterHook()
   async createModels() {
-    const models = [Product, Cart, Catalog, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem];
+    const models = [Address, Product, Cart, Collection, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem];
     const modelCreation = models.map(model => this.platform.createModel(model));
     await Promise.all(modelCreation);
     this.platform.mercury.addGraphqlSchema(`
@@ -89,7 +87,6 @@ class Ecommerce {
                 },
                 ctx.user
               );
-
               await cartItemSchema.create({
                 cart: cart._id,
                 amount: (productPrice || 0) * quantity,
@@ -97,18 +94,14 @@ class Ecommerce {
                 priceBookItem,
                 quantity,
               });
-
               newToken = token;
             } else if (!customer && cartToken) {
               const cart = await mercuryInstance.Cart.get({ cartToken }, ctx.user);
-
               await handleAddToCartForExistingCart(cart._id, this.platform.mercury, ctx.user, productItem, priceBookItem, quantity, productPrice)
-
             }
             else if (customer) {
               const cart = await mercuryInstance.Cart.get({ customer }, ctx.user);
               await handleAddToCartForExistingCart(cart._id, this.platform.mercury, ctx.user, productItem, priceBookItem, quantity, productPrice)
-
             }
             return {
               message: "Product added successfully to the cart",
@@ -134,5 +127,12 @@ class Ecommerce {
         }
       );
     });
+  }
+
+  async paymentHooks() {
+    const Payment = this.platform.mercury.db.Payment;
+    this.platform.mercury.hook.after('UPDATE_PAYMENT_RECORD', async function (this: any) {
+      console.log("Handle Orders Creation")
+    })
   }
 }

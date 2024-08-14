@@ -29,7 +29,6 @@ export const User:PModel={
           enumType:"string",
           enum:["ACTIVE","IN_ACTIVE"]
         }
-      
       },
       options: {
        historyTracking: false

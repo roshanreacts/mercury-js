@@ -22,9 +22,9 @@ export const Market: PModel = {
     currency: {
       type: "string"
     },
-    catalog: {
+    collections: {
       type: "relationship",
-      ref: "Catalog",
+      ref: "Collection",
       many: true
     },
   },

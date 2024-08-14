@@ -17,13 +17,15 @@ export const Product: PModel = {
       type: "relationship",
       ref: "Category",
       // many: true -> research
+    },
+    isBundledProduct: {
+      type: "boolean"
+    },
+    bundledProducts: {
+      type: "relationship",
+      ref: "Product",
+      many: true
     }
-    // productItems: {
-    //   type: "virtual",
-    //   ref: "ProductItem",
-    //   foreignField: 'product',
-    //   localField: '_id'
-    // }
   },
   options: {
     historyTracking: false

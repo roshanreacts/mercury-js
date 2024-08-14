@@ -1,10 +1,10 @@
-export const Catalog: PModel = {
+export const Collection: PModel = {
   info: {
-    name: 'Catalog',
-    label: 'Catalog',
-    description: 'Catalog model',
+    name: 'Collection',
+    label: 'Collection',
+    description: 'Collection model',
     managed: true,
-    prefix: 'CATALOG'
+    prefix: 'COLLECTION'
   },
   fields: {
     name: {

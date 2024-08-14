@@ -22,7 +22,6 @@ export const Payment: PModel = {
     date: {
       type: "date"
     }
-
   },
   options: {
     historyTracking: false

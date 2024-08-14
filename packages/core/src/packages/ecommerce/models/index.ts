@@ -1,6 +1,6 @@
 export { User } from "./User"
 export { Cart } from "./Cart";
-export { Catalog } from "./Catalog";
+export { Collection } from "./Collection";
 export { Coupon } from "./Coupon";
 export { Market } from "./Market";
 export { Order } from "./Order";
@@ -12,3 +12,4 @@ export { ProductAttribute } from "./ProductAttribute";
 export { ProductItem } from "./ProductItem";
 export { CartItem } from "./CartItem";
 export { Category } from "./Category";
+export { Address } from "./Address";
