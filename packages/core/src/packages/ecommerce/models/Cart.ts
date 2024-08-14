@@ -16,8 +16,7 @@ export const Cart: PModel = {
       type: "string",
     },
     cartToken:{
-      type: "string",
-      unique: true
+      type: "string"
     },
     cartItems:{
       type: "virtual",
@@ -28,6 +27,17 @@ export const Cart: PModel = {
     },
   },
   options: {
-    historyTracking: false
+    historyTracking: false,
+    indexes: [
+      {
+        fields: {
+          customer: 1,
+          cartToken: 1,
+        },
+        options: {
+          unique: true,
+        },
+      },
+    ]
   }
 }

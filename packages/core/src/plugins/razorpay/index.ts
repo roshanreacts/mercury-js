@@ -44,11 +44,11 @@ class RazorPay {
       }
 
       type paymentOrder {
-        order: Order
+        order: OrderData
         paymentId: String
       }
 
-      type Order {
+      type OrderData {
         id: String
         amount: Int
         currency: String

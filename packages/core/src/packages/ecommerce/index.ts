@@ -39,8 +39,8 @@ export class Ecommerce {
     await Promise.all(modelCreation);
     this.platform.mercury.addGraphqlSchema(`
       type Mutation {
-            login(email: String, password: String, cartToken: String): loginResponse
-            signUp(email: String, password: String, firstName: String, lastName: String, profile: String): Response
+            login(email: String!, password: String!, cartToken: String): loginResponse
+            signUp(email: String!, password: String!, firstName: String!, lastName: String!, profile: String, mobile: String): Response
             addCartItem(cartToken: String, productItem:String!,priceBookItem:String!,customer:String,quantity:Int!, productPrice: Int!): AddCartItemResponse
           }
       type loginResponse {
