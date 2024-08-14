@@ -14,6 +14,9 @@ export const ProductItem: PModel = {
     description: {
       type: "string",
     },
+    name: {
+      type: "string",
+    },
     productAttribute: {
       type: "relationship",
       ref: "ProductAttribute",

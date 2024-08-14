@@ -21,6 +21,9 @@ export const PriceBookItem: PModel = {
     priceBook: {
       type: "relationship",
       ref: "PriceBook"
+    },
+    offerPrice: {
+      type: "number"
     }
   },
   options: {
