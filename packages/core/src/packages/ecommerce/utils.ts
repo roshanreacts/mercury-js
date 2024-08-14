@@ -1,6 +1,10 @@
+import { GraphQLError } from 'graphql';
 import type { Mercury } from '../../mercury';
 export const handleAddToCartForExistingCart = async (cartId: string, mercury: Mercury, user: any, productItem: string, priceBookItem: string, quantity: number, productPrice: number) => {
   const mercuryInstance = mercury.db
+  if(!cartId){
+    throw new GraphQLError("Something went wrong")
+  }
   const cartItem = await mercuryInstance.CartItem.get(
     {
       cart: cartId,

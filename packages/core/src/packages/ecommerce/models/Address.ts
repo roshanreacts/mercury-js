@@ -10,7 +10,7 @@ export const Address: PModel = {
   fields: {
     customer: {
       type: "relationship",
-      ref: "User"
+      ref: "Customer"
     },
     type: {
       type: "enum",

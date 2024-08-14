@@ -1,4 +1,4 @@
-export { User } from "./User"
+export { Customer } from "./Customer"
 export { Cart } from "./Cart";
 export { Collection } from "./Collection";
 export { Coupon } from "./Coupon";

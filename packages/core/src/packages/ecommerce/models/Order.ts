@@ -9,7 +9,7 @@ export const Order: PModel = {
   fields: {
     customer: {
       type: "relationship",
-      ref: "User"
+      ref: "Customer"
     },
     date: {
       type: "date"

@@ -2,8 +2,11 @@
 import type { Platform } from '../../packages/platform';
 //@ts-ignore
 import { v4 as uuidv4 } from 'uuid';
-import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, User } from './models';
+import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, Customer } from './models';
 import { handleAddToCartForExistingCart } from './utils';
+import { GraphQLError } from 'graphql';
+//@ts-ignore
+import jwt from 'jsonwebtoken';
 
 export interface EcommerceConfig {
   options?: any;
@@ -31,12 +34,12 @@ export class Ecommerce {
   }
 
   async createModels() {
-    const models = [Address, Product, Cart, Collection, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem];
+    const models = [Address, Product, Cart, Customer, Collection, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem];
     const modelCreation = models.map(model => this.platform.createModel(model));
     await Promise.all(modelCreation);
     this.platform.mercury.addGraphqlSchema(`
       type Mutation {
-            login(email: String, password: String): loginResponse
+            login(email: String, password: String, cartToken: String): loginResponse
             signUp(email: String, password: String, firstName: String, lastName: String, profile: String): Response
             addCartItem(cartToken: String, productItem:String!,priceBookItem:String!,customer:String,quantity:Int!, productPrice: Int!): AddCartItemResponse
           }
@@ -108,6 +111,79 @@ export class Ecommerce {
               cartToken: newToken || null
             };
           },
+          signUp: async (root: any, { email, password, firstName, lastName, profile, mobile }: { email: string, mobile: string, password: string, firstName: string, lastName: string, profile: string }, ctx: any) => {
+            const mercuryDBInstance = this.platform.mercury.db;
+            const customer = await mercuryDBInstance.Customer.create({
+              email,
+              firstName,
+              lastName,
+              password,
+              profile,
+              mobile
+            }, ctx?.user);
+            await mercuryDBInstance.Cart.create({
+              customer: customer._id,
+              totalAmount: 0
+            }, ctx?.user);
+            return {
+              id: customer._id,
+              msg: "Signup successful"
+            }
+          },
+          login: async (root: any, { email, password, cartToken }: { email: string, password: string, cartToken: string }, ctx: any) => {
+            const mercuryDBInstance = this.platform.mercury.db;
+            const customer = await mercuryDBInstance.Customer.get({ email }, ctx.user);
+            if (!customer) {
+              throw new GraphQLError('Invalid email or password');
+            }
+            const isPasswordValid = await customer.verifyPassword(password);
+            if (!isPasswordValid) {
+              throw new GraphQLError('Invalid email or password');
+            }
+            const token = jwt.sign({ id: customer._id, email: customer.email }, "JWT_SECRET", { expiresIn: '2d' });
+
+            const cart = await mercuryDBInstance.Cart.get({ cartToken, customer: customer?._id }, ctx.user);
+
+            if (!cart?.id && cartToken) {
+              const anonymousCart = await mercuryDBInstance.Cart.get({ cartToken }, ctx.user);
+              if (anonymousCart.id) {
+                const anonymousCartItemList = await mercuryDBInstance.CartItem.list({ cart: anonymousCart?.id }, ctx.user);
+                const customerCart = await mercuryDBInstance.Cart.get({ customer: customer?._id }, ctx.user);
+                const customerCartItemList = await mercuryDBInstance.CartItem.list({ cart: customerCart?.id }, ctx.user);
+                const customerCartItemMap = new Map<string, any>();
+                customerCartItemList.forEach((item: any) => {
+                  const key = `${item.productItem.toString()}_${item.priceBookItem.toString()}`;
+                  customerCartItemMap.set(key, item);
+                });
+
+                for (const anonItem of anonymousCartItemList) {
+                  const key = `${anonItem.productItem.toString()}_${anonItem.priceBookItem.toString()}`;
+
+                  if (customerCartItemMap.has(key)) {
+                    const existingItem = customerCartItemMap.get(key);
+                    existingItem.quantity += anonItem.quantity;
+                    existingItem.amount += anonItem.amount;
+
+                    await mercuryDBInstance.CartItem.update(existingItem._id, {
+                      quantity: existingItem.quantity,
+                      amount: existingItem.amount
+                    }, ctx.user);
+                    await mercuryDBInstance.CartItem.delete(anonItem._id, ctx.user);
+                  } else {
+                    anonItem.cart = customerCart._id;
+                    await mercuryDBInstance.CartItem.update(anonItem._id, anonItem, ctx.user);
+                  }
+                }
+                await mercuryDBInstance.Cart.delete(anonymousCart._id, ctx.user);
+              }
+            }
+
+            return {
+              id: customer._id,
+              profile: customer.profile,
+              session: token
+            };
+          }
         }
       }
     )

@@ -10,7 +10,7 @@ export const Cart: PModel = {
   fields: {
     customer: {
       type: "relationship",
-      ref: "User"
+      ref: "Customer"
     },
     totalAmount: {
       type: "string",
