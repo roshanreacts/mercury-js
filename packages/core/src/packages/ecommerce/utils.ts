@@ -2,7 +2,7 @@ import { GraphQLError } from 'graphql';
 import type { Mercury } from '../../mercury';
 export const handleAddToCartForExistingCart = async (cartId: string, mercury: Mercury, user: any, productItem: string, priceBookItem: string, quantity: number, productPrice: number) => {
   const mercuryInstance = mercury.db
-  if(!cartId){
+  if (!cartId) {
     throw new GraphQLError("Something went wrong")
   }
   const cartItem = await mercuryInstance.CartItem.get(
@@ -30,4 +30,13 @@ export const handleAddToCartForExistingCart = async (cartId: string, mercury: Me
       upsert: true
     }
   );
+
+  await recalculateTotalAmountOfCart(cartId, mercury, user)
 }
+
+
+export const recalculateTotalAmountOfCart = async (cart: any, mercury: Mercury, user: any) => {
+  const cartItems = await mercury.db.CartItem.list({ cart }, user);
+  const totalAmount = cartItems.reduce((amount: number, item: any) => amount + item.amount, 0);
+  await mercury.db.Cart.update(cart, {totalAmount}, user);
+} 

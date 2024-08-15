@@ -3,10 +3,11 @@ import type { Platform } from '../../packages/platform';
 //@ts-ignore
 import { v4 as uuidv4 } from 'uuid';
 import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, Customer } from './models';
-import { handleAddToCartForExistingCart } from './utils';
+import { handleAddToCartForExistingCart, recalculateTotalAmountOfCart } from './utils';
 import { GraphQLError } from 'graphql';
 //@ts-ignore
 import jwt from 'jsonwebtoken';
+import mercury from 'src/mercury';
 
 export interface EcommerceConfig {
   options?: any;
@@ -17,6 +18,7 @@ export default (config?: EcommerceConfig) => {
   return async (platform: Platform) => {
     const ecommerce = new Ecommerce(platform, config?.plugins);
     ecommerce.createModels();
+    ecommerce.cartHooks();
     await ecommerce.installPlugins();
   };
 };
@@ -167,11 +169,11 @@ export class Ecommerce {
                     await mercuryDBInstance.CartItem.update(existingItem._id, {
                       quantity: existingItem.quantity,
                       amount: existingItem.amount
-                    }, ctx.user);
+                    }, ctx.user, { skipHook: true });
                     await mercuryDBInstance.CartItem.delete(anonItem._id, ctx.user);
                   } else {
                     anonItem.cart = customerCart._id;
-                    await mercuryDBInstance.CartItem.update(anonItem._id, anonItem, ctx.user);
+                    await mercuryDBInstance.CartItem.update(anonItem._id, anonItem, ctx.user, { skipHook: true });
                   }
                 }
                 await mercuryDBInstance.Cart.delete(anonymousCart._id, ctx.user);
@@ -187,6 +189,7 @@ export class Ecommerce {
         }
       }
     )
+
     await new Promise((resolve, reject) => {
       this.platform.mercury.hook.execAfter(
         `PLATFORM_INITIALIZE`,
@@ -205,6 +208,33 @@ export class Ecommerce {
     });
   }
 
+
+  async cartHooks() {
+    const thisPlatform = this.platform;
+    this.platform.mercury.hook.before('UPDATE_CARTITEM_RECORD', async function (this: any) {
+      if (!this.options.skipHook) {
+        const quantity = this.options?.args?.input?.quantity;
+        const cartItem = await thisPlatform.mercury.db.CartItem.get({ _id: this.options?.args?.input?.id }, this?.user, {
+          populate: [
+            {
+              path: "priceBookItem"
+            },
+          ]
+        })
+        this.options.args.input.amount = (quantity * cartItem?.priceBookItem?.offerPrice) || 0;
+      }
+    })
+
+    this.platform.mercury.hook.after('UPDATE_CARTITEM_RECORD', async function (this: any) {
+      const cartItem = await thisPlatform.mercury.db.CartItem.get({_id: this?.record?.id}, this.user);
+      await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
+    })
+
+    this.platform.mercury.hook.after('CREATE_CARTITEM_RECORD', async function (this: any) {      
+      const cartItem = await thisPlatform.mercury.db.CartItem.get({_id: this?.record?.id}, this.user);
+      await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
+    })
+  }
   async paymentHooks() {
     const Payment = this.platform.mercury.db.Payment;
     this.platform.mercury.hook.after('UPDATE_PAYMENT_RECORD', async function (this: any) {
