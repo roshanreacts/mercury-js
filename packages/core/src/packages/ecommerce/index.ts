@@ -234,6 +234,11 @@ export class Ecommerce {
       const cartItem = await thisPlatform.mercury.db.CartItem.get({_id: this?.record?.id}, this.user);
       await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
     })
+
+    this.platform.mercury.hook.after('DELETE_CARTITEM_RECORD', async function (this: any) {      
+      const cartItem = await thisPlatform.mercury.db.CartItem.get({_id: this?.record?.id}, this.user);
+      await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
+    })
   }
   async paymentHooks() {
     const Payment = this.platform.mercury.db.Payment;
