@@ -6,6 +6,7 @@ export const Category: PModel = {
     description: 'Category model',
     managed: true,
     prefix: 'CATEGORY',
+    key: 'name'
   },
   fields: {
     name: {

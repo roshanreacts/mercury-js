@@ -4,7 +4,8 @@ export const Collection: PModel = {
     label: 'Collection',
     description: 'Collection model',
     managed: true,
-    prefix: 'COLLECTION'
+    prefix: 'COLLECTION',
+    key: "name",
   },
   fields: {
     name: {

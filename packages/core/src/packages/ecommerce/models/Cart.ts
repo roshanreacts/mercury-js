@@ -13,7 +13,7 @@ export const Cart: PModel = {
       ref: "Customer"
     },
     totalAmount: {
-      type: "string",
+      type: "float"
     },
     cartToken:{
       type: "string"

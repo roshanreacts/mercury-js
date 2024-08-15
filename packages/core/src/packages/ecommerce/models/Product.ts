@@ -4,7 +4,8 @@ export const Product: PModel = {
     label: 'Product',
     description: 'Product model',
     managed: true,
-    prefix: 'PRODUCT'
+    prefix: 'PRODUCT',
+    key: "name"
   },
   fields: {
     name: {

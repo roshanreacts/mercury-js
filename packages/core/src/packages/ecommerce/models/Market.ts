@@ -4,7 +4,8 @@ export const Market: PModel = {
     label: 'Market',
     description: 'Market model',
     managed: true,
-    prefix: 'MARKET'
+    prefix: 'MARKET',
+    key: "name"
   },
   fields: {
     name: {

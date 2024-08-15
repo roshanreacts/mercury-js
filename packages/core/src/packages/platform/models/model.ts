@@ -31,8 +31,7 @@ export class Model {
           type: 'string',
         },
         key: {
-          type: "relationship",
-          ref: "ModelField"
+          type: "string"
         },
         prefix: {
           type: 'string',

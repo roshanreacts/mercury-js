@@ -6,6 +6,7 @@ export const Address: PModel = {
     description: 'Address model',
     managed: true,
     prefix: 'ADDRESS',
+    key: "name"
   },
   fields: {
     customer: {

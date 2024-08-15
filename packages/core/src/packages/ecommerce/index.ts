@@ -236,8 +236,7 @@ export class Ecommerce {
     })
 
     this.platform.mercury.hook.after('DELETE_CARTITEM_RECORD', async function (this: any) {      
-      const cartItem = await thisPlatform.mercury.db.CartItem.get({_id: this?.options?.args?.deleteCartItemId}, this.user);
-      await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
+      await recalculateTotalAmountOfCart(this?.deletedRecord?.cart, thisPlatform.mercury, this.user);
     })
   }
   async paymentHooks() {

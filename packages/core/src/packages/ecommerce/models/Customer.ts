@@ -4,7 +4,8 @@ export const Customer: PModel = {
     label: 'Customer',
     description: 'Customer model',
     managed: true,
-    prefix: 'CUSTOMER'
+    prefix: 'CUSTOMER',
+    key: "firstName"
   },
   fields: {
     firstName: {

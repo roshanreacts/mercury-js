@@ -4,7 +4,8 @@ export const PriceBook: PModel = {
     label: 'PriceBook',
     description: 'PriceBook model',
     managed: true,
-    prefix: 'PRICE_BOOK'
+    prefix: 'PRICE_BOOK',
+    key: "name"
   },
   fields: {
     currency: {

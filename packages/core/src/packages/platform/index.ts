@@ -194,6 +194,7 @@ public async createTab(modelNames:string[]){
     return await this.mercury.db.Model.mongoModel.create({
       name: model.name,
       label: model.name.toUpperCase(),
+      key: model.key,
       description: model.description,
       managed: model.managed,
       prefix: model.prefix

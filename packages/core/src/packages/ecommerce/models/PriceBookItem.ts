@@ -4,7 +4,7 @@ export const PriceBookItem: PModel = {
     label: 'PriceBookItem',
     description: 'PriceBookItem model',
     managed: true,
-    prefix: 'PRICE_BOOK_ITEM',
+    prefix: 'PRICE_BOOK_ITEM'
   },
   // coupons handle it from here
   fields: {
