@@ -251,15 +251,13 @@ export class Ecommerce {
         const invoice = await thisPlatform.mercury.db.Invoice.get({ payment: this?.record?.id }, this.user);
         const cart = await thisPlatform.mercury.db.Cart.get({ customer: invoice.customer }, this.user);
         const cartItems = await thisPlatform.mercury.db.CartItem.list({ cart: cart.id }, this.user);
-        console.log(cartItems);
         const invoiceLinePromises = cartItems.map(async (cartItem: any) => {
-          const invoiceLine = await thisPlatform.mercury.db.InvoiceLine.create({
+          await thisPlatform.mercury.db.InvoiceLine.create({
             invoice: invoice.id,
             amount: cartItem.amount,
             quantity: cartItem.quantity,
             productItem: cartItem.productItem
           }, this.user);
-          console.log(invoiceLine);
           await thisPlatform.mercury.db.CartItem.delete(cartItem.id, this.user);
         })
         await Promise.all(invoiceLinePromises);
