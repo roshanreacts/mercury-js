@@ -21,6 +21,10 @@ export const InvoiceLine: PModel = {
         invoice: {
             type: "relationship",
             ref: "Invoice"
+        },
+        PriceBookItem: {
+            type: "relationship",
+            ref: "PriceBookItem"
         }
     },
     options: {

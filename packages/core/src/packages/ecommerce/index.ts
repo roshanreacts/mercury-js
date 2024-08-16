@@ -256,7 +256,8 @@ export class Ecommerce {
             invoice: invoice.id,
             amount: cartItem.amount,
             quantity: cartItem.quantity,
-            productItem: cartItem.productItem
+            productItem: cartItem.productItem,
+            priceBookItem: cartItem.priceBookItem
           }, this.user);
           await thisPlatform.mercury.db.CartItem.delete(cartItem.id, this.user);
         })

@@ -15,7 +15,7 @@ export const Invoice: PModel = {
     totalAmount: {
       type: "float"
     },
-    shipingAddress: {
+    shippingAddress: {
       type: "relationship",
       ref: "Address"
     },
@@ -28,7 +28,7 @@ export const Invoice: PModel = {
       ref: "Payment",
       unique: true
     },
-    invoiceItems: {
+    invoiceLines: {
       type: "virtual",
       ref: "InvoiceLine",
       localField: "_id",
