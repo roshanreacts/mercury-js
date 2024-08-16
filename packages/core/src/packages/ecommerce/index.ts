@@ -257,7 +257,7 @@ export class Ecommerce {
             amount: cartItem.amount,
             quantity: cartItem.quantity,
             productItem: cartItem.productItem,
-            priceBookItem: cartItem.priceBookItem
+            pricePerUnit: cartItem.amount / (cartItem.quantity || 1)
           }, this.user);
           await thisPlatform.mercury.db.CartItem.delete(cartItem.id, this.user);
         })

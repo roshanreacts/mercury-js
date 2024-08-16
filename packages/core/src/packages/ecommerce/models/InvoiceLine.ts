@@ -22,9 +22,8 @@ export const InvoiceLine: PModel = {
             type: "relationship",
             ref: "Invoice"
         },
-        PriceBookItem: {
-            type: "relationship",
-            ref: "PriceBookItem"
+        pricePerUnit: {
+            type: "float"
         }
     },
     options: {
