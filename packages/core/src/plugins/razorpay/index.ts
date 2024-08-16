@@ -39,13 +39,14 @@ class RazorPay {
     this.ecommerce.platform.mercury.addGraphqlSchema(
       `
       type Mutation {
-        initiatePayment(amount: Int, currency: String): paymentOrder
+        initiatePayment(amount: Int, currency: String, shippingAddress: String!, billingAddress: String!, customer: String!): paymentOrder
         capturePayment(paymentId: String, razorpayPaymentId: String, razorpayOrderId: String, razorPaySignature: String): String
       }
 
       type paymentOrder {
         order: OrderData
         paymentId: String
+        invoice: String
       }
 
       type OrderData {
@@ -56,13 +57,14 @@ class RazorPay {
     `,
       {
         Mutation: {
-          initiatePayment: async (root: any, { amount, currency }: { amount: number; currency: string }, ctx: any) => {
+          initiatePayment: async (root: any, { amount, currency, shippingAddress, billingAddress, customer }: { amount: number; currency: string, shippingAddress: string, billingAddress: string, customer: string }, ctx: any) => {
             try {
               const order = this.razorPay.orders.create({
                 amount: amount * 100,
                 currency: currency,
                 receipt: "TEST_RECEIPT",
               });
+              
               const payment = await this.ecommerce.platform.mercury.db.Payment.create({
                 amount: amount,
                 date: Date.now(),
@@ -71,8 +73,18 @@ class RazorPay {
                 razorPayOrderStatus: order.status,
                 attempts: order.attempts,
                 currency: order.currency,
-              }, { id: '1', profile: 'SystemAdmin' }, {});
-              return { order: order, paymentId: payment.id }
+              }, ctx.user, {});
+              
+              const invoice = await this.ecommerce.platform.mercury.db.Invoice.create({
+                customer,
+                billingAddress,
+                shippingAddress,
+                totalAmount: amount,
+                payment: payment.id,
+                status: "Pending"
+              }, ctx.user);
+              
+              return { order: order, paymentId: payment.id, invoice: invoice.id }
             } catch (error: any) {
               throw new GraphQLError(error);
             }

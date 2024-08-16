@@ -8,6 +8,8 @@ import { GraphQLError } from 'graphql';
 //@ts-ignore
 import jwt from 'jsonwebtoken';
 import mercury from 'src/mercury';
+import { Invoice } from './models/Invoice';
+import { InvoiceLine } from './models/InvoiceLine';
 
 export interface EcommerceConfig {
   options?: any;
@@ -19,6 +21,7 @@ export default (config?: EcommerceConfig) => {
     const ecommerce = new Ecommerce(platform, config?.plugins);
     ecommerce.createModels();
     ecommerce.cartHooks();
+    ecommerce.paymentHooks();
     await ecommerce.installPlugins();
   };
 };
@@ -36,7 +39,7 @@ export class Ecommerce {
   }
 
   async createModels() {
-    const models = [Address, Product, Cart, Customer, Collection, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem];
+    const models = [Address, Product, Cart, Customer, Collection, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem, Invoice, InvoiceLine];
     const modelCreation = models.map(model => this.platform.createModel(model));
     await Promise.all(modelCreation);
     this.platform.mercury.addGraphqlSchema(`
@@ -226,23 +229,46 @@ export class Ecommerce {
     })
 
     this.platform.mercury.hook.after('UPDATE_CARTITEM_RECORD', async function (this: any) {
-      const cartItem = await thisPlatform.mercury.db.CartItem.get({_id: this?.record?.id}, this.user);
+      const cartItem = await thisPlatform.mercury.db.CartItem.get({ _id: this?.record?.id }, this.user);
       await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
     })
 
-    this.platform.mercury.hook.after('CREATE_CARTITEM_RECORD', async function (this: any) {      
-      const cartItem = await thisPlatform.mercury.db.CartItem.get({_id: this?.record?.id}, this.user);
+    this.platform.mercury.hook.after('CREATE_CARTITEM_RECORD', async function (this: any) {
+      const cartItem = await thisPlatform.mercury.db.CartItem.get({ _id: this?.record?.id }, this.user);
       await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
     })
 
-    this.platform.mercury.hook.after('DELETE_CARTITEM_RECORD', async function (this: any) {      
+    this.platform.mercury.hook.after('DELETE_CARTITEM_RECORD', async function (this: any) {
       await recalculateTotalAmountOfCart(this?.deletedRecord?.cart, thisPlatform.mercury, this.user);
     })
   }
   async paymentHooks() {
     const Payment = this.platform.mercury.db.Payment;
+    const thisPlatform = this.platform;
     this.platform.mercury.hook.after('UPDATE_PAYMENT_RECORD', async function (this: any) {
-      console.log("Handle Orders Creation")
+      console.log("Handle Orders Creation", this)
+      if (this?.record?.status === "SUCCESS") {
+        const invoice = await thisPlatform.mercury.db.Invoice.get({ payment: this?.record?.id }, this.user);
+        const cart = await thisPlatform.mercury.db.Cart.get({ customer: invoice.customer }, this.user);
+        const cartItems = await thisPlatform.mercury.db.CartItem.list({ cart: cart.id }, this.user);
+        const invoiceLinePromises = cartItems.map(async (cartItem: any) => {
+          await thisPlatform.mercury.db.InvoiceLine.create({
+            invoice: invoice.id,
+            amount: cartItem.amount,
+            quantity: cartItem.quantity,
+            productItem: cartItem.productItem
+          }, this.user);
+          await thisPlatform.mercury.db.CartItem.delete(cartItem.id, this.user);
+        })
+        await Promise.all(invoiceLinePromises);
+        await thisPlatform.mercury.db.Cart.update(cart.id, { totalAmount: 0 }, this.user);
+        await thisPlatform.mercury.db.Order.create({
+          customer: invoice.customer,
+          date: new Date().toISOString(),
+          invoice: invoice.id
+        }, this.user)
+        await thisPlatform.mercury.db.Invoice.update(invoice.id, { status: "Paid" }, this.user)
+      }
     })
   }
 }

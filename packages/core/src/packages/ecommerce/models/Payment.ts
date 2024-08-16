@@ -7,20 +7,50 @@ export const Payment: PModel = {
     prefix: 'Payment'
   },
   fields: {
-    order: {
-      type: "relationship",
-      ref: "Order"
-    },
     method: {
       type: "enum",
       enumType: "string",
       enum: ["OFFLINE", "ONLINE"]
+    },
+    gateway: {
+      type: "enum",
+      enum: ["RAZORPAY"],
+      enumType: "string",
     },
     amount: {
       type: "string"
     },
     date: {
       type: "date"
+    },
+    razorPayPaymentId: {
+      type: "string"
+    },
+    razorPayPaymentStatus: {
+      type: "string"
+    },
+    razorPaySignature: {
+      type: "string"
+    },
+    razorPayOrderId: {
+      type: "string"
+    },
+    razorPayOrderStatus: {
+      type: "string"
+    },
+    attempts: {
+      type: "number"
+    },
+    currency: {
+      type: "string"
+    },
+    status: {
+      type: "enum",
+      enum: ["SUCCESS", "FAILURE"],
+      enumType: "string"
+    },
+    mode:{
+      type: "string"
     }
   },
   options: {

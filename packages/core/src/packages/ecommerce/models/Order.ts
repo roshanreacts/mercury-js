@@ -14,15 +14,10 @@ export const Order: PModel = {
     date: {
       type: "date"
     },
-    totalAmount: {
-      type: "string"
-    },
-    status: {
-      type: "enum",
-      enumType: "string",
-      enum: ["PENDING", "APPROVED"]
+    invoice: {
+      type: "relationship",
+      ref: "Invoice"
     }
-
   },
   options: {
     historyTracking: false
