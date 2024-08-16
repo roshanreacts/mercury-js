@@ -247,17 +247,20 @@ export class Ecommerce {
     const thisPlatform = this.platform;
     this.platform.mercury.hook.after('UPDATE_PAYMENT_RECORD', async function (this: any) {
       console.log("Handle Orders Creation", this)
-      if (this?.record?.status === "SUCCESS") {
+      const payment = await thisPlatform.mercury.db.Payment.get({ _id: this?.record?.id }, this.user);
+      if (this?.payment?.status === "SUCCESS") {
         const invoice = await thisPlatform.mercury.db.Invoice.get({ payment: this?.record?.id }, this.user);
         const cart = await thisPlatform.mercury.db.Cart.get({ customer: invoice.customer }, this.user);
         const cartItems = await thisPlatform.mercury.db.CartItem.list({ cart: cart.id }, this.user);
+        console.log(cartItems);
         const invoiceLinePromises = cartItems.map(async (cartItem: any) => {
-          await thisPlatform.mercury.db.InvoiceLine.create({
+          const invoiceLine = await thisPlatform.mercury.db.InvoiceLine.create({
             invoice: invoice.id,
             amount: cartItem.amount,
             quantity: cartItem.quantity,
             productItem: cartItem.productItem
           }, this.user);
+          console.log(invoiceLine);
           await thisPlatform.mercury.db.CartItem.delete(cartItem.id, this.user);
         })
         await Promise.all(invoiceLinePromises);

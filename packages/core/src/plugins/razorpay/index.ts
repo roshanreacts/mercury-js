@@ -64,7 +64,7 @@ class RazorPay {
                 currency: currency,
                 receipt: "TEST_RECEIPT",
               });
-              
+
               const payment = await this.ecommerce.platform.mercury.db.Payment.create({
                 amount: amount,
                 date: Date.now(),
@@ -74,7 +74,7 @@ class RazorPay {
                 attempts: order.attempts,
                 currency: order.currency,
               }, ctx.user, {});
-              
+
               const invoice = await this.ecommerce.platform.mercury.db.Invoice.create({
                 customer,
                 billingAddress,
@@ -83,7 +83,7 @@ class RazorPay {
                 payment: payment.id,
                 status: "Pending"
               }, ctx.user);
-              
+
               return { order: order, paymentId: payment.id, invoice: invoice.id }
             } catch (error: any) {
               throw new GraphQLError(error);
@@ -102,7 +102,7 @@ class RazorPay {
                 process.env.RAZOR_PAY_SECRET_KEY || ""
               );
               const status = isPaymentValid ? "SUCCESS" : "FAILURE";
-              await PaymentSchema.update(paymentId,
+              const payment = await PaymentSchema.update(paymentId,
                 {
                   mode: RazorpayPayment.method,
                   razorPayPaymentId: razorpayPaymentId,
@@ -112,11 +112,10 @@ class RazorPay {
                   attempts: RazorPayOrder.attempts,
                   status: status,
                 },
-                {
-                  id: '1',
-                  profile: 'SystemAdmin'
-                }
+                ctx.user
               );
+              console.log("Payment Update", payment);
+
               if (isPaymentValid) return "Payment is successful";
               throw new GraphQLError("Invalid Payment Signature");
             } catch (error: any) {
