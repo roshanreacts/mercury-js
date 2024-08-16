@@ -114,7 +114,6 @@ class RazorPay {
                 },
                 ctx.user
               );
-              console.log("Payment Update", payment);
 
               if (isPaymentValid) return "Payment is successful";
               throw new GraphQLError("Invalid Payment Signature");
