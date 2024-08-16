@@ -13,11 +13,11 @@ export const Address: PModel = {
       type: "relationship",
       ref: "Customer"
     },
-    type: {
-      type: "enum",
-      enumType: "string",
-      enum: ["SHIPPING", "BILLING"]
-    },
+    // type: {
+    //   type: "enum",
+    //   enumType: "string",
+    //   enum: ["SHIPPING", "BILLING"]
+    // },
     name: {
       type: "string",
     },
