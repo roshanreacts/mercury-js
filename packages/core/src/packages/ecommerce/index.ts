@@ -231,23 +231,24 @@ export class Ecommerce {
 
     this.platform.mercury.hook.after('UPDATE_CARTITEM_RECORD', async function (this: any) {
       const cartItem = await thisPlatform.mercury.db.CartItem.get({ _id: this?.record?.id }, this.user);
-      await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
+      if (cartItem?.cart)
+        await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
     })
 
     this.platform.mercury.hook.after('CREATE_CARTITEM_RECORD', async function (this: any) {
       const cartItem = await thisPlatform.mercury.db.CartItem.get({ _id: this?.record?.id }, this.user);
-      await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
+      if (cartItem?.cart)
+        await recalculateTotalAmountOfCart(cartItem?.cart, thisPlatform.mercury, this.user);
     })
 
     this.platform.mercury.hook.after('DELETE_CARTITEM_RECORD', async function (this: any) {
-      await recalculateTotalAmountOfCart(this?.deletedRecord?.cart, thisPlatform.mercury, this.user);
+      if (this?.deletedRecord?.cart)
+        await recalculateTotalAmountOfCart(this?.deletedRecord?.cart, thisPlatform.mercury, this.user);
     })
   }
   async paymentHooks() {
-    const Payment = this.platform.mercury.db.Payment;
     const thisPlatform = this.platform;
     this.platform.mercury.hook.after('UPDATE_PAYMENT_RECORD', async function (this: any) {
-      console.log("Handle Orders Creation", this.options)
       const cartItem = this.options.buyNowCartItemId;
       if (this?.record?.status === "SUCCESS") {
         const invoice = await thisPlatform.mercury.db.Invoice.get({ payment: this?.record?.id }, this.user);
