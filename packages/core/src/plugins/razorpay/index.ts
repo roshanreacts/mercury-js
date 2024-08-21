@@ -40,7 +40,7 @@ class RazorPay {
       `
       type Mutation {
         initiatePayment(amount: Int, currency: String, shippingAddress: String!, billingAddress: String!, customer: String!): paymentOrder
-        capturePayment(paymentId: String, razorpayPaymentId: String, razorpayOrderId: String, razorPaySignature: String, cartItem: string): String
+        capturePayment(paymentId: String, razorpayPaymentId: String, razorpayOrderId: String, razorPaySignature: String, cartItem: String): String
       }
 
       type paymentOrder {
