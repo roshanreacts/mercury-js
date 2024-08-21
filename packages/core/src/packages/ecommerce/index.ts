@@ -247,23 +247,38 @@ export class Ecommerce {
     const Payment = this.platform.mercury.db.Payment;
     const thisPlatform = this.platform;
     this.platform.mercury.hook.after('UPDATE_PAYMENT_RECORD', async function (this: any) {
-      console.log("Handle Orders Creation", this)
+      console.log("Handle Orders Creation", this.options)
+      const cartItem = this.options.buyNowCartItemId;
       if (this?.record?.status === "SUCCESS") {
         const invoice = await thisPlatform.mercury.db.Invoice.get({ payment: this?.record?.id }, this.user);
-        const cart = await thisPlatform.mercury.db.Cart.get({ customer: invoice.customer }, this.user);
-        const cartItems = await thisPlatform.mercury.db.CartItem.list({ cart: cart.id }, this.user);
-        const invoiceLinePromises = cartItems.map(async (cartItem: any) => {
+        if (!cartItem) {
+          const cart = await thisPlatform.mercury.db.Cart.get({ customer: invoice.customer }, this.user);
+          const cartItems = await thisPlatform.mercury.db.CartItem.list({ cart: cart.id }, this.user);
+          const invoiceLinePromises = cartItems.map(async (cartItem: any) => {
+            await thisPlatform.mercury.db.InvoiceLine.create({
+              invoice: invoice.id,
+              amount: cartItem.amount,
+              quantity: cartItem.quantity,
+              productItem: cartItem.productItem,
+              pricePerUnit: cartItem.amount / (cartItem.quantity || 1)
+            }, this.user);
+            await thisPlatform.mercury.db.CartItem.delete(cartItem.id, this.user);
+          })
+          await Promise.all(invoiceLinePromises);
+          await thisPlatform.mercury.db.Cart.update(cart.id, { totalAmount: 0 }, this.user);
+        }
+        else {
+          const buyNowCartItem = await thisPlatform.mercury.db.CartItem.get({ _id: cartItem }, this.user);
+
           await thisPlatform.mercury.db.InvoiceLine.create({
             invoice: invoice.id,
-            amount: cartItem.amount,
-            quantity: cartItem.quantity,
-            productItem: cartItem.productItem,
-            pricePerUnit: cartItem.amount / (cartItem.quantity || 1)
+            amount: buyNowCartItem.amount,
+            quantity: buyNowCartItem.quantity,
+            productItem: buyNowCartItem.productItem,
+            pricePerUnit: buyNowCartItem.amount / (buyNowCartItem.quantity || 1)
           }, this.user);
-          await thisPlatform.mercury.db.CartItem.delete(cartItem.id, this.user);
-        })
-        await Promise.all(invoiceLinePromises);
-        await thisPlatform.mercury.db.Cart.update(cart.id, { totalAmount: 0 }, this.user);
+          await thisPlatform.mercury.db.CartItem.delete(cartItem, this.user);
+        }
         await thisPlatform.mercury.db.Order.create({
           customer: invoice.customer,
           date: new Date().toISOString(),

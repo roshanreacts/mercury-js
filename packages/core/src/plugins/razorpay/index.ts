@@ -40,7 +40,7 @@ class RazorPay {
       `
       type Mutation {
         initiatePayment(amount: Int, currency: String, shippingAddress: String!, billingAddress: String!, customer: String!): paymentOrder
-        capturePayment(paymentId: String, razorpayPaymentId: String, razorpayOrderId: String, razorPaySignature: String): String
+        capturePayment(paymentId: String, razorpayPaymentId: String, razorpayOrderId: String, razorPaySignature: String, cartItem: string): String
       }
 
       type paymentOrder {
@@ -89,7 +89,7 @@ class RazorPay {
               throw new GraphQLError(error);
             }
           },
-          capturePayment: async (root: any, { paymentId, razorpayPaymentId, razorpayOrderId, razorPaySignature }: { paymentId: string, razorpayPaymentId: string, razorpayOrderId: string, razorPaySignature: string }, ctx: any) => {
+          capturePayment: async (root: any, { paymentId, razorpayPaymentId, razorpayOrderId, razorPaySignature, cartItem }: { paymentId: string, razorpayPaymentId: string, razorpayOrderId: string, razorPaySignature: string, cartItem?: string }, ctx: any) => {
             try {
               const PaymentSchema = this.ecommerce.platform.mercury.db.Payment;
               const RazorpayPayment = await this.razorPay.payments.fetch(
@@ -102,7 +102,7 @@ class RazorPay {
                 process.env.RAZOR_PAY_SECRET_KEY || ""
               );
               const status = isPaymentValid ? "SUCCESS" : "FAILURE";
-              const payment = await PaymentSchema.update(paymentId,
+              await PaymentSchema.update(paymentId,
                 {
                   mode: RazorpayPayment.method,
                   razorPayPaymentId: razorpayPaymentId,
@@ -112,7 +112,10 @@ class RazorPay {
                   attempts: RazorPayOrder.attempts,
                   status: status,
                 },
-                ctx.user
+                ctx.user,
+                {
+                  buyNowCartItemId: cartItem
+                }
               );
 
               if (isPaymentValid) return "Payment is successful";
