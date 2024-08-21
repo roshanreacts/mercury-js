@@ -38,5 +38,27 @@ export const handleAddToCartForExistingCart = async (cartId: string, mercury: Me
 export const recalculateTotalAmountOfCart = async (cart: any, mercury: Mercury, user: any) => {
   const cartItems = await mercury.db.CartItem.list({ cart }, user);
   const totalAmount = cartItems.reduce((amount: number, item: any) => amount + item.amount, 0);
-  await mercury.db.Cart.update(cart, {totalAmount}, user);
-} 
+  await mercury.db.Cart.update(cart, { totalAmount }, user);
+}
+
+export const syncAddressIsDefault = async (
+  customer: string,
+  mercury: Mercury,
+  user: any
+) => {
+  const mercuryInstance = mercury.db;
+  const existingDefaultAddress = await mercuryInstance.Address.get(
+    {
+      customer: customer,
+      isDefault: true,
+    },
+    user
+  );
+  if (existingDefaultAddress.id) {
+    await mercuryInstance.Address.update(
+      existingDefaultAddress,
+      { isDefault: false },
+      user
+    );
+  }
+};

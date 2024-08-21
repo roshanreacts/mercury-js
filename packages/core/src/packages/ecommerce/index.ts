@@ -3,7 +3,7 @@ import type { Platform } from '../../packages/platform';
 //@ts-ignore
 import { v4 as uuidv4 } from 'uuid';
 import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, Customer } from './models';
-import { handleAddToCartForExistingCart, recalculateTotalAmountOfCart } from './utils';
+import { handleAddToCartForExistingCart, recalculateTotalAmountOfCart, syncAddressIsDefault } from './utils';
 import { GraphQLError } from 'graphql';
 //@ts-ignore
 import jwt from 'jsonwebtoken';
@@ -22,6 +22,7 @@ export default (config?: EcommerceConfig) => {
     ecommerce.createModels();
     ecommerce.cartHooks();
     ecommerce.paymentHooks();
+    ecommerce.addressHooks();
     await ecommerce.installPlugins();
   };
 };
@@ -271,5 +272,26 @@ export class Ecommerce {
         await thisPlatform.mercury.db.Invoice.update(invoice.id, { status: "Paid" }, this.user)
       }
     })
+  }
+  async addressHooks() {
+    const thisPlatform = this.platform;
+
+    thisPlatform.mercury.hook.before(
+      'CREATE_ADDRESS_RECORD',
+      async function (this: any) {
+        await syncAddressIsDefault(
+          this.options?.args?.input?.customer,
+          thisPlatform.mercury,
+          this.user
+        );
+      }
+    );
+    thisPlatform.mercury.hook.before(
+      'UPDATE_ADDRESS_RECORD',
+      async function (this: any) {
+        const record = await syncAddressIsDefault(this?.record?.customer, thisPlatform.mercury, this.user);
+        console.log(record, "before update");
+      }
+    );
   }
 }
