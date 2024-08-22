@@ -91,7 +91,7 @@ export class Ecommerce {
       `,
       {
         Query: {
-          addCartItem: async (
+          searchProducts: async (
             root: any,
             {
               collectionName,
