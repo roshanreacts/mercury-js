@@ -64,6 +64,16 @@ export class Ecommerce {
             signUp(email: String!, password: String!, firstName: String!, lastName: String!, profile: String, mobile: String): Response
             addCartItem(cartToken: String, productItem:String!,priceBookItem:String!,customer:String,quantity:Int!, productPrice: Int!): AddCartItemResponse
           }
+
+      type Query {
+        searchProducts(collectionName: String, searchText: String): [SearchResponse]
+      }
+
+      type SearchResponse {
+        productItem: String,
+        name: String,
+        priceBookItem: String
+      }
       type loginResponse {
             id: String,
             profile: String,
@@ -80,6 +90,86 @@ export class Ecommerce {
         }
       `,
       {
+        Query: {
+          addCartItem: async (
+            root: any,
+            {
+              collectionName,
+              searchText
+            }: {
+              collectionName: string,
+              searchText: string
+            },
+            ctx: any
+          ) => {
+            const data = await this.platform.mercury.db.Collection.mongoModel.aggregate([
+              [
+                {
+                  $match: {
+                    name: collectionName
+                  }
+                },
+                {
+                  $lookup: {
+                    from: "productitems",       // The collection to join with
+                    localField: "productItems", // The field in the main collection
+                    foreignField: "_id",        // The field in the ProductItem collection
+                    as: "productItemDetails"    // The output array field
+                  }
+                },
+                // Step 2: Unwind the productItemDetails array to work with individual ProductItems
+                {
+                  $unwind: "$productItemDetails"
+                },
+                // Step 3: Match based on name and description in ProductItem
+                {
+                  $match: {
+                    $or: [
+                      { "productItemDetails.name": { $regex: searchText, $options: "i" } }, // Case-insensitive search on name
+                      { "productItemDetails.description": { $regex: searchText, $options: "i" } } // Case-insensitive search on description
+                    ]
+                  }
+                },
+                // Step 4: Lookup to join the priceBookItems from the priceBook
+                {
+                  $lookup: {
+                    from: "pricebookitems",         // The collection to join with
+                    localField: "priceBook",        // The priceBook field in the main collection
+                    foreignField: "priceBook",      // The field in the priceBookItems collection that references priceBook
+                    as: "priceBookItemDetails"      // The output array field
+                  }
+                },
+                // Step 5: Unwind the priceBookItemDetails array to work with individual PriceBookItems
+                {
+                  $unwind: "$priceBookItemDetails"
+                },
+                // Step 6: Match priceBookItems based on the product in productItemDetails
+                {
+                  $match: {
+                    $expr: {
+                      $eq: ["$productItemDetails.product", "$priceBookItemDetails.product"] // Ensure product matches
+                    }
+                  }
+                },
+                // Step 7: Group by productItemDetails._id to get only one priceBookItem per productItem
+                {
+                  $group: {
+                    _id: "$productItemDetails._id", 
+                    productItem: { $first: "$productItemDetails._id" },
+                    name: { $first: "$productItemDetails.name" },
+                    priceBookItem: { $first: "$priceBookItemDetails._id" } // Get the first matching priceBookItemId
+                  }
+                },
+                {
+                  $project: {
+                    _id: 0
+                  }
+                }
+              ]
+            ])
+            return data;
+          }
+        },
         Mutation: {
           addCartItem: async (
             root: any,
