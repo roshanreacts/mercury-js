@@ -3,36 +3,51 @@ import type { Platform } from '../../packages/platform';
 //@ts-ignore
 import { v4 as uuidv4 } from 'uuid';
 import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, Customer, Variant, VariantGroup } from './models';
-import { handleAddToCartForExistingCart, recalculateTotalAmountOfCart, syncAddressIsDefault } from './utils';
+import { generatePDF, getInvoiceHtml, handleAddToCartForExistingCart, recalculateTotalAmountOfCart, sendVerificationEmail, syncAddressIsDefault, uploadPdfBuffer } from './utils';
 import { GraphQLError } from 'graphql';
 //@ts-ignore
 import jwt from 'jsonwebtoken';
-import mercury from 'src/mercury';
+import cloudinary from 'cloudinary';
 import { Invoice } from './models/Invoice';
 import { InvoiceLine } from './models/InvoiceLine';
 
+
+type Options = {
+  CLOUDINARY_NAME?: string;
+  CLOUDINARY_API_KEY?: string;
+  CLOUDINARY_API_SECRET?: string;
+  NODEMAILER_EMAIL?: string;
+  NODEMAILER_PASSWORD?: string;
+};
 export interface EcommerceConfig {
-  options?: any;
+  options?: Options;
   plugins?: any;
 }
 
 export default (config?: EcommerceConfig) => {
   return async (platform: Platform) => {
-    const ecommerce = new Ecommerce(platform, config?.plugins);
+    const ecommerce = new Ecommerce(platform, config?.plugins, config?.options);
     ecommerce.createModels();
     ecommerce.cartHooks();
     ecommerce.paymentHooks();
     ecommerce.addressHooks();
+    cloudinary.v2.config({
+      cloud_name: config?.options?.CLOUDINARY_NAME,
+      api_key: config?.options?.CLOUDINARY_API_KEY,
+      api_secret: config?.options?.CLOUDINARY_API_SECRET,
+    });
     await ecommerce.installPlugins();
   };
 };
 
 export class Ecommerce {
   public platform: Platform;
-  public plugins: Array<(commerce: Ecommerce) => void> = [];;
-  constructor(platform: Platform, plugins: any = []) {
+  public plugins: Array<(commerce: Ecommerce) => void> = [];
+  public options: Options;
+  constructor(platform: Platform, plugins: any = [], options: Options = {}) {
     this.platform = platform;
     this.plugins = plugins;
+    this.options = options;
   }
 
   async installPlugins() {
@@ -248,6 +263,7 @@ export class Ecommerce {
   }
   async paymentHooks() {
     const thisPlatform = this.platform;
+    const ecommerceOptions = this.options;
     this.platform.mercury.hook.after('UPDATE_PAYMENT_RECORD', async function (this: any) {
       const cartItem = this.options.buyNowCartItemId;
       if (this?.record?.status === "SUCCESS") {
@@ -280,12 +296,27 @@ export class Ecommerce {
           }, this.user);
           await thisPlatform.mercury.db.CartItem.delete(cartItem, this.user);
         }
-        await thisPlatform.mercury.db.Order.create({
+        const order = await thisPlatform.mercury.db.Order.create({
           customer: invoice.customer,
           date: new Date().toISOString(),
           invoice: invoice.id
         }, this.user)
-        await thisPlatform.mercury.db.Invoice.update(invoice.id, { status: "Paid" }, this.user)
+        const customer = await thisPlatform.mercury.db.Customer.get({ _id: invoice.customer }, this.user);
+        const invoiceHtml = await getInvoiceHtml(invoice.id, thisPlatform.mercury, this.user, order.id);
+        if (customer && customer.email) {
+          const pdfBuffer = await generatePDF(invoiceHtml);
+          await sendVerificationEmail(customer.email, invoiceHtml, ecommerceOptions.NODEMAILER_EMAIL, ecommerceOptions.NODEMAILER_PASSWORD);
+
+          const cloudinaryResult: any = await uploadPdfBuffer(pdfBuffer);
+          await thisPlatform.mercury.db.Invoice.update(
+            invoice.id,
+            {
+              status: 'Paid',
+              document: cloudinaryResult?.secure_url,
+            },
+            this.user
+          );
+        }
       }
     })
   }
