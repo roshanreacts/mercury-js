@@ -24,10 +24,27 @@ export const PriceBookItem: PModel = {
     },
     offerPrice: {
       type: "number"
+    },
+    variants: {
+      type: "relationship",
+      ref: "Variant",
+      many: true
     }
   },
   options: {
-    historyTracking: false
+    historyTracking: false,
+    indexes: [
+      {
+        fields: {
+          product: 1,
+          variant: 1,
+          priceBook: 1
+        },
+        options: {
+          unique: true,
+        },
+      },
+    ]
   }
 }
 

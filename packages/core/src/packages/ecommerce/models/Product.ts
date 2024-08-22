@@ -17,15 +17,11 @@ export const Product: PModel = {
     category: {
       type: "relationship",
       ref: "Category",
-      // many: true -> research
     },
-    isBundledProduct: {
-      type: "boolean"
-    },
-    bundledProducts: {
+    variantGroups: {
       type: "relationship",
-      ref: "Product",
-      many: true
+      ref: "VariantGroup",
+      many: true,
     }
   },
   options: {
