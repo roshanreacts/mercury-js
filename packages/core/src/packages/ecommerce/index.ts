@@ -10,6 +10,8 @@ import jwt from 'jsonwebtoken';
 import mercury from 'src/mercury';
 import { Invoice } from './models/Invoice';
 import { InvoiceLine } from './models/InvoiceLine';
+import { Variant } from './models/Variant';
+import { VariantGroup } from './models/VariantGroup';
 
 export interface EcommerceConfig {
   options?: any;
@@ -40,7 +42,7 @@ export class Ecommerce {
   }
 
   async createModels() {
-    const models = [Address, Product, Cart, Customer, Collection, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem, Invoice, InvoiceLine];
+    const models = [Address, Product, Cart, Customer, Collection, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem, Invoice, InvoiceLine, Variant, VariantGroup];
     const modelCreation = models.map(model => this.platform.createModel(model));
     await Promise.all(modelCreation);
     this.platform.mercury.addGraphqlSchema(`

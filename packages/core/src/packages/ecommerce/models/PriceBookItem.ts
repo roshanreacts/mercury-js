@@ -37,7 +37,7 @@ export const PriceBookItem: PModel = {
       {
         fields: {
           product: 1,
-          variant: 1,
+          variants: 1,
           priceBook: 1
         },
         options: {
