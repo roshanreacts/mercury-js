@@ -13,3 +13,5 @@ export { ProductItem } from "./ProductItem";
 export { CartItem } from "./CartItem";
 export { Category } from "./Category";
 export { Address } from "./Address";
+export { Variant } from "./Variant";
+export { VariantGroup } from "./VariantGroup";

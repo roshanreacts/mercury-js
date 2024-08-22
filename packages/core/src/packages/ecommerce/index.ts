@@ -2,7 +2,7 @@
 import type { Platform } from '../../packages/platform';
 //@ts-ignore
 import { v4 as uuidv4 } from 'uuid';
-import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, Customer } from './models';
+import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, Customer, Variant, VariantGroup } from './models';
 import { handleAddToCartForExistingCart, recalculateTotalAmountOfCart, syncAddressIsDefault } from './utils';
 import { GraphQLError } from 'graphql';
 //@ts-ignore
@@ -10,8 +10,6 @@ import jwt from 'jsonwebtoken';
 import mercury from 'src/mercury';
 import { Invoice } from './models/Invoice';
 import { InvoiceLine } from './models/InvoiceLine';
-import { Variant } from './models/Variant';
-import { VariantGroup } from './models/VariantGroup';
 
 export interface EcommerceConfig {
   options?: any;
