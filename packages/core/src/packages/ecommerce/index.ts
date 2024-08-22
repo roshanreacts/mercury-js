@@ -305,8 +305,8 @@ export class Ecommerce {
     thisPlatform.mercury.hook.before(
       'UPDATE_ADDRESS_RECORD',
       async function (this: any) {
-        const record = await syncAddressIsDefault(this?.record?.customer, thisPlatform.mercury, this.user);
-        console.log(record, "before update");
+        if (!this.options?.skipHook)
+          await syncAddressIsDefault(this?.record?.customer, thisPlatform.mercury, this.user);
       }
     );
   }

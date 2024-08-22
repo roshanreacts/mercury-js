@@ -58,7 +58,8 @@ export const syncAddressIsDefault = async (
     await mercuryInstance.Address.update(
       existingDefaultAddress,
       { isDefault: false },
-      user
+      user,
+      { skipHook: true }
     );
   }
 };

@@ -40,6 +40,9 @@ export const Invoice: PModel = {
       enumType: "string",
       enum: ["Pending", "Paid"],
       default: "Pending"
+    },
+    document: {
+      type: "string"
     }
   },
   options: {
