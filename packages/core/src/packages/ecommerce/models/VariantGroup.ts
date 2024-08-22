@@ -17,8 +17,8 @@ export const VariantGroup: PModel = {
       variants: {
         type: "virtual",
         ref: "Variant",
-        localField: 'variantGroup',
-        foreignField: '_id',
+        localField: '_id',
+        foreignField: 'variantGroup',
         many: true
       },
       displayOrder: {
