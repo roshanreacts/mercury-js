@@ -219,7 +219,7 @@ export const whereInputCompose = (input: any, modelFields: TFields) => {
 
 export const whereInputMap = (input: any, modelFields: TFields) => {
   const querySchema: any = {};
-  _.mapKeys(input, (fieldReq: any, field: string) => {
+  _.mapKeys(input, (fieldReq: { [x: string]: any }, field: string) => {
     let key: string | undefined | any;
     if (field !== 'id') {
       key = fieldTypeMap[modelFields[field].type];

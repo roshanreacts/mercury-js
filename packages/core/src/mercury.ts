@@ -40,8 +40,8 @@ class Mercury {
     this.resolversArr = mergeResolvers([this.resolversArr, resolvers]);
   }
 
-  public package(packages: Array<(mercury: Mercury) => void>) {
-    packages.map((pkg) => pkg(this as Mercury));
+  public async package(packages: Array<(mercury: Mercury) => Promise<void>>) {
+    await Promise.all(packages.map(pkg => pkg(this as Mercury)));
   }
 
   public plugins(plugins: Array<(mercury: Mercury) => void>) {

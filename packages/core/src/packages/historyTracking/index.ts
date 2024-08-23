@@ -8,7 +8,7 @@ export interface MercuryHistoryPkgConfig {
   skipModels?: Array<string>;
 }
 export default (config?: MercuryHistoryPkgConfig) => {
-  return (mercury: Mercury) => {
+  return async (mercury: Mercury) => {
     if (!config) {
       config = {
         skipModels: [],

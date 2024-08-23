@@ -1,0 +1,7 @@
+{
+  "name": "@mercury-js/core/plugins/razorpay",
+  "private": false,
+  "main": "../../dist/cjs/plugins/razorpay/index.js",
+  "module": "../../dist/esm/plugins/razorpay/index.js",
+  "types": "./index.d.ts"
+}

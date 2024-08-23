@@ -19,6 +19,7 @@ interface ModelInfo {
   description: string,
   managed: boolean,
   prefix: string,
+  key?: string
 }
 interface TMetaModel extends TCommon {
   name: string,

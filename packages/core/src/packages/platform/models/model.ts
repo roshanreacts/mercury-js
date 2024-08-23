@@ -30,6 +30,9 @@ export class Model {
         description: {
           type: 'string',
         },
+        key: {
+          type: "string"
+        },
         prefix: {
           type: 'string',
           // required: true,
