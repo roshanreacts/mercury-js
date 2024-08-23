@@ -365,20 +365,19 @@ export class Model {
       );
       if (!hasDeepAccess) {
         throw new Error(
-          'You does not have access to perform this action on this record/ field.'
+          'You do not have access to perform this action on this record/field.'
         );
       }
     }
     if (!hasAccess) {
       throw new Error(
-        'You does not have access to perform this action on this record/ field.'
+        'You do not have access to perform this action on this record/field.'
       );
     }
 
     await new Promise((resolve, reject) => {
       hook.execBefore(
         `LIST_${this.model.name.toUpperCase()}_RECORD`,
-
         {
           name: this.model.name,
           query,
@@ -597,7 +596,7 @@ export class Model {
           if (item !== null) {
             return item;
           }
-        }),
+        }) as any,
       {
         timestamps: { createdAt: 'createdOn', updatedAt: 'updatedOn' },
         toObject: { virtuals: true },

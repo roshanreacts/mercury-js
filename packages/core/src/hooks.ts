@@ -17,12 +17,14 @@ export class Hook {
   };
 
   // Execute all functions added to be executed before a hook
-  public execBefore = (type: THookType, ...args: any) => {
+  public execBefore = (type: THookType, ...args: any[]) => {
+    // @ts-expect-error - execPre is a function in the Kareem instance
     this.kareemHookInstance.execPre(type, ...args);
   };
 
   // Execute all functions added to be executed after a hook
-  public execAfter = (type: THookType, ...args: any) => {
+  public execAfter = (type: THookType, ...args: any[]) => {
+    // @ts-expect-error - execPre is a function in the Kareem instance
     this.kareemHookInstance.execPost(type, ...args);
   };
 }

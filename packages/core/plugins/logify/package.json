@@ -1,0 +1,11 @@
+{
+  "name": "@mercury-js/core/plugins/logify",
+  "private": false,
+  "main": "../../dist/cjs/plugins/logify/index.js",
+  "module": "../../dist/esm/plugins/logify/index.js",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "lodash": "^4.17.21"
+  }
+}
