@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql';
 import type { Mercury } from '../../mercury';
-import puppeteer from 'puppeteer';
+// import puppeteer from 'puppeteer';
 import cloudinary from 'cloudinary';
 import streamifier from 'streamifier';
 import nodemailer from 'nodemailer';
@@ -70,19 +70,19 @@ export const syncAddressIsDefault = async (
   }
 };
 
-export const generatePDF = async (htmlContent: any) => {
-  const browser = await puppeteer.launch({
-    executablePath: puppeteer.executablePath(),
-    headless: true,
-  });
-  const page = await browser.newPage();
-  await page.addScriptTag({ url: "https://cdn.tailwindcss.com" })
-  await page.setContent(htmlContent);
-  const pdfBuffer = await page.pdf({ format: 'A4' });
+// export const generatePDF = async (htmlContent: any) => {
+//   const browser = await puppeteer.launch({
+//     executablePath: puppeteer.executablePath(),
+//     headless: true,
+//   });
+//   const page = await browser.newPage();
+//   await page.addScriptTag({ url: "https://cdn.tailwindcss.com" })
+//   await page.setContent(htmlContent);
+//   const pdfBuffer = await page.pdf({ format: 'A4' });
 
-  await browser.close();
-  return pdfBuffer;
-};
+//   await browser.close();
+//   return pdfBuffer;
+// };
 
 
 export const uploadToCloudinary = async (pdfBuffer: any, invoiceId: string) => {
@@ -124,13 +124,14 @@ const getTransporter = (senderEmail?: string, password?: string) => {
     },
   });
 };
-export const sendVerificationEmail = async (email: string, invoice: string, senderEmail?: string, password?: string) => {
+export const sendVerificationEmail = async (email: string, invoice: string, senderEmail?: string, password?: string, secure_url?: any, firstName?: string) => {
   const transporter = getTransporter(senderEmail, password);
   const mailOptions = {
     from: senderEmail,
     to: email,
     subject: 'Order Confirmation',
-    text: `Your OrderInvoice ${invoice}`,
+    text: `Your OrderInvoice `,
+    html: getHtml(firstName, secure_url)
   };
   const info = await transporter.sendMail(mailOptions);
 };
@@ -270,19 +271,19 @@ export const getInvoiceHtml = async (invoice: string, mercury: Mercury, user: an
   <div>
   <h2 class="section-title">Billed To</h2>
   <p class="font-bold">${invoiceData?.shippingAddress?.name}</p>
-  <p>${invoiceData?.shippingAddress?.street ? `${invoiceData?.shippingAddress?.street},` : ''} ${invoiceData?.shippingAddress?.addressLine1? `${invoiceData?.shippingAddress?.addressLine1},` : ''
+  <p>${invoiceData?.shippingAddress?.street ? `${invoiceData?.shippingAddress?.street},` : ''} ${invoiceData?.shippingAddress?.addressLine1 ? `${invoiceData?.shippingAddress?.addressLine1},` : ''
     }, </p>
   <p>${invoiceData?.shippingAddress?.addressLine2 ? `${invoiceData?.shippingAddress?.addressLine2},` : ''} ${invoiceData?.shippingAddress?.landmark ? `${invoiceData?.shippingAddress?.landmark},` : ''
     }, </p>
-  <p>${invoiceData?.shippingAddress?.city ? `${invoiceData?.shippingAddress?.city},` : ''}${invoiceData?.shippingAddress?.state  ? `${invoiceData?.shippingAddress?.state},` : ''
+  <p>${invoiceData?.shippingAddress?.city ? `${invoiceData?.shippingAddress?.city},` : ''}${invoiceData?.shippingAddress?.state ? `${invoiceData?.shippingAddress?.state},` : ''
     }, ${invoiceData?.shippingAddress?.zipCode ? `${invoiceData?.shippingAddress?.zipCode},` : ''}</p>
   <p>Mobile: ${invoiceData?.shippingAddress?.mobile ? `${invoiceData?.shippingAddress?.mobile},` : ''
     } </p>
   </div>
   <div>
   <h2 class="section-title">Shipped To</h2>
-  <p class="font-bold">${invoiceData?.billingAddress?.name? `${invoiceData?.billingAddress?.name},` : ''}</p>
-  <p>${invoiceData?.billingAddress?.street ? `${invoiceData?.billingAddress?.street},` : ''}, ${invoiceData?.billingAddress?.addressLine1? `${invoiceData?.billingAddress?.addressLine1},` : ''
+  <p class="font-bold">${invoiceData?.billingAddress?.name ? `${invoiceData?.billingAddress?.name},` : ''}</p>
+  <p>${invoiceData?.billingAddress?.street ? `${invoiceData?.billingAddress?.street},` : ''}, ${invoiceData?.billingAddress?.addressLine1 ? `${invoiceData?.billingAddress?.addressLine1},` : ''
     }, </p>
   <p>${invoiceData?.billingAddress?.addressLine2 ? `${invoiceData?.billingAddress?.addressLine2},` : ''}, ${invoiceData?.billingAddress?.landmark ? `${invoiceData?.billingAddress?.landmark},` : ''
     }, </p>
@@ -355,4 +356,34 @@ export const getInvoiceHtml = async (invoice: string, mercury: Mercury, user: an
   `
 
   return html;
+}
+
+
+const getHtml = (firstName?: string, secure_url?: any) => {
+  return `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Slay-Coffee - Invoice Download</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333;">
+      <div style="width: 100%; max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h1 style="color: #333; margin-top: 0;">Thank You for Your Order!</h1>
+          <p style="margin: 0 0 10px;">Dear ${firstName},</p>
+          <p style="margin: 0 0 10px;">Thank you for ordering from Slay Coffee! We're thrilled to be a part of your coffee experience. Your order has been successfully processed & You can download the invoice for your order using the link below:</p>
+          <div style="display: flex; justify-content: center; align-items: center;">
+            <a href=${secure_url} target="_blank" style="display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 4px; font-weight: bold;">Download Invoice</a>
+          </div>
+          <p style="margin: 20px 0;">If you have any questions or need further assistance, feel free to reach out to us at:</p>
+          <div style="margin-top: 20px; font-size: 14px; color: #777;">
+              <p style="margin: 0;">Warm regards,</p>
+              <p style="margin: 0;">The Slay-Coffee Team</p>
+              <p style="margin: 0;">Email: support@slay-coffee.com</p>
+              <p style="margin: 0;">Address: No.2734, Ground Floor, I Sector 16th Cross, 27th Main Rd, opp. NIFT College, PWD Quarters, 1st Sector, HSR Layout, Bengaluru, Karnataka 560102</p>
+          </div>
+      </div>
+  </body>
+  </html>`
+
 }

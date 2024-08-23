@@ -3,7 +3,7 @@ import type { Platform } from '../../packages/platform';
 //@ts-ignore
 import { v4 as uuidv4 } from 'uuid';
 import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, Customer, Variant, VariantGroup } from './models';
-import { generatePDF, getInvoiceHtml, handleAddToCartForExistingCart, recalculateTotalAmountOfCart, sendVerificationEmail, syncAddressIsDefault, uploadPdfBuffer } from './utils';
+import { getInvoiceHtml, handleAddToCartForExistingCart, recalculateTotalAmountOfCart, sendVerificationEmail, syncAddressIsDefault, uploadPdfBuffer } from './utils';
 import { GraphQLError } from 'graphql';
 //@ts-ignore
 import jwt from 'jsonwebtoken';
@@ -415,15 +415,14 @@ export class Ecommerce {
         const customer = await thisPlatform.mercury.db.Customer.get({ _id: invoice.customer }, this.user);
         const invoiceHtml = await getInvoiceHtml(invoice.id, thisPlatform.mercury, this.user, order.id);
         if (customer && customer.email) {
-          const pdfBuffer = await generatePDF(invoiceHtml);
-          await sendVerificationEmail(customer.email, invoiceHtml, ecommerceOptions.NODEMAILER_EMAIL, ecommerceOptions.NODEMAILER_PASSWORD);
-
-          const cloudinaryResult: any = await uploadPdfBuffer(pdfBuffer);
+          // const pdfBuffer = await generatePDF(invoiceHtml);
+          await sendVerificationEmail(customer.email, invoice.id, ecommerceOptions.NODEMAILER_EMAIL, ecommerceOptions.NODEMAILER_PASSWORD, "", customer.firstName);
+          // const cloudinaryResult: any = await uploadPdfBuffer(pdfBuffer);
           await thisPlatform.mercury.db.Invoice.update(
             invoice.id,
             {
               status: 'Paid',
-              document: cloudinaryResult?.secure_url,
+              document: "",  //cloudinaryResult?.secure_url ||
             },
             this.user
           );
