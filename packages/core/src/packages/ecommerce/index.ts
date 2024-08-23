@@ -68,6 +68,13 @@ export class Ecommerce {
       type Query {
         searchProducts(collectionName: String, searchText: String, sortBy: sortOptions , sortOrder: orderOptions): [SearchResponse]
       }
+
+      type SearchResponse{
+        productItem: String
+        amount: Float
+        name: String
+        priceBookItem: String
+      }
  
       enum sortOptions {
         name
