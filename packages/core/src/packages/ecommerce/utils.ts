@@ -163,7 +163,7 @@ export const getInvoiceHtml = async (invoice: string, mercury: Mercury, user: an
 
   console.log(invoiceData);
 
-  let html =  `<!DOCTYPE html>
+  let html = `<!DOCTYPE html>
   <html lang="en">
    
   <head>
@@ -270,40 +270,31 @@ export const getInvoiceHtml = async (invoice: string, mercury: Mercury, user: an
   <div>
   <h2 class="section-title">Billed To</h2>
   <p class="font-bold">${invoiceData?.shippingAddress?.name}</p>
-  <p>${invoiceData?.shippingAddress?.street || ''}, ${
-      invoiceData?.shippingAddress?.addressLine1 || ''
+  <p>${invoiceData?.shippingAddress?.street ? `${invoiceData?.shippingAddress?.street},` : ''} ${invoiceData?.shippingAddress?.addressLine1? `${invoiceData?.shippingAddress?.addressLine1},` : ''
     }, </p>
-  <p>${invoiceData?.shippingAddress?.addressLine2 || ''}, ${
-      invoiceData?.shippingAddress?.landmark || ''
+  <p>${invoiceData?.shippingAddress?.addressLine2 ? `${invoiceData?.shippingAddress?.addressLine2},` : ''} ${invoiceData?.shippingAddress?.landmark ? `${invoiceData?.shippingAddress?.landmark},` : ''
     }, </p>
-  <p>${invoiceData?.shippingAddress?.city || ''}, ${
-      invoiceData?.shippingAddress?.state || ''
-    }, ${invoiceData?.shippingAddress?.zipCode || ''}</p>
-  <p>${invoiceData?.shippingAddress?.zipCode || ''}, Mobile: ${
-      invoiceData?.shippingAddress?.mobile || ''
+  <p>${invoiceData?.shippingAddress?.city ? `${invoiceData?.shippingAddress?.city},` : ''}${invoiceData?.shippingAddress?.state  ? `${invoiceData?.shippingAddress?.state},` : ''
+    }, ${invoiceData?.shippingAddress?.zipCode ? `${invoiceData?.shippingAddress?.zipCode},` : ''}</p>
+  <p>Mobile: ${invoiceData?.shippingAddress?.mobile ? `${invoiceData?.shippingAddress?.mobile},` : ''
     } </p>
   </div>
   <div>
   <h2 class="section-title">Shipped To</h2>
-  <p class="font-bold">${invoiceData?.billingAddress?.name || ''}</p>
-  <p>${invoiceData?.billingAddress?.street || ''}, ${
-      invoiceData?.billingAddress?.addressLine1 || ''
+  <p class="font-bold">${invoiceData?.billingAddress?.name? `${invoiceData?.billingAddress?.name},` : ''}</p>
+  <p>${invoiceData?.billingAddress?.street ? `${invoiceData?.billingAddress?.street},` : ''}, ${invoiceData?.billingAddress?.addressLine1? `${invoiceData?.billingAddress?.addressLine1},` : ''
     }, </p>
-  <p>${invoiceData?.billingAddress?.addressLine2 || ''}, ${
-      invoiceData?.billingAddress?.landmark || ''
+  <p>${invoiceData?.billingAddress?.addressLine2 ? `${invoiceData?.billingAddress?.addressLine2},` : ''}, ${invoiceData?.billingAddress?.landmark ? `${invoiceData?.billingAddress?.landmark},` : ''
     }, </p>
-  <p>${invoiceData?.billingAddress?.city || ''}, ${
-      invoiceData?.billingAddress?.state || ''
-    }, ${invoiceData?.billingAddress?.zipCode || ''}</p>
-  <p>${invoiceData?.billingAddress?.zipCode || ''}, Mobile: ${
-      invoiceData?.billingAddress?.mobile || ''
+  <p>${invoiceData?.billingAddress?.city ? `${invoiceData?.billingAddress?.city},` : ''}, ${invoiceData?.billingAddress?.state ? `${invoiceData?.billingAddress?.state},` : ''
+    }, ${invoiceData?.billingAddress?.zipCode ? `${invoiceData?.billingAddress?.zipCode},` : ''}</p>
+  <p> Mobile: ${invoiceData?.billingAddress?.mobile ? `${invoiceData?.billingAddress?.mobile},` : ''
     } </p>
   </div>
   <div>
   <h2 class="section-title">Invoice Details</h2>
   <p><span class="font-bold">Invoice #:</span> ${invoiceData.id}</p>
-  <p><span class="font-bold">Payment Status:</span> ${
-      invoiceData?.payment?.status
+  <p><span class="font-bold">Payment Status:</span> ${invoiceData?.payment?.status
     }</p>
   <p><span class="font-bold">Fulfillment Status:</span> Fulfilled</p>
   </div>
@@ -320,23 +311,23 @@ export const getInvoiceHtml = async (invoice: string, mercury: Mercury, user: an
   <span>Total</span>
   </div>
               ${invoiceData?.invoiceLines
-                ?.map(
-                  (item: any) => `
+      ?.map(
+        (item: any) => `
   <div class="grid grid-item">
   <span class="text-blue">${item?.productItem?.name}</span>
   <span>₹ ${item?.pricePerUnit}</span>
   <span>${item?.quantity}</span>
   <span>₹ ${item?.amount || 0}</span>
   </div>`
-                )
-                .join('')}
+      )
+      .join('')}
   </div>
    
           <div class="border-t"></div>
    
           <div class="justify-between mb-4">
   <span class="font-semibold">Subtotal</span>
-  <span>₹ ${invoiceData?.total || 0}</span>
+  <span>₹ ${invoiceData?.totalAmount || 0}</span>
   </div>
   <div class="justify-between mb-4">
   <span class="font-semibold">Shipping</span>
@@ -355,7 +346,7 @@ export const getInvoiceHtml = async (invoice: string, mercury: Mercury, user: an
    
           <div class="justify-between font-bold text-lg">
   <span>Total</span>
-  <span>₹ ${invoiceData?.total}</span>
+  <span>₹ ${invoiceData?.totalAmount}</span>
   </div>
   </div>
   </body>
