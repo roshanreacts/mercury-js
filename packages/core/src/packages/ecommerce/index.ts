@@ -66,13 +66,17 @@ export class Ecommerce {
           }
 
       type Query {
-        searchProducts(collectionName: String, searchText: String): [SearchResponse]
+        searchProducts(collectionName: String, searchText: String, sortBy: sortOptions , sortOrder: orderOptions): [SearchResponse]
       }
-
-      type SearchResponse {
-        productItem: String,
-        name: String,
-        priceBookItem: String
+ 
+      enum sortOptions {
+        name
+        amount
+      }
+ 
+      enum orderOptions {
+        asc
+        desc
       }
       type loginResponse {
             id: String,
@@ -95,10 +99,14 @@ export class Ecommerce {
             root: any,
             {
               collectionName,
-              searchText
+              searchText,
+              sortBy,
+              sortOrder
             }: {
               collectionName: string,
-              searchText: string
+              searchText: string,
+              sortBy: "name" | "amount",
+              sortOrder: "asc" | "desc"
             },
             ctx: any
           ) => {
@@ -154,11 +162,17 @@ export class Ecommerce {
                 // Step 7: Group by productItemDetails._id to get only one priceBookItem per productItem
                 {
                   $group: {
-                    _id: "$productItemDetails._id", 
-                    productItem: { $first: "$productItemDetails._id" },
-                    name: { $first: "$productItemDetails.name" },
-                    priceBookItem: { $first: "$priceBookItemDetails._id" } // Get the first matching priceBookItemId
-                  }
+                    _id: '$productItemDetails._id',
+                    productItem: { $first: '$productItemDetails._id' },
+                    name: { $first: '$productItemDetails.name' },
+                    priceBookItem: { $first: '$priceBookItemDetails._id' },
+                    amount: { $first: '$priceBookItemDetails.offerPrice' },
+                  },
+                },
+                {
+                  $sort: {
+                    [sortBy]: sortOrder == 'asc' ? 1 : -1,
+                  },
                 },
                 {
                   $project: {

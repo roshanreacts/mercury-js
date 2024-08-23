@@ -163,103 +163,205 @@ export const getInvoiceHtml = async (invoice: string, mercury: Mercury, user: an
 
   console.log(invoiceData);
 
-  let html = `<!DOCTYPE html>
-      <html lang="en">
-
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Document</title>
-          <script src="https://cdn.tailwindcss.com"></script>
-      </head>
-
-      <body>
-          <div className="bg-white text-black p-8 rounded-lg shadow-lg">
-              <div className="flex justify-center items-center mb-0">
-                  <img src="https://www.slaycoffee.in/cdn/shop/files/logo.png?v=1714476294&width=240" className="w-50 h-50"
-                      alt="image" />
-              </div>
-              <div className="mb-8 text-center">
-                  <h1 className="text-2xl font-bold mb-2">Invoice</h1>
-                  <p>Order #${order}</p>
-                  <p>Placed on ${new Date().toLocaleDateString()}</p>
-              </div>
-
-              <div className="flex justify-between mb-8">
-                  <div>
-                      <h2 className="text-lg font-semibold mb-4">Billed To</h2>
-                      <p className="font-bold">${invoiceData?.shippingAddress?.name}</p>
-                      <p>${invoiceData?.shippingAddress?.street}, ${invoiceData?.shippingAddress?.addressLine1}, </p>
-                      <p>${invoiceData?.shippingAddress?.addressLine2}, ${invoiceData?.shippingAddress?.landmark}, </p>
-                      <p>${invoiceData?.shippingAddress?.city}, ${invoiceData?.shippingAddress?.state}, ${invoiceData?.shippingAddress?.zipCode}</p>
-                      <p>${invoiceData?.shippingAddress?.zipCode}, Mobile: ${invoiceData?.shippingAddress?.mobile} </p>
-                  </div>
-                  <div>
-                      <h2 className="text-lg font-semibold mb-4">Shipped To</h2>
-                      <p className="font-bold">${invoiceData?.billingAddress?.name}</p>
-                      <p>${invoiceData?.billingAddress?.street}, ${invoiceData?.billingAddress?.addressLine1}, </p>
-                      <p>${invoiceData?.billingAddress?.addressLine2}, ${invoiceData?.billingAddress?.landmark}, </p>
-                      <p>${invoiceData?.billingAddress?.city}, ${invoiceData?.billingAddress?.state}, ${invoiceData?.billingAddress?.zipCode}</p>
-                      <p>${invoiceData?.billingAddress?.zipCode}, Mobile: ${invoiceData?.billingAddress?.mobile} </p>
-                  </div>
-                  <div>
-                      <h2 className="text-lg font-semibold mb-4">Invoice Details</h2>
-                      <p><span className="font-bold">Invoice #:</span> ${invoiceData.id}</p>
-                      <p><span className="font-bold">Payment Status:</span> ${invoiceData?.payment?.status}</p>
-                      <p><span className="font-bold">Fulfillment Status:</span> Fulfilled</p>
-                  </div>
-              </div>
-
-              <div className="border-t border-gray-300 my-4"></div>
-
-              <div>
-                  <h2 className="text-lg font-semibold mb-4">Order Details</h2>
-                  <div className="grid grid-cols-5 gap-4 font-bold text-gray-600">
-                      <span>Product</span>
-                      <span>Price</span>
-                      <span>Quantity</span>
-                      <span>Total</span>
-                  </div>`
-
-  invoiceData?.invoiceLines?.map((item: any) => {
-    html += `<div className="grid grid-cols-5 gap-4 mb-4">
-                    <span className="text-blue-500">${item?.productItem?.name}</span>
-                    <span>₹ ${item?.pricePerUnit}</span>
-                    <span>${item?.quantity}</span>
-                    <span>₹ ${item?.amount}</span>
-                </div>`})
-  html += `</div>
-              <div className="border-t border-gray-300 my-4"></div>
-
-              <div className="flex justify-between mb-4">
-                  <span className="font-semibold">Subtotal</span>
-                  <span>₹ ${invoiceData?.total}</span>
-              </div>
-              <div className="flex justify-between mb-4">
-                  <span className="font-semibold">Shipping</span>
-                  <span>₹ 0</span>
-              </div>
-              <div className="flex justify-between mb-4">
-                  <span className="font-semibold">Tax (CGST 2.5%)</span>
-                  <span>₹ 0</span>
-              </div>
-              <div className="flex justify-between mb-4">
-                  <span className="font-semibold">Tax (IGST 2.5%)</span>
-                  <span>₹ 0</span>
-              </div>
-
-              <div className="border-t border-gray-300 my-4"></div>
-
-              <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span>₹ ${invoiceData?.total}</span>
-              </div>
-          </div>
-      </body>
-
-      </html>`
-
-  console.log(html, "Htmlcontent");
+  let html =  `<!DOCTYPE html>
+  <html lang="en">
+   
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+          .container {
+              background-color: white;
+              color: black;
+              padding: 2rem;
+              border-radius: 0.5rem;
+              box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+          }
+   
+          .center-content {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin-bottom: 0;
+          }
+   
+          .image {
+              width: auto;
+              height: 100px;
+          }
+   
+          .text-center {
+              text-align: center;
+              margin-bottom: 2rem;
+          }
+   
+          .title {
+              font-size: 1.5rem;
+              font-weight: bold;
+              margin-bottom: 0.5rem;
+          }
+   
+          .flex {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 2rem;
+          }
+   
+          .section-title {
+              font-size: 1.125rem;
+              font-weight: 600;
+              margin-bottom: 1rem;
+          }
+   
+          .font-bold {
+              font-weight: bold;
+          }
+   
+          .grid {
+              display: grid;
+              grid-template-columns: repeat(5, 1fr);
+              gap: 1rem;
+              font-weight: bold;
+              color: #4A5568;
+          }
+   
+          .grid-item {
+              margin-bottom: 1rem;
+          }
+   
+          .border-t {
+              border-top: 1px solid #D1D5DB;
+              margin: 1rem 0;
+          }
+   
+          .text-blue {
+              color: #4299E1;
+          }
+   
+          .text-lg {
+              font-size: 1.125rem;
+              font-weight: bold;
+          }
+   
+          .mb-4 {
+              margin-bottom: 1rem;
+          }
+   
+          .justify-between {
+              display: flex;
+              justify-content: space-between;
+          }
+  </style>
+  </head>
+   
+  <body>
+  <div class="container">
+  <div class="center-content">
+  <img src="https://www.slaycoffee.in/cdn/shop/files/logo.png?v=1714476294&width=240" class="image" alt="image" />
+  </div>
+  <div class="text-center">
+  <h1 class="title">Invoice</h1>
+  <p>Order #${order}</p>
+  <p>Placed on ${new Date().toLocaleDateString()}</p>
+  </div>
+   
+          <div class="flex">
+  <div>
+  <h2 class="section-title">Billed To</h2>
+  <p class="font-bold">${invoiceData?.shippingAddress?.name}</p>
+  <p>${invoiceData?.shippingAddress?.street || ''}, ${
+      invoiceData?.shippingAddress?.addressLine1 || ''
+    }, </p>
+  <p>${invoiceData?.shippingAddress?.addressLine2 || ''}, ${
+      invoiceData?.shippingAddress?.landmark || ''
+    }, </p>
+  <p>${invoiceData?.shippingAddress?.city || ''}, ${
+      invoiceData?.shippingAddress?.state || ''
+    }, ${invoiceData?.shippingAddress?.zipCode || ''}</p>
+  <p>${invoiceData?.shippingAddress?.zipCode || ''}, Mobile: ${
+      invoiceData?.shippingAddress?.mobile || ''
+    } </p>
+  </div>
+  <div>
+  <h2 class="section-title">Shipped To</h2>
+  <p class="font-bold">${invoiceData?.billingAddress?.name || ''}</p>
+  <p>${invoiceData?.billingAddress?.street || ''}, ${
+      invoiceData?.billingAddress?.addressLine1 || ''
+    }, </p>
+  <p>${invoiceData?.billingAddress?.addressLine2 || ''}, ${
+      invoiceData?.billingAddress?.landmark || ''
+    }, </p>
+  <p>${invoiceData?.billingAddress?.city || ''}, ${
+      invoiceData?.billingAddress?.state || ''
+    }, ${invoiceData?.billingAddress?.zipCode || ''}</p>
+  <p>${invoiceData?.billingAddress?.zipCode || ''}, Mobile: ${
+      invoiceData?.billingAddress?.mobile || ''
+    } </p>
+  </div>
+  <div>
+  <h2 class="section-title">Invoice Details</h2>
+  <p><span class="font-bold">Invoice #:</span> ${invoiceData.id}</p>
+  <p><span class="font-bold">Payment Status:</span> ${
+      invoiceData?.payment?.status
+    }</p>
+  <p><span class="font-bold">Fulfillment Status:</span> Fulfilled</p>
+  </div>
+  </div>
+   
+          <div class="border-t"></div>
+   
+          <div>
+  <h2 class="section-title">Order Details</h2>
+  <div class="grid">
+  <span>Product</span>
+  <span>Price</span>
+  <span>Quantity</span>
+  <span>Total</span>
+  </div>
+              ${invoiceData?.invoiceLines
+                ?.map(
+                  (item: any) => `
+  <div class="grid grid-item">
+  <span class="text-blue">${item?.productItem?.name}</span>
+  <span>₹ ${item?.pricePerUnit}</span>
+  <span>${item?.quantity}</span>
+  <span>₹ ${item?.amount || 0}</span>
+  </div>`
+                )
+                .join('')}
+  </div>
+   
+          <div class="border-t"></div>
+   
+          <div class="justify-between mb-4">
+  <span class="font-semibold">Subtotal</span>
+  <span>₹ ${invoiceData?.total || 0}</span>
+  </div>
+  <div class="justify-between mb-4">
+  <span class="font-semibold">Shipping</span>
+  <span>₹ 0</span>
+  </div>
+  <div class="justify-between mb-4">
+  <span class="font-semibold">Tax (CGST 2.5%)</span>
+  <span>₹ 0</span>
+  </div>
+  <div class="justify-between mb-4">
+  <span class="font-semibold">Tax (IGST 2.5%)</span>
+  <span>₹ 0</span>
+  </div>
+   
+          <div class="border-t"></div>
+   
+          <div class="justify-between font-bold text-lg">
+  <span>Total</span>
+  <span>₹ ${invoiceData?.total}</span>
+  </div>
+  </div>
+  </body>
+   
+  </html>
+  `
 
   return html;
 }
