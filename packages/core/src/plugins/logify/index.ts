@@ -5,15 +5,11 @@ import { AfterHook } from "../../packages/platform/utility";
 import type { Platform } from '../../packages/platform';
 import jwt from 'jsonwebtoken';
 
-interface Options { JWT_SECRET: string, JWT_EXPRIES_IN: string }
-export interface LogifyConfig {
-  platform: Platform;
-  options: Options
-}
-export default (config: LogifyConfig) => {
-  return (mercury: Mercury) => {
-    const logify = new Logify(mercury, config.platform, config.options);
-    logify.init(mercury);
+interface LogifyConfig { JWT_SECRET: string, JWT_EXPRIES_IN: string }
+export default (options: LogifyConfig) => {
+  return (platform: Platform) => {
+    const logify = new Logify(platform.mercury, platform , options);
+    logify.init(platform.mercury);
     logify.run();
   };
 };
@@ -21,8 +17,8 @@ export default (config: LogifyConfig) => {
 class Logify {
   public mercury: Mercury;
   public platform: Platform;
-  public options: Options;
-  constructor(mercury: Mercury, platform: Platform, options: Options) {
+  public options: LogifyConfig;
+  constructor(mercury: Mercury, platform: Platform, options: LogifyConfig) {
     this.mercury = mercury;
     this.platform = platform;
     this.options = options;
