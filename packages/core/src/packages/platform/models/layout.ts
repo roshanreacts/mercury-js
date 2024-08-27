@@ -19,8 +19,7 @@ export class Layout {
         profiles: {
           type: 'relationship',
           ref: 'Profile',
-          many: true,
-          unique: true
+          many: true
         },
         name: {
           type: 'string',
@@ -41,6 +40,17 @@ export class Layout {
       },
       {
         historyTracking: false,
+        indexes: [
+          {
+            fields: {
+              profiles: 1,
+              model: 1,
+            },
+            options: {
+              unique: true,
+            },
+          },
+        ]
       }
     );
   }

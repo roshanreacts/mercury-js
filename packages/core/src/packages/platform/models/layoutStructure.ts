@@ -23,8 +23,7 @@ export class LayoutStructure {
         },
         order: {
           type: "number",
-          required: true,
-          unique: true,
+          required: true
         },
         row: {
           type: "number"
@@ -35,6 +34,17 @@ export class LayoutStructure {
       },
       {
         historyTracking: false,
+        indexes: [
+          {
+            fields: {
+              layout: 1,
+              order: 1,
+            },
+            options: {
+              unique: true,
+            },
+          },
+        ]
       }
     );
   }
