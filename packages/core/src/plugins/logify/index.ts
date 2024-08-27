@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 interface LogifyConfig { JWT_SECRET: string, JWT_EXPRIES_IN: string }
 export default (options: LogifyConfig) => {
   return (platform: Platform) => {
-    const logify = new Logify(platform.mercury, platform , options);
+    const logify = new Logify(platform.mercury, platform, options);
     logify.init(platform.mercury);
     logify.run();
   };
@@ -34,14 +34,15 @@ class Logify {
     try {
       console.log('LogifyPlugin is running');
       // Add login and signup functionalities here
+
+      //signUp(email: String, password: String, firstName: String, lastName: String, profile: String): Response
       this.mercury.addGraphqlSchema(
         `
           type Mutation {
-            login(email: String, password: String): loginResponse
-            signUp(email: String, password: String, firstName: String, lastName: String, profile: String): Response
+            SignIn(email: String, password: String): SignInResponse
           }
   
-          type loginResponse {
+          type SignInResponse {
             id: String,
             profile: String,
             session: String,
@@ -54,30 +55,29 @@ class Logify {
         `,
         {
           Mutation: {
-            signUp: async (root: any, { firstName, lastName, email, profile, password }: { firstName: string, lastName: string, email: string, profile: string, password: string }, ctx: any, resolverInfo: any) => {
-              try {
-                const user = await this.mercury.db.User.get({ email: email }, { id: '1', profile: 'SystemAdmin' });
-                if (!_.isEmpty(user)) throw new Error("Email Already Registered, Please Login");
-                const newUser = await this.mercury.db.User.create(
-                  {
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    profile: profile,
-                    password: password
-                  },
-                  {
-                    id: "1",
-                    profile: "SystemAdmin",
-                  },
-                );
-                return { id: newUser.id, msg: "User Is Successfully Registered" };
-              } catch (error: any) {
-                throw new GraphQLError(error);
-              }
-            },
-
-            login: async (root: any, { email, password }: { email: string; password: string }, ctx: any) => {
+            // signUp: async (root: any, { firstName, lastName, email, profile, password }: { firstName: string, lastName: string, email: string, profile: string, password: string }, ctx: any, resolverInfo: any) => {
+            //   try {
+            //     const user = await this.mercury.db.User.get({ email: email }, { id: '1', profile: 'SystemAdmin' });
+            //     if (!_.isEmpty(user)) throw new Error("Email Already Registered, Please Login");
+            //     const newUser = await this.mercury.db.User.create(
+            //       {
+            //         firstName: firstName,
+            //         lastName: lastName,
+            //         email: email,
+            //         profile: profile,
+            //         password: password
+            //       },
+            //       {
+            //         id: "1",
+            //         profile: "SystemAdmin",
+            //       },
+            //     );
+            //     return { id: newUser.id, msg: "User Is Successfully Registered" };
+            //   } catch (error: any) {
+            //     throw new GraphQLError(error);
+            //   }
+            // },
+            SignIn: async (root: any, { email, password }: { email: string; password: string }, ctx: any) => {
               try {
                 const user = await this.mercury.db.User.get({ email }, { id: '1', profile: 'SystemAdmin' });
                 if (_.isEmpty(user)) throw new GraphQLError("User Doesn't Exists");
