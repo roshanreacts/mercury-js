@@ -1,3 +1,4 @@
+import { PModel } from '../../../../types';
 export const ProductItem: PModel = {
   info: {
     name: 'ProductItem',
@@ -5,30 +6,30 @@ export const ProductItem: PModel = {
     description: 'ProductItem model',
     managed: true,
     prefix: 'PRODUCT_ITEM',
-    key: "name"
+    key: 'name',
   },
   fields: {
     product: {
-      type: "relationship",
-      ref: "Product"
+      type: 'relationship',
+      ref: 'Product',
     },
     description: {
-      type: "string",
+      type: 'string',
     },
     name: {
-      type: "string",
+      type: 'string',
     },
     productAttribute: {
-      type: "relationship",
-      ref: "ProductAttribute",
+      type: 'relationship',
+      ref: 'ProductAttribute',
     },
     images: {
-      type: "relationship",
+      type: 'relationship',
       ref: 'File',
-      many: true
+      many: true,
     },
   },
   options: {
-    historyTracking: false
-  }
-}
+    historyTracking: false,
+  },
+};

@@ -1,59 +1,60 @@
+import { PModel } from '../../../../types';
 export const Payment: PModel = {
   info: {
     name: 'Payment',
     label: 'Payment',
     description: 'Payment model',
     managed: true,
-    prefix: 'Payment'
+    prefix: 'Payment',
   },
   fields: {
     method: {
-      type: "enum",
-      enumType: "string",
-      enum: ["OFFLINE", "ONLINE"]
+      type: 'enum',
+      enumType: 'string',
+      enum: ['OFFLINE', 'ONLINE'],
     },
     gateway: {
-      type: "enum",
-      enum: ["RAZORPAY"],
-      enumType: "string",
+      type: 'enum',
+      enum: ['RAZORPAY'],
+      enumType: 'string',
     },
     amount: {
-      type: "string"
+      type: 'string',
     },
     date: {
-      type: "date"
+      type: 'date',
     },
     razorPayPaymentId: {
-      type: "string"
+      type: 'string',
     },
     razorPayPaymentStatus: {
-      type: "string"
+      type: 'string',
     },
     razorPaySignature: {
-      type: "string"
+      type: 'string',
     },
     razorPayOrderId: {
-      type: "string"
+      type: 'string',
     },
     razorPayOrderStatus: {
-      type: "string"
+      type: 'string',
     },
     attempts: {
-      type: "number"
+      type: 'number',
     },
     currency: {
-      type: "string"
+      type: 'string',
     },
     status: {
-      type: "enum",
-      enum: ["SUCCESS", "FAILURE"],
-      enumType: "string"
+      type: 'enum',
+      enum: ['SUCCESS', 'FAILURE'],
+      enumType: 'string',
     },
-    mode:{
-      type: "string"
-    }
+    mode: {
+      type: 'string',
+    },
   },
   options: {
-    historyTracking: false
-  }
-}
+    historyTracking: false,
+  },
+};

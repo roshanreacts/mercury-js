@@ -1,4 +1,4 @@
-
+import { PModel } from '../../../../types';
 export const Category: PModel = {
   info: {
     name: 'Category',
@@ -6,18 +6,18 @@ export const Category: PModel = {
     description: 'Category model',
     managed: true,
     prefix: 'CATEGORY',
-    key: 'name'
+    key: 'name',
   },
   fields: {
     name: {
-      type: "string",
+      type: 'string',
     },
     description: {
-      type: "string",
+      type: 'string',
     },
     parent: {
-      type: "relationship",
-      ref: "Category"
+      type: 'relationship',
+      ref: 'Category',
     },
     // Check if it works or not
     // subCategories: {
@@ -27,13 +27,13 @@ export const Category: PModel = {
     //   localField: '_id'
     // },
     products: {
-      type: "virtual",
-      ref: "Product",
+      type: 'virtual',
+      ref: 'Product',
       foreignField: 'category',
-      localField: '_id'
-    }
+      localField: '_id',
+    },
   },
   options: {
-    historyTracking: false
-  }
-}
+    historyTracking: false,
+  },
+};

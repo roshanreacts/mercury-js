@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { fieldTypeMap } from './graphql';
-import { Logger, ISettingsParam, ILogObjMeta } from 'tslog';
+import { TFields } from '../types';
 
 import {
   DateTimeResolver,

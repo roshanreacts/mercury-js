@@ -1,51 +1,51 @@
-
+import { PModel } from '../../../../types';
 export const Invoice: PModel = {
   info: {
     name: 'Invoice',
     label: 'Invoice',
     description: 'Invoice model',
     managed: true,
-    prefix: 'INVOICE'
+    prefix: 'INVOICE',
   },
   fields: {
     customer: {
-      type: "relationship",
-      ref: "Customer"
+      type: 'relationship',
+      ref: 'Customer',
     },
     totalAmount: {
-      type: "float"
+      type: 'float',
     },
     shippingAddress: {
-      type: "relationship",
-      ref: "Address"
+      type: 'relationship',
+      ref: 'Address',
     },
     billingAddress: {
-      type: "relationship",
-      ref: "Address"
+      type: 'relationship',
+      ref: 'Address',
     },
     payment: {
-      type: "relationship",
-      ref: "Payment",
-      unique: true
+      type: 'relationship',
+      ref: 'Payment',
+      unique: true,
     },
     invoiceLines: {
-      type: "virtual",
-      ref: "InvoiceLine",
-      localField: "_id",
-      foreignField: "invoice",
-      many: true
+      type: 'virtual',
+      ref: 'InvoiceLine',
+      localField: '_id',
+      foreignField: 'invoice',
+      many: true,
     },
     status: {
-      type: "enum",
-      enumType: "string",
-      enum: ["Pending", "Paid"],
-      default: "Pending"
+      type: 'enum',
+      enumType: 'string',
+      enum: ['Pending', 'Paid'],
+      default: 'Pending',
     },
     document: {
-      type: "string"
-    }
+      type: 'string',
+    },
   },
   options: {
     historyTracking: false,
-  }
-}
+  },
+};

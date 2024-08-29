@@ -1,7 +1,8 @@
-import mercury from "../../../mercury";
+import mercury from '../../../mercury';
 import type { Mercury } from '../../../mercury';
 import _ from 'lodash';
-import { AfterHook, Utility } from "../utility";
+import { AfterHook, Utility } from '../utility';
+import { TModel, TOptions, TMetaModel, Rule } from '../../../../types';
 
 export class Model {
   protected mercury: Mercury;
@@ -31,7 +32,7 @@ export class Model {
           type: 'string',
         },
         key: {
-          type: "string"
+          type: 'string',
         },
         prefix: {
           type: 'string',
@@ -40,7 +41,7 @@ export class Model {
         managed: {
           type: 'boolean',
           required: true,
-          default: true
+          default: true,
         },
         createdBy: {
           type: 'relationship',
@@ -80,7 +81,7 @@ export class Model {
     const _self = this;
     this.mercury.hook.before('CREATE_MODEL_RECORD', function (this: any) {
       this.data.name = _self.utility.titleCase(this.data.name);
-    })
+    });
     this.mercury.hook.after('CREATE_MODEL_RECORD', async function (this: any) {
       if (this.options.skipHook) return;
       // create options
@@ -111,25 +112,36 @@ export class Model {
 
   @AfterHook
   private async provideSystemAdminAccess(model: TMetaModel) {
-    const systemAdmin = await this.mercury.db.Profile.get({ name: 'SystemAdmin' }, { profile: 'SystemAdmin', id: '1' });
-    const permission = await this.mercury.db.Permission.create({
-      profile: systemAdmin._id,
-      profileName: 'SystemAdmin',
-      model: model._id,
-      modelName: model.name,
-      create: true,
-      update: true,
-      delete: true,
-      read: true
-    }, { id: '1', profile: 'SystemAdmin' });
+    const systemAdmin = await this.mercury.db.Profile.get(
+      { name: 'SystemAdmin' },
+      { profile: 'SystemAdmin', id: '1' }
+    );
+    const permission = await this.mercury.db.Permission.create(
+      {
+        profile: systemAdmin._id,
+        profileName: 'SystemAdmin',
+        model: model._id,
+        modelName: model.name,
+        create: true,
+        update: true,
+        delete: true,
+        read: true,
+      },
+      { id: '1', profile: 'SystemAdmin' }
+    );
     const rule: Rule = {
       modelName: permission.modelName,
-      access: this.utility.composeModelPermission(permission)
-    }
-    const systemAdminRules = JSON.parse(await this.mercury.cache.get('SystemAdmin') as string);
+      access: this.utility.composeModelPermission(permission),
+    };
+    const systemAdminRules = JSON.parse(
+      (await this.mercury.cache.get('SystemAdmin')) as string
+    );
     systemAdminRules.push(rule);
     this.mercury.access.updateProfile('SystemAdmin', systemAdminRules);
-    await this.mercury.cache.set('SystemAdmin', JSON.stringify(systemAdminRules));
+    await this.mercury.cache.set(
+      'SystemAdmin',
+      JSON.stringify(systemAdminRules)
+    );
   }
 
   private deleteModelHook() {
@@ -145,7 +157,7 @@ export class Model {
     });
   }
 
-  // after hook 
+  // after hook
   @AfterHook
   private async syncModel(model: TMetaModel, prevRecord?: TMetaModel) {
     let redisObj: TModel = {} as TModel;
@@ -159,13 +171,19 @@ export class Model {
       if (prevRecord.name !== model.name) {
         // handle redis not present
         // name update -> update in associated model fields, model options
-        redisObj = JSON.parse((await this.mercury.cache.get(prevRecord.name.toUpperCase())) as string);
+        redisObj = JSON.parse(
+          (await this.mercury.cache.get(
+            prevRecord.name.toUpperCase()
+          )) as string
+        );
         await this.delModel(prevRecord.name);
         redisObj.name = model.name;
         this.updateMetaRecords(model);
       } else return;
     }
-    let allModels: string[] = JSON.parse((await this.mercury.cache.get('ALL_MODELS')) as string);
+    let allModels: string[] = JSON.parse(
+      (await this.mercury.cache.get('ALL_MODELS')) as string
+    );
     allModels.push(model.name);
     await this.mercury.cache.set(
       model.name.toUpperCase(),
@@ -174,13 +192,17 @@ export class Model {
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
     if (!_.isEmpty(prevRecord)) {
       this.mercury.deleteModel(prevRecord.name);
-      this.mercury.createModel(redisObj.name, redisObj.fields, { ...redisObj.options } as TOptions);
+      this.mercury.createModel(redisObj.name, redisObj.fields, {
+        ...redisObj.options,
+      } as TOptions);
     }
   }
 
   @AfterHook
   private async delModel(model: string) {
-    let allModels: string[] = JSON.parse(await this.mercury.cache.get('ALL_MODELS') as string);
+    let allModels: string[] = JSON.parse(
+      (await this.mercury.cache.get('ALL_MODELS')) as string
+    );
     allModels = allModels.filter((rmodel: string) => rmodel !== model);
     await this.mercury.cache.delete(model.toUpperCase());
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
@@ -189,21 +211,28 @@ export class Model {
 
   @AfterHook
   private async deleteMetaRecords(model: any) {
-    ['ModelField', 'ModelOption', 'FieldOption'].map(async (modelName: string) => {
-      await this.mercury.db[modelName].mongoModel.deleteMany({
-        model: model._id,
-      });
-    })
+    ['ModelField', 'ModelOption', 'FieldOption'].map(
+      async (modelName: string) => {
+        await this.mercury.db[modelName].mongoModel.deleteMany({
+          model: model._id,
+        });
+      }
+    );
   }
 
   @AfterHook
   private async updateMetaRecords(model: TMetaModel) {
-    ['ModelField', 'ModelOption', 'FieldOption'].map(async (modelName: string) => {
-      await this.mercury.db[modelName].mongoModel.updateMany({
-        model: model._id,
-      }, {
-        $set: { modelName: model.name }
-      });
-    })
+    ['ModelField', 'ModelOption', 'FieldOption'].map(
+      async (modelName: string) => {
+        await this.mercury.db[modelName].mongoModel.updateMany(
+          {
+            model: model._id,
+          },
+          {
+            $set: { modelName: model.name },
+          }
+        );
+      }
+    );
   }
 }

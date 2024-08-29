@@ -1,3 +1,4 @@
+import { PModel } from '../../../../types';
 
 export const Address: PModel = {
   info: {
@@ -6,12 +7,12 @@ export const Address: PModel = {
     description: 'Address model',
     managed: true,
     prefix: 'ADDRESS',
-    key: "name"
+    key: 'name',
   },
   fields: {
     customer: {
-      type: "relationship",
-      ref: "Customer"
+      type: 'relationship',
+      ref: 'Customer',
     },
     // type: {
     //   type: "enum",
@@ -19,40 +20,40 @@ export const Address: PModel = {
     //   enum: ["SHIPPING", "BILLING"]
     // },
     name: {
-      type: "string",
+      type: 'string',
     },
     street: {
-      type: "string",
+      type: 'string',
     },
     city: {
-      type: "string",
+      type: 'string',
     },
     state: {
-      type: "string",
+      type: 'string',
     },
     country: {
-      type: "string",
+      type: 'string',
     },
     zipCode: {
-      type: "string",
+      type: 'string',
     },
     mobile: {
-      type: "string",
+      type: 'string',
     },
     landmark: {
-      type: "string",
+      type: 'string',
     },
     addressLine1: {
-      type: "string",
+      type: 'string',
     },
     addressLine2: {
-      type: "string",
+      type: 'string',
     },
     isDefault: {
-      type: "boolean",
+      type: 'boolean',
     },
   },
   options: {
-    historyTracking: false
-  }
-}
+    historyTracking: false,
+  },
+};

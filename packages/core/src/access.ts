@@ -1,6 +1,7 @@
 import _ from 'lodash';
 const { mapKeys } = _;
 import mercury from './mercury';
+import { PopulateSchema, Profile, TAction, CtxUser, Rule } from '../types';
 export class Access {
   profiles: Profile[] = [];
   validateAccess<T>(
@@ -55,11 +56,11 @@ export class Access {
       const allAccess: boolean[] = select.map((val) => {
         const childPopulate: boolean = val.populate
           ? this.validateDeepAccess(
-            model.fields[val.path]?.ref || '',
-            val.populate,
-            action,
-            user
-          )
+              model.fields[val.path]?.ref || '',
+              val.populate,
+              action,
+              user
+            )
           : true;
         return (
           childPopulate &&

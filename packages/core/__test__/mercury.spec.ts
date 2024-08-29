@@ -1,4 +1,5 @@
 import mercury from '../src/mercury';
+import { TFields } from '../types';
 
 describe('Mercury', () => {
   it('should create a model', () => {

@@ -1,3 +1,4 @@
+import { PModel } from '../../../../types';
 export const Customer: PModel = {
   info: {
     name: 'Customer',
@@ -5,34 +6,34 @@ export const Customer: PModel = {
     description: 'Customer model',
     managed: true,
     prefix: 'CUSTOMER',
-    key: "firstName"
+    key: 'firstName',
   },
   fields: {
     firstName: {
-      type: 'string'
+      type: 'string',
     },
     lastName: {
-      type: 'string'
+      type: 'string',
     },
     email: {
       type: 'string',
       required: true,
-      unique: true
+      unique: true,
     },
     password: {
-      type: "string",
-      bcrypt: true
+      type: 'string',
+      bcrypt: true,
     },
     mobile: {
-      type: "string"
+      type: 'string',
     },
     profile: {
-      type: "enum",
-      enumType: "string",
-      enum: ["Customer"]
-    }
+      type: 'enum',
+      enumType: 'string',
+      enum: ['Customer'],
+    },
   },
   options: {
-    historyTracking: false
-  }
-}
+    historyTracking: false,
+  },
+};

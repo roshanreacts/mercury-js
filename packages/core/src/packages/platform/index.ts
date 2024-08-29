@@ -1,9 +1,33 @@
 import type { Mercury } from '../../mercury';
 // import { Redis } from '../redisCache';
 import _ from 'lodash';
-import { Model, ModelOption, FieldOption, ModelField, Tab, Component, Layout, Profile, Permission, FieldPermission, LayoutStructure, User ,File} from './models';
+import {
+  Model,
+  ModelOption,
+  FieldOption,
+  ModelField,
+  Tab,
+  Component,
+  Layout,
+  Profile,
+  Permission,
+  FieldPermission,
+  LayoutStructure,
+  User,
+  File,
+} from './models';
 import { Utility } from './utility';
 import { SystemAdminRules } from './rules';
+import {
+  Rule,
+  ModelInfo,
+  PModel,
+  TMetaModel,
+  TFields,
+  TOptions,
+  TModel,
+  TModelField,
+} from '../../../types';
 
 type PlatformConfig = {
   prefix?: string;
@@ -35,7 +59,7 @@ export class Platform {
     //@ts-ignore
     this.plugins = config?.plugins || [];
     this.utility = new Utility(this.mercury);
-    this.ctx = { id: "1", profile: "SystemAdmin" };
+    this.ctx = { id: '1', profile: 'SystemAdmin' };
     this.config = config || {};
     this.skipFields = [
       'type',
@@ -76,7 +100,7 @@ export class Platform {
     new Permission(this.mercury);
     new FieldPermission(this.mercury);
     new User(this.mercury);
-    new File(this.mercury)
+    new File(this.mercury);
     await this.composeSystemAdminProfile();
     await this.composeAllProfilesPermissions();
     await this.composeAllRedisSchemas();
@@ -101,92 +125,125 @@ export class Platform {
   }
 
   private async installPlugins() {
-    await Promise.all(this.plugins.map(pkg => pkg(this as Platform)));
+    await Promise.all(this.plugins.map((pkg) => pkg(this as Platform)));
   }
 
   private async composeSystemAdminProfile() {
-    let systemAdminProfile = await this.mercury.db.Profile.mongoModel.findOne({ name: 'SystemAdmin' }).populate('permissions');
+    let systemAdminProfile = await this.mercury.db.Profile.mongoModel
+      .findOne({ name: 'SystemAdmin' })
+      .populate('permissions');
     if (_.isEmpty(systemAdminProfile)) {
       systemAdminProfile = await this.mercury.db.Profile.mongoModel.create({
         name: 'SystemAdmin',
-        label: 'SystemAdmin'
+        label: 'SystemAdmin',
       });
     }
-    await this.composeProfilePermission(systemAdminProfile, systemAdminProfile.permissions ?? [])
-    const systemAdminRules = JSON.parse(await this.mercury.cache.get('SystemAdmin') as string);
+    await this.composeProfilePermission(
+      systemAdminProfile,
+      systemAdminProfile.permissions ?? []
+    );
+    const systemAdminRules = JSON.parse(
+      (await this.mercury.cache.get('SystemAdmin')) as string
+    );
     systemAdminRules.push(...SystemAdminRules);
     this.mercury.access.updateProfile('SystemAdmin', systemAdminRules);
     this.mercury.cache.set('SystemAdmin', JSON.stringify(systemAdminRules));
   }
 
   public async composeAllProfilesPermissions() {
-    const allProfiles = await this.mercury.db.Profile.list({}, { id: '1', profile: 'SystemAdmin' }, { populate: [{ path: 'permissions' }] });
-    await Promise.all(allProfiles.map(async (profile: any) => {
-      if (profile.name != 'SystemAdmin')
-        await this.composeProfilePermission(profile, profile.permissions);
-    }))
+    const allProfiles = await this.mercury.db.Profile.list(
+      {},
+      { id: '1', profile: 'SystemAdmin' },
+      { populate: [{ path: 'permissions' }] }
+    );
+    await Promise.all(
+      allProfiles.map(async (profile: any) => {
+        if (profile.name != 'SystemAdmin')
+          await this.composeProfilePermission(profile, profile.permissions);
+      })
+    );
   }
 
   public async composeProfilePermission(profile: any, permissions: any = []) {
     const rules: Rule[] = [];
-    await Promise.all(permissions.map(async (permission: any) => {
-      const rule: Rule = {
-        modelName: permission.modelName,
-        access: this.utility.composeModelPermission(permission)
-      }
-      if (permission.fieldLevelAccess) {
-        const fieldPermissions = await this.mercury.db.FieldPermission.list({ profile: profile._id, model: permission.model }, { id: '1', profile: 'SystemAdmin' }, {});
-        rule['fieldLevelAccess'] = permission.fieldLevelAccess;
-        rule['fields'] = this.utility.composeFieldPermissions(fieldPermissions);
-      }
-      rules.push(rule);
-    }));
+    await Promise.all(
+      permissions.map(async (permission: any) => {
+        const rule: Rule = {
+          modelName: permission.modelName,
+          access: this.utility.composeModelPermission(permission),
+        };
+        if (permission.fieldLevelAccess) {
+          const fieldPermissions = await this.mercury.db.FieldPermission.list(
+            { profile: profile._id, model: permission.model },
+            { id: '1', profile: 'SystemAdmin' },
+            {}
+          );
+          rule['fieldLevelAccess'] = permission.fieldLevelAccess;
+          rule['fields'] =
+            this.utility.composeFieldPermissions(fieldPermissions);
+        }
+        rules.push(rule);
+      })
+    );
     await this.mercury.cache.set(profile.name, JSON.stringify(rules));
     this.mercury.access.createProfile(profile.name, rules);
   }
 
-  public async createModel( model: PModel) {
+  public async createModel(model: PModel) {
     // create meta records, compose inside redis, create from mercury
     this.mercury.createModel(model.info.name, model.fields, model.options);
     const allModels = await this.listModels();
     allModels.push(model.info.name);
-    await this.mercury.cache.set("ALL_MODELS", JSON.stringify(allModels));
-    await this.mercury.cache.set(model.info.name.toUpperCase(), JSON.stringify({ name: model.info.name, fields: model.fields, options: model.options }));
-    let metaModel = await this.mercury.db.Model.mongoModel.findOne({ name: model.info.name });
+    await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
+    await this.mercury.cache.set(
+      model.info.name.toUpperCase(),
+      JSON.stringify({
+        name: model.info.name,
+        fields: model.fields,
+        options: model.options,
+      })
+    );
+    let metaModel = await this.mercury.db.Model.mongoModel.findOne({
+      name: model.info.name,
+    });
     if (!_.isEmpty(metaModel)) return;
     metaModel = await this.createMetaModel(model.info);
     await Promise.all([
       this.createSystemAdminPermission(metaModel),
       this.createMetaModelFields(model.fields, metaModel),
-      this.createMetaModelOptions(model.options, metaModel)
+      this.createMetaModelOptions(model.options, metaModel),
     ]);
   }
-public async createTab(modelNames:string[]){
-  try {
-     const model=await this.mercury.db.Model.mongoModel.get({modelNames})
-     const existingTab = await this.mercury.db.Tab.mongoModel.findOne({ model: model._id });
-     if (!existingTab) {
-      await this.mercury.db.Tab.mongoModel.create({
-        icon: 'defaultIcon',
+  public async createTab(modelNames: string[]) {
+    try {
+      const model = await this.mercury.db.Model.mongoModel.get({ modelNames });
+      const existingTab = await this.mercury.db.Tab.mongoModel.findOne({
         model: model._id,
-        label: model.name,
-        order: model.order
       });
+      if (!existingTab) {
+        await this.mercury.db.Tab.mongoModel.create({
+          icon: 'defaultIcon',
+          model: model._id,
+          label: model.name,
+          order: model.order,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error creating tabs for models', error);
     }
-  } catch (error:any) {
-    console.error('Error creating tabs for models', error);
   }
-}
-  public async createComponent(models:any){
-    const createdComponents = await Promise.all(models.map(async (component: any) => {
-      const newComponent = await this.mercury.db.Component.mongoModel.create({
-        name: component.name,
-        label: component.label,
-        description: component.description, 
-        code: component.code,
-      });
-      return newComponent;
-    }));
+  public async createComponent(models: any) {
+    const createdComponents = await Promise.all(
+      models.map(async (component: any) => {
+        const newComponent = await this.mercury.db.Component.mongoModel.create({
+          name: component.name,
+          label: component.label,
+          description: component.description,
+          code: component.code,
+        });
+        return newComponent;
+      })
+    );
     return createdComponents;
   }
 
@@ -197,12 +254,14 @@ public async createTab(modelNames:string[]){
       key: model.key,
       description: model.description,
       managed: model.managed,
-      prefix: model.prefix
-    })
+      prefix: model.prefix,
+    });
   }
 
   private async createSystemAdminPermission(model: TMetaModel) {
-    let systemAdmin = await this.mercury.db.Profile.mongoModel.findOne({ name: 'SystemAdmin' });
+    let systemAdmin = await this.mercury.db.Profile.mongoModel.findOne({
+      name: 'SystemAdmin',
+    });
     // if (_.isEmpty(systemAdmin)) {
     //   systemAdmin = await this.mercury.db.Profile.mongoModel.create({
     //     name: 'SystemAdmin',
@@ -219,8 +278,13 @@ public async createTab(modelNames:string[]){
       update: true,
       delete: true,
     });
-    const rules = JSON.parse(await this.mercury.cache.get('SystemAdmin') as string);
-    rules.push({ modelName: model.name, access: { create: true, update: true, read: true, delete: true }, });
+    const rules = JSON.parse(
+      (await this.mercury.cache.get('SystemAdmin')) as string
+    );
+    rules.push({
+      modelName: model.name,
+      access: { create: true, update: true, read: true, delete: true },
+    });
     await this.mercury.cache.set('SystemAdmin', JSON.stringify(rules));
     this.mercury.access.updateProfile('SystemAdmin', rules);
   }
@@ -245,12 +309,11 @@ public async createTab(modelNames:string[]){
           foreignField: fvalue.foreignField,
           enumType: fvalue.enumType,
           enumValues: fvalue.enum,
-          managed: false
+          managed: false,
         });
       })
     );
   }
-  
 
   private async createMetaModelOptions(options: TOptions, model: TMetaModel) {
     await Promise.all(
@@ -261,27 +324,33 @@ public async createTab(modelNames:string[]){
           keyName: option,
           value: value,
           type: typeof value,
-          managed: false
+          managed: false,
         });
       })
     );
   }
 
-
-
   public async composeAllRedisSchemas() {
     // Write one single mongo query to get all the data ( reduce number of memory reads )
-    const models: TMetaModel[] = await this.mercury.db['Model'].list({}, { id: '1', profile: 'SystemAdmin' }, {});
+    const models: TMetaModel[] = await this.mercury.db['Model'].list(
+      {},
+      { id: '1', profile: 'SystemAdmin' },
+      {}
+    );
     const allModels: string[] = [];
-    await Promise.all(models.map(async (model: TMetaModel) => {
-      allModels.push(model.name);
-      await this.composeRedisObject(model);
-    }));
+    await Promise.all(
+      models.map(async (model: TMetaModel) => {
+        allModels.push(model.name);
+        await this.composeRedisObject(model);
+      })
+    );
     await this.mercury.cache.set('ALL_MODELS', JSON.stringify(allModels));
   }
 
   public async composeRedisObject(model: TMetaModel) {
-    let modelFields, modelOptions, fieldOptions = [];
+    let modelFields,
+      modelOptions,
+      fieldOptions = [];
     try {
       modelFields = await this.mercury.db['ModelField'].list(
         { model: model._id, modelName: model.name },
@@ -397,10 +466,10 @@ public async createTab(modelNames:string[]){
     let allModels: string | null = await this.mercury.cache.get('ALL_MODELS');
     return allModels == null ? [] : JSON.parse(allModels);
   }
-public async listTabs(){
-  let allTabs:string|null=await this.mercury.cache.get('ALL_TABS');
-  return allTabs==null?[]:JSON.parse(allTabs);
-}
+  public async listTabs() {
+    let allTabs: string | null = await this.mercury.cache.get('ALL_TABS');
+    return allTabs == null ? [] : JSON.parse(allTabs);
+  }
   public async getModel(modelName: string) {
     let model: string | TModel | null = await this.mercury.cache.get(modelName);
     return model == null ? {} : JSON.parse(model);
@@ -536,7 +605,11 @@ public async listTabs(){
         deleteField
       );
       const modelField = await this.mercury.db['ModelField'].get(
-        { model: modelData._id, modelName: modelData.name, fieldName: deleteField },
+        {
+          model: modelData._id,
+          modelName: modelData.name,
+          fieldName: deleteField,
+        },
         { id: 'sdf', profile: 'SystemAdmin' }
       );
       await this.mercury.db['FieldOption'].mongoModel.deleteMany({
@@ -1062,7 +1135,6 @@ public async listTabs(){
   //     );
   //     this.mercury.createModel(redisObj.name, redisObj.fields, redisObj.options);
   //   }
-
 }
 
 // export type { Platform };

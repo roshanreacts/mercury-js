@@ -1,34 +1,35 @@
+import { PModel } from '../../../../types';
 export const Coupon: PModel = {
   info: {
     name: 'Coupon',
     label: 'Coupon',
     description: 'Coupon model',
     managed: true,
-    prefix: 'COUPON'
+    prefix: 'COUPON',
   },
   fields: {
     code: {
-      type: "string"
+      type: 'string',
     },
     discountType: {
-      type: "enum",
-      enum: ["PERCENTAGE", "FIXED_AMOUNT"],
+      type: 'enum',
+      enum: ['PERCENTAGE', 'FIXED_AMOUNT'],
       enumType: 'string',
     },
     discountValue: {
-      type: "number"
+      type: 'number',
     },
     maxDiscountPrice: {
-      type: "number"
+      type: 'number',
     },
     minOrderPrice: {
-      type: "number"
+      type: 'number',
     },
     expiryDate: {
-      type: "date"
-    }
+      type: 'date',
+    },
   },
   options: {
-    historyTracking: false
-  }
-}
+    historyTracking: false,
+  },
+};

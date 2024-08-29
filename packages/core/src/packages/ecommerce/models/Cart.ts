@@ -1,3 +1,4 @@
+import { PModel } from '../../../../types';
 
 export const Cart: PModel = {
   info: {
@@ -5,25 +6,25 @@ export const Cart: PModel = {
     label: 'Cart',
     description: 'Cart model',
     managed: true,
-    prefix: 'CART'
+    prefix: 'CART',
   },
   fields: {
     customer: {
-      type: "relationship",
-      ref: "Customer"
+      type: 'relationship',
+      ref: 'Customer',
     },
     totalAmount: {
-      type: "float"
+      type: 'float',
     },
-    cartToken:{
-      type: "string"
+    cartToken: {
+      type: 'string',
     },
-    cartItems:{
-      type: "virtual",
-      ref: "CartItem",
-      localField: "_id",
-      foreignField: "cart",
-      many: true
+    cartItems: {
+      type: 'virtual',
+      ref: 'CartItem',
+      localField: '_id',
+      foreignField: 'cart',
+      many: true,
     },
   },
   options: {
@@ -38,6 +39,6 @@ export const Cart: PModel = {
           unique: true,
         },
       },
-    ]
-  }
-}
+    ],
+  },
+};

@@ -1,14 +1,14 @@
-declare type TModel = {
+export type TModel = {
   fields: TFields;
   name: string;
   options?: TOptions;
 };
 
-declare type TFields = {
+export type TFields = {
   [fieldName: string]: TField;
 };
 
-declare type TField = {
+export type TField = {
   type:
     | 'string'
     | 'number'
@@ -34,7 +34,7 @@ declare type TField = {
   [x: string]: any;
 };
 
-declare type TOptions = {
+export type TOptions = {
   historyTracking: boolean;
   update?: boolean;
   private?: boolean;
@@ -42,16 +42,16 @@ declare type TOptions = {
   [x: string]: any;
 };
 
-declare type TIndex = {
+export type TIndex = {
   fields: TIndexFields;
   options?: TIndexOptions;
 };
 
-declare type TIndexFields = {
+export type TIndexFields = {
   [fieldName: string]: number;
 };
 
-declare type TIndexOptions = {
+export type TIndexOptions = {
   unique?: boolean;
   sparse?: boolean;
   partialFilterExpression?: any;

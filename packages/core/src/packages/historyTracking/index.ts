@@ -3,6 +3,7 @@ import { Mercury } from '../../mercury';
 import mongoose from 'mongoose';
 const { Types } = mongoose;
 import _ from 'lodash';
+import { TModel } from '../../../types';
 
 export interface MercuryHistoryPkgConfig {
   skipModels?: Array<string>;
@@ -106,19 +107,16 @@ async function createHistoryRecord(
   fieldName: String,
   ctx: any
 ) {
-
   // setting context
-  const historyRecord = await mercury.db[model].mongoModel.create(
-    {
-      recordId: recordId,
-      operationType: operationType,
-      instanceId: instanceId,
-      dataType: dataType,
-      fieldName: fieldName,
-      newValue: ifStringAndNotNull(newValue),
-      oldValue: ifStringAndNotNull(oldValue),
-    }
-  );
+  const historyRecord = await mercury.db[model].mongoModel.create({
+    recordId: recordId,
+    operationType: operationType,
+    instanceId: instanceId,
+    dataType: dataType,
+    fieldName: fieldName,
+    newValue: ifStringAndNotNull(newValue),
+    oldValue: ifStringAndNotNull(oldValue),
+  });
 }
 
 function ifStringAndNotNull(value: any): string {

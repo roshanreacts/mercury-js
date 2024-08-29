@@ -1,23 +1,24 @@
+import { PModel } from '../../../../types';
 export const ProductAttribute: PModel = {
   info: {
     name: 'ProductAttribute',
     label: 'ProductAttribute',
     description: 'ProductAttribute model',
     managed: true,
-    prefix: 'PRODUCT_ATTRIBUTE'
+    prefix: 'PRODUCT_ATTRIBUTE',
   },
   fields: {
     colour: {
-      type: "string"
+      type: 'string',
     },
     size: {
-      type: "string"
+      type: 'string',
     },
     weight: {
-      type: "number"
+      type: 'number',
     },
   },
   options: {
-    historyTracking: false
+    historyTracking: false,
   },
-}
+};

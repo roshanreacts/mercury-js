@@ -1,7 +1,14 @@
-import { Platform } from ".";
-import _ from "lodash";
-import mercury from "../../mercury";
+import { Platform } from '.';
+import _ from 'lodash';
+import mercury from '../../mercury';
 import type { Mercury } from '../../mercury';
+import {
+  TField,
+  TFieldOption,
+  TModelField,
+  TModelOption,
+  TMetaModel,
+} from '../../../types';
 
 export class Utility {
   protected mercury: Mercury;
@@ -19,13 +26,14 @@ export class Utility {
   }
 
   public composeFieldPermissions(fieldPermissions: any) {
-    const fields: any = {}
+    const fields: any = {};
     fieldPermissions.map((fieldPermission: any) => {
-      if (_.isEmpty(fields[fieldPermission.fieldName])) fields[fieldPermission.fieldName] = {};
+      if (_.isEmpty(fields[fieldPermission.fieldName]))
+        fields[fieldPermission.fieldName] = {};
       ['create', 'update', 'delete', 'read'].map((action: string) => {
         fields[fieldPermission.fieldName][action] = fieldPermission[action];
       });
-    })
+    });
     return fields;
   }
   public composeSchema(
@@ -56,13 +64,10 @@ export class Utility {
       Object.keys(modelField['_doc']).map((key: string) => {
         // Return for some fields
         if (skipFields.includes(key)) return;
-        if (
-          key != 'enumValues'
-        )
-          fieldObj[key] = modelField[key];
-          if(key == 'enumValues' && modelField[key].length) {
-            fieldObj['enum'] = modelField[key];
-          }
+        if (key != 'enumValues') fieldObj[key] = modelField[key];
+        if (key == 'enumValues' && modelField[key].length) {
+          fieldObj['enum'] = modelField[key];
+        }
       });
       if (fieldOptions) {
         const fieldOption = fieldOptions.filter((fieldOption: any) =>
@@ -75,10 +80,10 @@ export class Utility {
             type == 'number'
               ? Number(value)
               : type == 'string'
-                ? String(value)
-                : type == 'boolean'
-                  ? value === 'true'
-                  : Boolean(value);
+              ? String(value)
+              : type == 'boolean'
+              ? value === 'true'
+              : Boolean(value);
         });
       }
       schema[fieldName] = fieldObj;
@@ -95,10 +100,10 @@ export class Utility {
         type == 'number'
           ? Number(value)
           : type == 'string'
-            ? String(value)
-            : type == 'boolean'
-              ? value === 'true'
-              : Boolean(value);
+          ? String(value)
+          : type == 'boolean'
+          ? value === 'true'
+          : Boolean(value);
     });
     return options;
   }
@@ -111,9 +116,9 @@ export class Utility {
         managed: false,
         keyName: option,
         value: false,
-        type: "boolean",
+        type: 'boolean',
       });
-    })
+    });
   }
 
   public async createMetaRecords(modelName: string, data: any) {
@@ -149,10 +154,13 @@ export class Utility {
   // }
 
   public titleCase(str: string) {
-    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 }
-
 
 export function AfterHook(
   target: any,

@@ -1,3 +1,4 @@
+import { PModel } from '../../../../types';
 
 export const CartItem: PModel = {
   info: {
@@ -5,29 +6,29 @@ export const CartItem: PModel = {
     label: 'Cart Item',
     description: 'Cart model',
     managed: true,
-    prefix: 'CART_ITEM'
+    prefix: 'CART_ITEM',
   },
   fields: {
     productItem: {
-      type: "relationship",
-      ref: "ProductItem",
+      type: 'relationship',
+      ref: 'ProductItem',
     },
     priceBookItem: {
-      type: "relationship",
-      ref: "PriceBookItem",
+      type: 'relationship',
+      ref: 'PriceBookItem',
     },
     quantity: {
-      type: "number",
+      type: 'number',
     },
     amount: {
-      type: "number",
+      type: 'number',
     },
     cart: {
-      type: "relationship",
-      ref: "Cart"
-    }
+      type: 'relationship',
+      ref: 'Cart',
+    },
   },
   options: {
-    historyTracking: false
-  }
-}
+    historyTracking: false,
+  },
+};

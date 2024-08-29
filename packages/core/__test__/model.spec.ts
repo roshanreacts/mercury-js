@@ -3,6 +3,8 @@ import access from '../src/access';
 import hook from '../src/hooks';
 import * as db from './db';
 import mongoose from 'mongoose';
+import { TModel } from '../types';
+
 hook.before(`CREATE_PRODUCTDETAIL_RECORD`, function (this: any) {
   if (this.data.name === 'test 2') {
     // next(Error('test'));

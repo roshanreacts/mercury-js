@@ -1,3 +1,4 @@
+import { PModel } from '../../../../types';
 export const Product: PModel = {
   info: {
     name: 'Product',
@@ -5,26 +6,26 @@ export const Product: PModel = {
     description: 'Product model',
     managed: true,
     prefix: 'PRODUCT',
-    key: "name"
+    key: 'name',
   },
   fields: {
     name: {
-      type: "string"
+      type: 'string',
     },
     description: {
-      type: "string"
+      type: 'string',
     },
     category: {
-      type: "relationship",
-      ref: "Category",
+      type: 'relationship',
+      ref: 'Category',
     },
     variantGroups: {
-      type: "relationship",
-      ref: "VariantGroup",
+      type: 'relationship',
+      ref: 'VariantGroup',
       many: true,
-    }
+    },
   },
   options: {
-    historyTracking: false
-  }
-}
+    historyTracking: false,
+  },
+};

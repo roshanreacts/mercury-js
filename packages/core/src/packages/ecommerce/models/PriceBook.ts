@@ -1,3 +1,4 @@
+import { PModel } from '../../../../types';
 export const PriceBook: PModel = {
   info: {
     name: 'PriceBook',
@@ -5,25 +6,24 @@ export const PriceBook: PModel = {
     description: 'PriceBook model',
     managed: true,
     prefix: 'PRICE_BOOK',
-    key: "name"
+    key: 'name',
   },
   fields: {
     currency: {
-      type: "string"
+      type: 'string',
     },
     name: {
-      type: "string"
+      type: 'string',
     },
     priceBookItems: {
-      type: "virtual",
-      ref: "PriceBookItem",
-      localField: "_id",
-      foreignField: "priceBook",
+      type: 'virtual',
+      ref: 'PriceBookItem',
+      localField: '_id',
+      foreignField: 'priceBook',
       many: true,
     },
   },
   options: {
-    historyTracking: false
-  }
-
-}
+    historyTracking: false,
+  },
+};

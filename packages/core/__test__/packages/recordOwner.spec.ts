@@ -2,7 +2,7 @@ import recordOwner from '../../src/packages/recordOwner';
 import access from '../../src/access';
 import mercury from '../../src/mercury';
 import * as db from '../db';
-// mercury.package([recordOwner()]);
+import { TFields } from '../../types';
 
 describe('recordOwner', () => {
   it('should recordOwner the schema', async () => {

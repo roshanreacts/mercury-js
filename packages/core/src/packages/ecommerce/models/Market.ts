@@ -1,3 +1,4 @@
+import { PModel } from '../../../../types';
 export const Market: PModel = {
   info: {
     name: 'Market',
@@ -5,31 +6,31 @@ export const Market: PModel = {
     description: 'Market model',
     managed: true,
     prefix: 'MARKET',
-    key: "name"
+    key: 'name',
   },
   fields: {
     name: {
-      type: "string",
+      type: 'string',
     },
     description: {
-      type: "string",
+      type: 'string',
     },
     location: {
-      type: "string",
+      type: 'string',
     },
     isActive: {
-      type: "boolean",
+      type: 'boolean',
     },
     currency: {
-      type: "string"
+      type: 'string',
     },
     collections: {
-      type: "relationship",
-      ref: "Collection",
-      many: true
+      type: 'relationship',
+      ref: 'Collection',
+      many: true,
     },
   },
   options: {
-    historyTracking: false
-  }
-}
+    historyTracking: false,
+  },
+};

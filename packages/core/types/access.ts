@@ -1,11 +1,11 @@
-declare type CtxUser = {
+export type CtxUser = {
   id: string;
   profile: string;
 };
 
-declare type TAction = 'create' | 'read' | 'update' | 'delete';
+export type TAction = 'create' | 'read' | 'update' | 'delete';
 
-declare type Rule = {
+export type Rule = {
   modelName: string;
   access: {
     [TAction: string]: boolean;
@@ -19,12 +19,12 @@ declare type Rule = {
   sharingRules?: 'PRIVATE' | 'PUBLIC_READ' | 'PUBLIC_READ_WRITE';
 };
 
-declare type Profile = {
+export type Profile = {
   name: string;
   rules: Rule[];
 };
 
-declare type PopulateSchema = Array<{
+export type PopulateSchema = Array<{
   path: string;
   select: string[];
   populate?: PopulateSchema;

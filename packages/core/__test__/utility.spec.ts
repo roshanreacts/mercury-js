@@ -1,5 +1,5 @@
 import { whereInputCompose, whereInputMap } from '../src/utility';
-
+import { TFields } from '../types';
 describe('Utility', () => {
   it('whereInputCompose', () => {
     const input = {

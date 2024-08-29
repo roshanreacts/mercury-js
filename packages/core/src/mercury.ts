@@ -1,6 +1,8 @@
 import _ from 'lodash';
 const { merge } = _;
 import { defaultTypeDefs, defaultResolvers } from './utility';
+import { TModel, TFields, TOptions } from '../types';
+
 // import { log, loggerConfig, setLogger, defaultTypeDefs, defaultResolvers, MercuryLogger } from './utility';
 import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
 import mongoose from 'mongoose';
@@ -41,7 +43,7 @@ class Mercury {
   }
 
   public async package(packages: Array<(mercury: Mercury) => Promise<void>>) {
-    await Promise.all(packages.map(pkg => pkg(this as Mercury)));
+    await Promise.all(packages.map((pkg) => pkg(this as Mercury)));
   }
 
   public plugins(plugins: Array<(mercury: Mercury) => void>) {
@@ -119,8 +121,8 @@ class Mercury {
   }
 
   public deleteModel(model: string) {
-    this.typeDefsArr = this.typeDefsArr.filter((td) =>
-      !td.includes(`get${model}(`)
+    this.typeDefsArr = this.typeDefsArr.filter(
+      (td) => !td.includes(`get${model}(`)
     );
     delete this.db[model];
     this.list = this.list.filter((om: TModel) => om.name !== model);
@@ -133,7 +135,7 @@ class Mercury {
       delete this.resolversArr.Mutation[prefix + model];
       //@ts-ignore
       delete this.resolversArr.Mutation[prefix + model + 's'];
-    })
+    });
   }
 }
 

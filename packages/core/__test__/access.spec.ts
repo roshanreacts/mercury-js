@@ -1,5 +1,6 @@
 import access from '../src/access';
 import mercury from '../src/mercury';
+import { TFields } from '../types';
 
 describe('Access', () => {
   it('should create a profile', () => {

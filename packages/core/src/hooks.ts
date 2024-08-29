@@ -1,5 +1,6 @@
 // @ts-ignore
 import Kareem from 'kareem';
+import { THookType } from '../types';
 
 // Define a class for a hook
 export class Hook {
