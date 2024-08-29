@@ -1,7 +1,0 @@
-{
-  "name": "@mercury-js/core/packages/redisCache",
-  "private": false,
-  "main": "../../dist/cjs/packages/redisCache/index.js",
-  "module": "../../dist/esm/packages/redisCache/index.js",
-  "types": "./index.d.ts"
-}
