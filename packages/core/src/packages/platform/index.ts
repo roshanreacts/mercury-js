@@ -100,7 +100,7 @@ export class Platform {
     new Permission(this.mercury);
     new FieldPermission(this.mercury);
     new User(this.mercury);
-    new File(this.mercury);
+    // new File(this.mercury);
     await this.composeSystemAdminProfile();
     await this.composeAllProfilesPermissions();
     await this.composeAllRedisSchemas();

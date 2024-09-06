@@ -2,7 +2,7 @@
 import type { Platform } from '../../packages/platform';
 //@ts-ignore
 import { v4 as uuidv4 } from 'uuid';
-import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, Customer, Variant, VariantGroup } from './models';
+import { Address, Cart, CartItem, Collection, Category, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, Product, ProductAttribute, ProductItem, Customer, Variant, VariantGroup, File } from './models';
 import { getInvoiceHtml, handleAddToCartForExistingCart, recalculateTotalAmountOfCart, sendVerificationEmail, syncAddressIsDefault, uploadPdfBuffer } from './utils';
 import { GraphQLError } from 'graphql';
 //@ts-ignore
@@ -55,8 +55,11 @@ export class Ecommerce {
   }
 
   async createModels() {
-    const models = [Address, Product, Cart, Customer, Collection, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem, Invoice, InvoiceLine, Variant, VariantGroup];
-    const modelCreation = models.map(model => this.platform.createModel(model));
+    const models = [Address, Product, Cart, Customer, Collection, Coupon, Market, Order, Payment, PriceBook, PriceBookItem, ProductAttribute, ProductItem, Category, CartItem, Invoice, InvoiceLine, Variant, VariantGroup, File];
+    const modelCreation = models.map(model => {
+      if(!(model.info.name in this.platform.mercury.db))
+      this.platform.createModel(model)
+    });
     await Promise.all(modelCreation);
     this.platform.mercury.addGraphqlSchema(`
       type Mutation {

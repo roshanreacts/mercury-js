@@ -74,6 +74,10 @@ export class ModelField {
         rounds: {
           type: 'number',
         },
+        bcrypt: {
+          type: 'boolean',
+          default: false
+        },
         unique: {
           type: 'boolean',
         },
