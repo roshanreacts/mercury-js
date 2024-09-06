@@ -11,3 +11,4 @@ export { FieldPermission } from './fieldPermission';
 export { LayoutStructure } from './layoutStructure';
 export { User } from './user';
 export { File } from './file';
+export { HookM } from './hook';

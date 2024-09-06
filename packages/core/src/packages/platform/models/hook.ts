@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { AfterHook, Utility } from '../utility';
 import { TModel, TOptions, TMetaModel, Rule } from '../../../../types';
 
-export class Hook {
+export class HookM {
   protected mercury: Mercury;
   protected utility;
   
@@ -16,7 +16,7 @@ export class Hook {
 
   private createModel() {
     this.mercury.createModel(
-      'Hook',
+      'HookM',
       {
         model: {
           type: 'relationship',
