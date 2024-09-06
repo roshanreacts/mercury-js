@@ -1,6 +1,6 @@
 // @ts-ignore
 import Kareem from 'kareem';
-import { THookType } from '../types';
+import { THookParams, THookType } from '../types';
 
 // Define a class for a hook
 export class Hook {
@@ -18,15 +18,22 @@ export class Hook {
   };
 
   // Execute all functions added to be executed before a hook
-  public execBefore = (type: THookType, ...args: any[]) => {
-    // @ts-expect-error - execPre is a function in the Kareem instance
-    this.kareemHookInstance.execPre(type, ...args);
+  public execBefore = (
+    type: THookType,
+    params: THookParams,
+    cb: (err: any) => void
+  ) => {
+    this.kareemHookInstance.execPre(type, params, cb);
   };
 
   // Execute all functions added to be executed after a hook
-  public execAfter = (type: THookType, ...args: any[]) => {
-    // @ts-expect-error - execPre is a function in the Kareem instance
-    this.kareemHookInstance.execPost(type, ...args);
+  public execAfter = (
+    type: THookType,
+    params: THookParams,
+    context: Array<any>,
+    cb: (err: any) => void
+  ) => {
+    this.kareemHookInstance.execPost(type, params, context, cb);
   };
 }
 

@@ -240,6 +240,21 @@ hook.after('DELETE_USER_RECORD', function (this: any) {
 export { default as UserHook } from './User.hook';
 ```
 
+`this` param that you get in hooks is the context of the operation. You can modify the data, access the user, and more.
+Below is the object with params which are available in different pre and post hook calls carefully understand them to use in pre and post hook calls.
+
+`name` is of type `string` which is the name of the model.
+`user:` is a context user object passed from graphql setContext method. Which is used to check the user profile and access control and all the user properties.
+`prevRecord?` is returned in `UPDATE` hooks, it is the record before the operation.
+`deletedRecord?` is returned in `DELETE` hooks, it is the record that was deleted.
+`records?` is returned in `LIST` and `PAGINATE` read hooks, it is the record that was queried using find.
+`filters?`is returned in `PAGINATE(Read)` hooks, it is the filters that were used to query the records.
+`count?` is of type `number` and is returned in `COUNT(Read)` hooks, it is the count of the records that were queried.
+`query?`is a mongoose query object that is returned in most of the read call like GET, LIST, PAGINATE hooks, it is the query that was used to query the records.
+`data?`is the payload that method receives which are used to create or update the record.
+`record?` is the record that was created, updated, deleted or read in different hooks. It is a singular of records.
+`options` is the options that are passed to the method like `populate`, `select`, `internal` etc. It is an object which is used by plugins to set some custom options to the method to be used in hooks.
+
 ## License
 
 [MIT](LICENSE).
