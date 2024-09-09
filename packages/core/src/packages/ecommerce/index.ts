@@ -326,7 +326,7 @@ export class Ecommerce {
     await new Promise((resolve, reject) => {
       this.platform.mercury.hook.execAfter(
         `PLATFORM_INITIALIZE`,
-        {},
+        {name: '', options: {}, user: {id: "1", profile: "SystemAdmin"}},
         [],
         function (error: any) {
           if (error) {

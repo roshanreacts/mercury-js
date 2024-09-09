@@ -23,6 +23,7 @@ export class Hook {
     params: THookParams,
     cb: (err: any) => void
   ) => {
+    //@ts-ignore
     this.kareemHookInstance.execPre(type, params, cb);
   };
 
