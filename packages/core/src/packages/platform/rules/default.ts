@@ -98,5 +98,14 @@ export const DefaultRules = [
       delete: false,
     },
   },
+  {
+    modelName: "HookM",
+    access: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+    },
+  },
 ];
 

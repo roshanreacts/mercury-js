@@ -116,5 +116,14 @@ export const SystemAdminRules = [
       delete: true,
     },
   },
+  {
+    modelName: "HookM",
+    access: {
+      create: true,
+      read: true,
+      update: true,
+      delete: true,
+    },
+  },
 ];
 

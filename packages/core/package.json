@@ -67,6 +67,11 @@
       "require": "./dist/cjs/plugins/razorpay/index.js",
       "import": "./dist/esm/plugins/razorpay/index.js",
       "types": "./dist/esm/src/plugins/razorpay/index.d.ts"
+    },
+    "./plugins/media": {
+      "require": "./dist/cjs/plugins/media/index.js",
+      "import": "./dist/esm/plugins/media/index.js",
+      "types": "./dist/esm/src/plugins/media/index.d.ts"
     }
   },
   "files": [

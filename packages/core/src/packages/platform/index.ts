@@ -14,7 +14,6 @@ import {
   FieldPermission,
   LayoutStructure,
   User,
-  File,
   HookM
 } from './models';
 import { Utility } from './utility';

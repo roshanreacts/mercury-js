@@ -13,7 +13,8 @@ const folderBuilds = [
   'packages/platform',
   'packages/ecommerce',
   'plugins/logify',
-  'plugins/razorpay'
+  'plugins/razorpay',
+  'plugins/media'
 ].map((folder) => ({
   input: `src/${folder}/index.ts`,
   output: [

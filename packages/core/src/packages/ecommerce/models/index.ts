@@ -15,4 +15,3 @@ export { Category } from "./Category";
 export { Address } from "./Address";
 export { Variant } from "./Variant";
 export { VariantGroup } from "./VariantGroup";
-export { File } from "./File";
