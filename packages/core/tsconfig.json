@@ -8,7 +8,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "typeRoots": ["src/types"],
+    "typeRoots": ["src/types", "./node_modules/@types", "../node_modules/@types", "../../node_modules/@types"],
   },
   "files": [],
   "include": [],

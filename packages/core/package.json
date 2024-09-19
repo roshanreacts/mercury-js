@@ -1,7 +1,17 @@
 {
   "name": "@mercury-js/core",
   "version": "0.0.1",
-  "dependencies": {},
+  "dependencies": {
+    "@graphql-tools/merge": "^9.0.7",
+    "bcryptjs": "^2.4.3",
+    "graphql": "^16.9.0",
+    "graphql-fields": "^2.0.3",
+    "graphql-scalars": "^1.23.0",
+    "lodash": "^4.17.21",
+    "mongoose": "^8.6.3",
+    "mongoose-paginate-v2": "^1.8.3",
+    "semver": "^7.6.3"
+  },
   "main": "./index.cjs",
   "module": "./index.js",
   "license": "MIT"
