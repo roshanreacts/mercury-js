@@ -582,15 +582,7 @@ export class Model {
           if (value.type === 'virtual') {
             return;
           }
-          const fieldSchema: {
-            type: any;
-            ref?: string;
-            enum?: Array<string | number>;
-            bcrypt?: boolean;
-            rounds?: number;
-            unique?: boolean;
-            required?: boolean;
-          } = {
+          const fieldSchema: any = {
             type: value.many
               ? [this.fieldMongooseTyepMap[value.type]]
               : this.fieldMongooseTyepMap[value.type],
@@ -601,7 +593,7 @@ export class Model {
             }
             fieldSchema[vKey as keyof typeof fieldSchema] = value[
               vKey as keyof typeof value
-            ] as (typeof fieldSchema)[keyof typeof fieldSchema];
+            ] as any;
           });
           if ('enum' in value && value.enumType) {
             fieldSchema.type = this.fieldMongooseTyepMap[value.enumType];

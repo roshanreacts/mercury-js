@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 const { mapKeys, startCase } = _;
-import * as graphqlFields from 'graphql-fields';
+// @ts-ignore
+import graphqlFields from 'graphql-fields';
 import { Model } from './models';
 import { TFields, TOptions } from '../types';
 
