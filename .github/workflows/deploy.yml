@@ -15,14 +15,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: 18
+          node-version: 20
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Build website
-        run: yarn nx run docs:build --verbose --skip-nx-cache
+        run: pnpm nx run docs:build --verbose --skip-nx-cache
 
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v3
