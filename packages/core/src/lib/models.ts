@@ -7,7 +7,7 @@ import { TModel, TField, CtxUser, PopulateSchema } from '../types';
 import mongooseBcrypt from './mongoBcrypt';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import * as mongoosePaginateV2 from 'mongoose-paginate-v2';
+import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import access from './access';
 import hook from './hooks';
 import * as _ from 'lodash';

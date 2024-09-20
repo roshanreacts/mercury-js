@@ -1,20 +1,19 @@
 import express from 'express';
 import http from 'http';
-import fs from 'fs';
-//import  historyTracking  from '@mercury-js/core/packages/historyTracking
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { makeExecutableSchema } from 'graphql-tools';
-import axios from 'axios';
 import { applyMiddleware } from 'graphql-middleware';
 import mercury from '@mercury-js/core';
 import { ApolloServer } from '@apollo/server';
-//@ts-ignore
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import dotenv from 'dotenv';
-dotenv.config();
 import { GraphQLError } from 'graphql';
+import './models';
+import './hooks';
+import './profiles';
+dotenv.config();
 const app = express();
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
