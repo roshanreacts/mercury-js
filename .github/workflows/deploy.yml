@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: "create-main-branch"
-        run: "git branch --track main origin/main"
+        run: "git branch --track main origin/master"
       - uses: actions/setup-node@v4
         with:
           node-version: 18
