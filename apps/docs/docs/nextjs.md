@@ -34,7 +34,7 @@ your-project
 - **tsconfig.json**: Typescript configuration file.
 - **package.json**: Contains project dependencies and scripts.
 
-### Setting up the Server
+### Setting up the server
 
 1. **Install Dependencies:**
 
