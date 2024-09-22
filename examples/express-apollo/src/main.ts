@@ -52,7 +52,7 @@ const schema = applyMiddleware(
 (async function startApolloServer() {
   // connect db to mercury
   mercury.connect(
-    process.env.DB_URL || 'mongodb://localhost:27017/messaging-api'
+    process.env.DB_URL || 'mongodb+srv://admin:forms123@cluster0.bvvpuvc.mongodb.net/newVersion'
   );
 
   const httpServer = http.createServer(app);
@@ -74,7 +74,7 @@ const schema = applyMiddleware(
     //limiter,
     expressMiddleware(server, {
       context: async ({ req }) => {
-        return { ...req, user: { profile: 'VENDOR' } };
+        return { ...req, user: { profile: 'USER' } };
       },
     })
   );
