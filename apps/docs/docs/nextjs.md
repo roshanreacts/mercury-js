@@ -15,11 +15,14 @@ your-project
 │   └── api
 │       └── [your-endpoint].ts
 └── models
-    └── [your-model].ts
+    ├── [your-model].ts
+    └── index.ts
 └── profiles
-    └── [your-profile].ts
+    ├── [your-profile].ts
+    └── index.ts
 └── hooks
-    └── [your-hook].ts
+    ├── [your-hook].ts
+    └── index.ts
 └── next.config.js
 └── tsconfig.json
 └── package.json
@@ -151,6 +154,14 @@ your-project
    export const Account = mercury.createModel('Account', AccountSchema, {});
    ```
 
+2. **Export Models (`models/index.ts`):**
+
+   ```typescript
+   // models/index.ts
+   export { User } from './User.model';
+   export { Account } from './Account.model';
+   ```
+
 ### Setting Up Profiles
 
 1. **Create Profile Files (`profiles/[your-profile].ts`):**
@@ -215,6 +226,14 @@ your-project
    export const UserProfile = mercury.createProfile('User', rules);
    ```
 
+2. **Export Profiles (`profiles/index.ts`):**
+
+   ```typescript
+   // profiles/index.ts
+   export { AdminProfile } from './Admin.profile';
+   export { UserProfile } from './User.profile';
+   ```
+
 ### Using Hooks
 
 1. **Create Hook Files (`hooks/[your-hook].ts`):**
@@ -231,6 +250,13 @@ your-project
    hook.after('CREATE_USER_RECORD', async function (this: any, args: any) {
      console.log('AFTER CREATE hook', this);
    });
+   ```
+
+2. **Export Hooks (`hooks/index.ts`):**
+
+   ```typescript
+   // hooks/index.ts
+   import './User.hook';
    ```
 
 ### Running the Server

@@ -67,3 +67,5 @@ app.listen(3000, () => {
   console.log('Express server listening on port 3000');
 });
 ```
+
+For setting up models, hooks, and profiles, please refer to the [Next.js setup page](nextjs#creating-models). The process is similar.
