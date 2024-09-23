@@ -6,6 +6,22 @@ title: Mercury
 
 This guide provides a step-by-step overview of how to use the **Mercury** for managing GraphQL schemas and MongoDB models, along with examples of methods such as `connect`, `disconnect`, `addGraphqlSchema`, `createModel`, and `deleteModel`.
 
+## Mercury Instance Properties
+
+Before diving into the methods, let's look at some important properties of a Mercury instance:
+
+- `mercury.db.[modelName]`: Provides access to all model functions for the specified model. [More info on models](model)
+
+- `mercury.access`: Gives access to all methods related to access profiles. [Learn about access profiles](profiles)
+
+- `mercury.hook`: Provides access to all hook methods. [Detailed information on hooks](hook)
+
+- `mercury.typeDefs`: A getter that returns the merged GraphQL type definitions.
+
+- `mercury.resolvers`: A getter that returns the merged GraphQL resolvers.
+
+Note: `mercury` refers to an instance of the Mercury class.
+
 ## 1. Connecting to MongoDB
 
 The `connect` method establishes a connection to the MongoDB database.
@@ -84,7 +100,7 @@ Parameters:
 
 ```typescript
 type TModel = {
-  fields: [`TFields`];
+  fields: `TFields`;
   name: string;
   options?: TOptions;
 };
@@ -109,6 +125,8 @@ This creates a `User` model with fields `name`, `email`, `age`, `role`, and `cre
 
 Note that any additional Mongoose-supported properties can be included in the field definition and will behave as they do in Mongoose.
 
+After creating a model, you can access its functions through `mercury.db.[modelName]`. For example, `mercury.db.User.findById(id)`.
+
 ## 5. Deleting a Model
 
 The `deleteModel` method removes a model from Mercury ORM and the associated GraphQL schema.
@@ -122,6 +140,17 @@ mercury.deleteModel(modelName);
 mercury.deleteModel('User');
 ```
 This deletes the `User` model from the Mercury instance, removing the corresponding GraphQL type definitions and resolvers.
+
+## Additional Features
+
+### Access Control
+You can manage access control for your models using `mercury.access`. This allows you to define and enforce access rules for different operations on your models.
+
+### Hooks
+Mercury provides a powerful hook system accessible via `mercury.hook`. You can use hooks to execute custom logic before or after certain operations on your models.
+
+### GraphQL Integration
+The `mercury.typeDefs` and `mercury.resolvers` getters provide access to the merged GraphQL type definitions and resolvers, respectively. These are useful when you need to integrate Mercury with a GraphQL server.
 
 
 

@@ -66,6 +66,70 @@ type TField = {
 - `default` (Optional): Sets a default value for the field.
 - `[x: string]: any`: Allows for additional Mongoose-supported properties to be included.
 
+### Here's a detailed explanation of each field option:
+
+1. **`ref`: string**
+   - Used with 'relationship' type fields.
+   - Specifies the name of the model that this field references.
+   - **Example**: `ref: 'User'` in a 'Post' model to reference the 'User' model.
+
+2. **`enum`: Array**
+   - Used with 'enum' type fields.
+   - Defines an array of allowed values for the field.
+   - **Example**: `enum: ['admin', 'user', 'guest']`.
+
+3. **`enumType`: string**
+   - Specifies the type of values in the enum array ('string' or 'number').
+   - **Example**: `enumType: 'string'` for string enums, `enumType: 'number'` for numeric enums.
+
+4. **`required`: boolean**
+   - If true, the field must have a value when saving a document.
+   - **Example**: `required: true`.
+
+5. **`unique`: boolean**
+   - If true, ensures that no two documents in the collection have the same value for this field.
+   - **Example**: `unique: true`.
+
+6. **`many`: boolean**
+   - Used with 'relationship' type fields.
+   - If true, indicates a one-to-many relationship (the field will be an array of references).
+   - **Example**: `many: true`.
+
+7. **`localField`: string**
+   - Used with 'virtual' type fields.
+   - Specifies the field in the current model to match against in virtual population.
+   - **Example**: `localField: '_id'`.
+
+8. **`foreignField`: string**
+   - Used with 'virtual' type fields.
+   - Specifies the field in the referenced model to match against in virtual population.
+   - **Example**: `foreignField: 'author'`.
+
+9. **`bcrypt`: boolean**
+   - If true, the field's value will be encrypted using bcrypt before saving.
+   - Typically used for password fields.
+   - **Example**: `bcrypt: true`.
+
+10. **`rounds`: number**
+    - Used in conjunction with `bcrypt`.
+    - Specifies the number of bcrypt hashing rounds.
+    - **Example**: `rounds: 10`.
+
+11. **`ignoreGraphQL`: boolean**
+    - If true, this field will be excluded from GraphQL schemas.
+    - Useful for fields that shouldn't be exposed via API.
+    - **Example**: `ignoreGraphQL: true`.
+
+12. **`default`: any**
+    - Sets a default value for the field if no value is provided.
+    - Can be a static value or a function.
+    - **Example**: `default: 'Unknown'` or `default: () => new Date()`.
+
+13. **`[x: string]: any`**
+    - This is a TypeScript index signature.
+    - It allows for additional Mongoose-supported properties to be included.
+    - Enables the use of any valid Mongoose SchemaType options not explicitly defined in Mercury.
+
 ## Supported Field Types
 
 Mercury supports the following field types:
