@@ -30,23 +30,23 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
 
   create-github-release:
-    needs: publish-npm 
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Get Version from package.json
-        id: get_version
-        run: echo "::set-output name=VERSION::$(node -p \"require('./packages/core/package.json').version\")"
+  needs: publish-npm 
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - name: Get Version from package.json
+      id: get_version
+      run: echo "VERSION=$(node -p \"require('./packages/core/package.json').version\")" >> $GITHUB_ENV
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      with:
+        tag_name: "v${{ env.VERSION }}"  # Accessing VERSION from environment
+        release_name: "v${{ env.VERSION }}"  # Accessing VERSION from environment
+        draft: false
+        prerelease: false
 
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-        with:
-          tag_name: "v${{ steps.get_version.outputs.VERSION }}" 
-          release_name: "v${{ steps.get_version.outputs.VERSION }}" 
-          draft: false
-          prerelease: false

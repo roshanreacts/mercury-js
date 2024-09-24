@@ -13,6 +13,17 @@
     "semver": "^7.6.3"
   },
   "main": "./index.cjs",
+  "files": [
+    "dist/packages/core",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "require": "./../dist/packages/core/index.cjs.js",
+      "import": "./../dist/packages/core/index.esm.js",
+      "types": "./../dist/packages/core/index.esm.d.ts"
+    }
+  },
   "module": "./index.js",
   "license": "MIT"
 }
