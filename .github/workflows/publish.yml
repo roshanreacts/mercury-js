@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://www.npmjs.com/package/@mercury-js/core
-      - run: npm publish
+      - run: cd ./packages/core && npm publish 
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
 
