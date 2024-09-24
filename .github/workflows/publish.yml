@@ -40,15 +40,15 @@ jobs:
 
       - name: Get Version from package.json
         id: get_version
-        run: echo "VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_ENV
+        run: echo "VERSION=$(node -p 'require("./package.json").version')" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "v${{ env.VERSION }}" 
-          release_name: "v${{ env.VERSION }}"  
+          tag_name: "v${{ steps.get_version.outputs.VERSION }}"
+          release_name: "v${{ steps.get_version.outputs.VERSION }}"
           draft: false
           prerelease: false
 
