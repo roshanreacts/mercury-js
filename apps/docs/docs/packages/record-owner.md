@@ -1,18 +1,9 @@
 ---
 sidebar_position: 2
-title: Record Owner Package
+title: Record Owner 
 ---
 # Record Owner Package
 
-The Record Owner package provides functionality to manage ownership of records in your application.
+**Coming Soon**
 
-## Features
-
-- Assign owners to records
-- Transfer ownership
-- Owner-based access control
-- Ownership history tracking
-
-## Installation
-
-To install the Record Owner package, run:
+The Record Owner feature is available, but detailed documentation is currently being prepared. Check back soon for comprehensive information on how to use and implement the Record Owner package in your projects.

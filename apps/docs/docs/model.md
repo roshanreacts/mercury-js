@@ -244,8 +244,7 @@ By leveraging these Mercury model methods and properties, you can efficiently in
 
 ### Special Field Options: Bcrypt
 
-Mercury provides a special field option for password hashing using bcrypt. When you define a field with the `bcrypt: true` option
-##### Mercury automatically handles the hashing of the field value before storing it in the database.
+Mercury provides a special field option for password hashing using bcrypt. When you define a field with the `bcrypt: true` option, Mercury automatically handles the hashing of the field value before storing it in the database.
 
 Example:
 
@@ -257,9 +256,9 @@ export const User = mercury.createModel('User', {
 });
 ```
 
-#### For more details on field options, including bcrypt, refer to the [Fields documentation](fields#heres-a-detailed-explanation-of-each-field-option).
+#### Password Verification - default generated method
 
-When you use the `bcrypt: true` option, Mercury automatically creates a verification method for that field. The method name is generated as `verify${FieldName}`, with the field name in PascalCase.
+When you use the `bcrypt: true` option, Mercury automatically creates a verification method for that field. The method name is generated as `verify${FieldName}`, with the field name in PascalCase. This method allows you to securely verify passwords without exposing the hashed value.
 
 To use this verification method:
 
@@ -270,9 +269,9 @@ const isPasswordCorrect = await user.verifyPassword(incomingPassword);
 // isPasswordCorrect will be true if the passwords match, false otherwise
 ```
 
-This method allows you to securely verify passwords without exposing the hashed value.
+#### Bcrypt Verification Method - manual usage of method
 
-#### Bcrypt Verification Method
+Alternatively, you can use the `verifyBcryptField` method for verification, which is especially useful when you need to perform the verification outside of the model instance context.
 
 Syntax:
 ```typescript
@@ -290,4 +289,4 @@ const isPasswordCorrect = await mercury.db.User.verifyBcryptField(
 );
 ```
 
-This method provides an alternative way to verify bcrypt fields, especially useful when you need to perform the verification outside of the model instance context.
+This method provides an alternative way to verify bcrypt fields, ensuring flexibility in how you handle password verification in your application.

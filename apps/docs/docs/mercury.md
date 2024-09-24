@@ -2,7 +2,7 @@
 sidebar_position: 4
 title: Mercury
 ---
-# Mercury Documentation
+# Mercury
 
 This guide provides a step-by-step overview of how to use the **Mercury** for managing GraphQL schemas and MongoDB models, along with examples of methods such as `connect`, `disconnect`, `addGraphqlSchema`, `createModel`, and `deleteModel`.
 
@@ -40,10 +40,6 @@ This connects the Mercury instance to a MongoDB database hosted locally.
 
 The `disconnect` method is used to close the MongoDB connection.
 ### Usage:
-```typescript
-await mercury.disconnect();
-```
-### Example
 ```typescript
 await mercury.disconnect();
 ```

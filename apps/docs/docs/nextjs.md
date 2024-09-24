@@ -11,25 +11,26 @@ Here's a recommended project structure:
 
 ```
 your-project
-├── pages
+├── app
 │   └── api
-│       └── [your-endpoint].ts
-└── models
-    ├── [your-model].ts
-    └── index.ts
-└── profiles
-    ├── [your-profile].ts
-    └── index.ts
-└── hooks
-    ├── [your-hook].ts
-    └── index.ts
+│       └── graphql
+│           ├── route.ts
+│           ├── models
+│           │   ├── [your-model].ts
+│           │   └── index.ts
+│           ├── profiles
+│           │   ├── [your-profile].ts
+│           │   └── index.ts
+│           └── hooks
+│               ├── [your-hook].ts
+│               └── index.ts
 └── next.config.js
 └── tsconfig.json
 └── package.json
 └── ...
 ```
 
-- **pages**: Contains your Next.js routes, including your API endpoints.
+- **app**: Contains your Next.js routes, including your API endpoints.
 - **models**: Houses your Mongoose models.
 - **profiles**: Stores your access control profiles.
 - **hooks**: Holds pre- and post-event hooks for your models.
@@ -39,16 +40,22 @@ your-project
 
 ### Setting up the server
 
-1. **Install Dependencies:**
+1. **Install `@mercury-js/core`:**
 
    ```bash
-   npm install @mercury-js/core @as-integrations/next @apollo/server @graphql-tools/schema graphql-middleware
+   npm install @mercury-js/core
    ```
 
-2. **Create a Route (`pages/api/[your-endpoint].ts`):**
+2. **Install Other Dependencies:**
+
+   ```bash
+   npm install @as-integrations/next @apollo/server @graphql-tools/schema graphql-middleware
+   ```
+
+3. **Create a Route (`app/api/graphql/route.ts`):**
 
    ```typescript
-   // pages/api/[your-endpoint].ts
+   // app/api/graphql/route.ts
    import { startServerAndCreateNextHandler } from '@as-integrations/next';
    import mercury from '@mercury-js/core';
    import { ApolloServer } from '@apollo/server';
@@ -104,9 +111,6 @@ your-project
      }),
    });
 
-   // Export the handler for Next.js API routes
-   export { mercuryInstance } from './[your-endpoint].ts';
-
    export async function GET(request: any) {
      return handler(request);
    }
@@ -134,6 +138,10 @@ your-project
          type: 'relationship',
          ref: 'Account',
        },
+       password: {
+         type: 'string',
+         bcrypt: true,
+       },
      },
      {}
    );
@@ -152,7 +160,9 @@ your-project
    };
 
    export const Account = mercury.createModel('Account', AccountSchema, {});
+
    ```
+   > **Note:** The `password` field in the `User` model will automatically be encrypted and stored in the database. For more details, refer to the [bcrypt field section](model#special-field-options-bcrypt) in the model documentation.
 
 2. **Export Models (`models/index.ts`):**
 
@@ -270,7 +280,7 @@ your-project
 Now, you have a Next.js application with a secure, efficient, and scalable API backend powered by `@mercury-js/core`. You can access your GraphQL API by making requests to your endpoint, for example:
 
 ```
-http://localhost:3000/api/[your-endpoint]
+http://localhost:3000/api/graphql
 ```
 
 This structure can be modified and expanded to suit your specific needs, allowing you to build complex applications with ease and security using `@mercury-js/core`.
