@@ -1,6 +1,6 @@
 {
   "name": "@mercury-js/core",
-  "version": "2.0.0-beta.25",
+  "version": "2.0.0-beta.26",
   "dependencies": {
     "@graphql-tools/merge": "^9.0.7",
     "bcryptjs": "^2.4.3",
