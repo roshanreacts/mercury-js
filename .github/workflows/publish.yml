@@ -14,7 +14,7 @@ jobs:
         with:
           node-version: 20
       - run: yarn
-      - run: yarn nx run core:build --verbose
+      - run: yarn nx run core:build --verbose --skip-nx-cache
 
   publish-npm:
     needs: build
