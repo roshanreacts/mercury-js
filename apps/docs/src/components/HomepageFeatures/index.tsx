@@ -10,32 +10,38 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: 'Rapid API Generation',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Mercury.js simplifies backend service development by generating Mongoose models, CRUD operations, GraphQL typedefs, and resolvers from a JSON model.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Advanced Access Control',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        With Mercury.js, you can define field-level and operation-level permissions, ensuring robust access control for your data.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Seamless Integration',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Easily integrate Mercury.js with your preferred frameworks like Next.js and Express, and start building your API backend in no time.
+      </>
+    ),
+  },
+  {
+    title: 'Custom Hooks',
+    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    description: (
+      <>
+        Implement custom logic before or after certain operations on your models using Mercury.js's powerful hook system.
       </>
     ),
   },

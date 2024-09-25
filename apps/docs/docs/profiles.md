@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 8
 title: Profiles
 ---
 
@@ -215,13 +215,13 @@ Mercury.js provides flexibility to:
 - ***`Control Access at the Model Level`***: Define access for entire models.
 - ***`Control Access at the Field Level`***: Specify permissions for individual fields within a model.
 
-### Sharing Rules
+<!-- ### Sharing Rules
 
 The `sharingRules` property in a rule allows you to define the sharing behavior for a model:
 
 - `'PRIVATE'`: The model is only accessible to the owner or users with explicit permissions.
 - `'PUBLIC_READ'`: The model can be read by anyone, but only modified by the owner or users with explicit permissions.
-- `'PUBLIC_READ_WRITE'`: The model can be read and modified by anyone.
+- `'PUBLIC_READ_WRITE'`: The model can be read and modified by anyone. -->
 
 ### Field-Level Access Control
 

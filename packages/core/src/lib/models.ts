@@ -7,7 +7,7 @@ import { TModel, TField, CtxUser, PopulateSchema } from '../types';
 import mongooseBcrypt from './mongoBcrypt';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import * as mongoosePaginateV2 from 'mongoose-paginate-v2';
+import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import access from './access';
 import hook from './hooks';
 import * as _ from 'lodash';
@@ -582,15 +582,7 @@ export class Model {
           if (value.type === 'virtual') {
             return;
           }
-          const fieldSchema: {
-            type: any;
-            ref?: string;
-            enum?: Array<string | number>;
-            bcrypt?: boolean;
-            rounds?: number;
-            unique?: boolean;
-            required?: boolean;
-          } = {
+          const fieldSchema: any = {
             type: value.many
               ? [this.fieldMongooseTyepMap[value.type]]
               : this.fieldMongooseTyepMap[value.type],
@@ -601,7 +593,7 @@ export class Model {
             }
             fieldSchema[vKey as keyof typeof fieldSchema] = value[
               vKey as keyof typeof value
-            ] as (typeof fieldSchema)[keyof typeof fieldSchema];
+            ] as any;
           });
           if ('enum' in value && value.enumType) {
             fieldSchema.type = this.fieldMongooseTyepMap[value.enumType];

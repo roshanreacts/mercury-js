@@ -1,6 +1,8 @@
 {
   "name": "@mercury-js/core",
-  "version": "0.0.1",
+  "version": "2.0.0-beta.27",
+  "module": "./index.js",
+  "main": "./index.cjs",
   "dependencies": {
     "@graphql-tools/merge": "^9.0.7",
     "bcryptjs": "^2.4.3",
@@ -12,7 +14,24 @@
     "mongoose-paginate-v2": "^1.8.3",
     "semver": "^7.6.3"
   },
-  "main": "./index.cjs",
-  "module": "./index.js",
+  "files": [
+    "dist/packages/core",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "require": "./../dist/packages/core/index.cjs.js",
+      "import": "./../dist/packages/core/index.esm.js",
+      "types": "./../dist/packages/core/index.esm.d.ts"
+    }
+  },
+  "homepage": "https://mercury-software-foundation.github.io/mercury-js/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mercury-Software-Foundation/mercury-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mercury-Software-Foundation/mercury-js/issues"
+  },
   "license": "MIT"
 }

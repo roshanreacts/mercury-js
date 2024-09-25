@@ -1,0 +1,54 @@
+name: Release and publish npm package 
+
+on:
+  push:
+    branches:
+      - platform-mono-repo
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: yarn
+      - run: yarn nx run core:build --verbose --skip-nx-cache
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - run: cd ./packages/core && npm publish 
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
+
+  create-github-release:
+    needs: publish-npm 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Get Version from package.json
+        id: get_version
+        run: echo "VERSION=$(node -p 'require("./packages/core/package.json").version')" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          tag_name: "v${{ steps.get_version.outputs.VERSION }}"
+          release_name: "v${{ steps.get_version.outputs.VERSION }}"
+          draft: false
+          prerelease: false
+
