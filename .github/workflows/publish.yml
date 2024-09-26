@@ -23,9 +23,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
+          clean: false
           node-version: 20
           registry-url: https://registry.npmjs.org
-      - run: yarn nx run core:nx-release-publish --verbose --skip-nx-cache
+      - run: cd ./dist/packages/core && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
 
