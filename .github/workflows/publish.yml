@@ -20,19 +20,22 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # No checkout here, rely on the previous build step for the dist folder
       - uses: actions/setup-node@v4
         with:
-          clean: false
           node-version: 20
           registry-url: https://registry.npmjs.org
-      - run: ls -la
+
+      # Debugging step: Verify that the dist folder exists and is properly structured
+      - run: ls -la ./dist/packages/core
+
+      # Publish the package from the dist folder to npm
       - run: cd ./dist/packages/core && npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   create-github-release:
-    needs: publish-npm 
+    needs: publish-npm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,4 +56,3 @@ jobs:
           release_name: "v${{ steps.get_version.outputs.VERSION }}"
           draft: false
           prerelease: false
-
