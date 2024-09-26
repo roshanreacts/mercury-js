@@ -130,7 +130,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Mercury-js.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Mercury Software Foundation, Inc. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

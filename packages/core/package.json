@@ -1,8 +1,9 @@
 {
   "name": "@mercury-js/core",
-  "version": "2.0.0-beta.27",
-  "module": "./index.js",
-  "main": "./index.cjs",
+  "version": "2.0.0-beta.28",
+  "module": "./index.esm.js",
+  "main": "./index.cjs.js",
+  "types": "./index.esm.d.ts",
   "dependencies": {
     "@graphql-tools/merge": "^9.0.7",
     "bcryptjs": "^2.4.3",
@@ -15,14 +16,13 @@
     "semver": "^7.6.3"
   },
   "files": [
-    "dist/packages/core",
-    "README.md"
+    "../../dist/packages/core"
   ],
   "exports": {
     ".": {
-      "require": "./../dist/packages/core/index.cjs.js",
-      "import": "./../dist/packages/core/index.esm.js",
-      "types": "./../dist/packages/core/index.esm.d.ts"
+      "require": "./index.cjs.js",
+      "import": "./index.esm.js",
+      "types": "./index.esm.d.ts"
     }
   },
   "homepage": "https://mercury-software-foundation.github.io/mercury-js/",
