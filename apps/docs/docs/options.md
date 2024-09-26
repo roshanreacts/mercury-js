@@ -4,28 +4,16 @@ title: Model Options
 ---
 # Model Options
 
-The **Model Options** object is used to configure a model's behavior in Mercury. It includes settings like enabling history tracking and adding MongoDB indexes to optimize queries.
+The **Model Options** object is used to configure a model's behavior in Mercury. It includes settings like adding MongoDB indexes to optimize queries.
 
 ```typescript
 export type ModelOptions = {
-  historyTracking: boolean;
   indexes?: Array<TIndex>;
   [x: string]: any;
 };
 ```
 
-## 1. HistoryTracking
-- ***`Type`***: `boolean`
-- ***`Description`***: If historyTracking is set to true, the system will automatically track the creation, update, and deletion events of the model. This feature is essential for audit logs or for maintaining a version history of records.
-
-### Example
-```typescript
-const userModel = mercury.createModel('User', fields, {
-  historyTracking: true,
-});
-```
-
-## 2. Indexes
+## 1. Indexes
 
 - ***`Type`***: `Array< TIndex >` (optional)
 - ***`Description`***: This field defines an array of MongoDB indexes that can be applied to the model. Mercury works with indexes in the same way as Mongoose. You can use all Mongoose indexes here, including compound indexes, unique indexes, and more. The default index functionality of Mercury  can also be used.
@@ -42,7 +30,7 @@ const userModel = mercury.createModel('User', fields, {
 });
 ```
 
-## 3. Additional Mongoose Options
+## 2. Additional Mongoose Options
 
 In addition to the Mercury-specific options, you can pass any other Mongoose-supported schema options directly to the `options` object. This flexibility allows you to fine-tune your model's behavior using the full range of Mongoose features.
 
@@ -50,7 +38,6 @@ For example, you could add options like `timestamps`, `strict`, or `toJSON`:
 
 ```typescript
 const userModel = mercury.createModel('User', fields, {
-  historyTracking: true,
   timestamps: true,
   strict: false,
   toJSON: { virtuals: true }

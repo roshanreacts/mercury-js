@@ -162,9 +162,9 @@ Only these types are directly supported by Mercury.js. For other Mongoose types,
 
 > **Important:** Mercury's flexibility extends beyond its built-in field options!
 
-While Mercury provides a robust set of field properties, you're not limited to just these. Thanks to the `[x: string]: any` index signature in the `TField` type, you can leverage the full power of Mongoose's SchemaType options in your Mercury models.
+Mercury provides a robust set of field properties, but it is not limited to these. The `[x: string]: any` index signature in the `TField` type allows for the inclusion of any additional Mongoose-supported SchemaType options in Mercury models.
 
-This means you can include any additional Mongoose-supported field properties in your field definitions. These properties will behave exactly as they do in Mongoose, giving you fine-grained control over your data models.
+This capability enables the use of any valid Mongoose SchemaType options not explicitly defined in Mercury, providing fine-grained control over data models.
 
 For example, you might want to use Mongoose-specific validators, transformers, or other advanced options:
 
