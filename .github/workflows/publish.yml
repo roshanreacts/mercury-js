@@ -6,38 +6,29 @@ on:
       - platform-mono-repo
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: yarn
-      - run: yarn nx run core:build --verbose --skip-nx-cache
-      - run: ls -la ./dist
-      - run: ls -la ./dist/packages || echo "Packages directory not found"
-      - run: ls -la ./dist/packages/core || echo "Core directory not found"
 
-  publish-npm:
-    needs: build
+publish-npm:
     runs-on: ubuntu-latest
     steps:
-      # No checkout here, rely on the previous build step for the dist folder
+      # Checkout the repository to pull the source code
+      - uses: actions/checkout@v4
+
+      # Set up Node.js and specify the version
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      # Debugging step: Verify that the dist folder exists and is properly structured
-      # - run: ls -la ./dist/packages/core
+      # Install dependencies
+      - run: yarn
 
-      # Publish the package from the dist folder to npm
+      # Build the project (this step replaces the separate build job)
+      - run: yarn nx run core:build --verbose --skip-nx-cache
       - run: cd ./dist/packages/core && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  create-github-release:
+create-github-release:
     needs: publish-npm
     runs-on: ubuntu-latest
     steps:
