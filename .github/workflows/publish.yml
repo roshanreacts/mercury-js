@@ -26,6 +26,7 @@ jobs:
           clean: false
           node-version: 20
           registry-url: https://registry.npmjs.org
+      - run: ls -la
       - run: cd ./dist/packages/core && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
