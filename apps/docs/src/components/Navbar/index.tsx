@@ -24,10 +24,14 @@ const Navbar = () => {
         <img className='w-[50px] h-[30px]' src={union} alt="Union Logo" />
       </div>
       <div className='flex items-center text-white gap-4 justify-start'>
-        <a href="/mercury-js/docs/intro" className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-lg transition-all duration-300 ease-in-out">
+        <a href="/mercury-js/docs/intro" style={{
+          textDecoration: "none"
+        }} className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] hover:text-white rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-lg transition-all duration-300 ease-in-out">
           <i className="fa-solid fa-file "></i> Docs
         </a>
-        <a href="https://github.com/Mercury-Software-Foundation" target='_blank' className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-lg transition duration-300">
+        <a href="https://github.com/Mercury-Software-Foundation" style={{
+          textDecoration: "none"
+        }} target='_blank' className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] hover:text-white rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-lg transition duration-300">
           <i className="fa-brands fa-github"></i> GitHub
         </a>
         <button

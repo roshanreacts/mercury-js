@@ -51,7 +51,7 @@ const Feature: React.FC<FeatureProps> = ({
       className={`flex flex-col text-start w-[100%]  ${reverse ? "md:flex-row-reverse" : "md:flex-row"
         } items-center mt-[120px]`}
     >
-      <div className="w-[30%] flex flex-col gap-5">
+      <div className="w-6/12 flex flex-col gap-5">
         <h3 className="text-[55px] leading-[58.5px] font-Manrope-Bold tracking-tighter text-[#0071E3] mb-4 w-[70%]">
           {title}
         </h3>

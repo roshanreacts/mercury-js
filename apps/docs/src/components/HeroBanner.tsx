@@ -142,7 +142,7 @@ const HeroBanner = () => {
         {/* GET Started Button */}
         <div
           ref={magnetic}
-          className="absolute bottom-[18%] right-[20%]"
+          className="absolute bottom-[18%] right-[15%]"
           onClick={() => {
             window.open("/mercury-js/docs/intro");
           }}
