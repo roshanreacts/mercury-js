@@ -1,5 +1,4 @@
-import * as _ from 'lodash';
-const { merge } = _;
+import { merge } from 'lodash';
 import { defaultTypeDefs, defaultResolvers } from './utility';
 import { TModel, TFields, TOptions, THookParams } from '../types';
 

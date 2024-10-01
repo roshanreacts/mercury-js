@@ -10,8 +10,7 @@ import mongooseBcrypt from './mongoBcrypt';
 import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import access from './access';
 import hook from './hooks';
-import * as _ from 'lodash';
-const { startCase } = _;
+import { startCase, isEmpty } from 'lodash';
 export class Model {
   public model: TModel;
   public mongoSchema: any;
@@ -327,7 +326,7 @@ export class Model {
       .populate(options.populate || [])
       .select(options.select || [])
       .exec();
-    if (_.isEmpty(record)) {
+    if (isEmpty(record)) {
       return {};
     }
     await new Promise((resolve, reject) => {

@@ -1,3 +1,7 @@
+import { optimizeLodashImports } from '@optimize-lodash/rollup-plugin';
+import typescript from '@rollup/plugin-typescript';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import { withNx } from '@nx/rollup/with-nx.js';
 
 export default withNx(
@@ -11,5 +15,7 @@ export default withNx(
   {
     // Additional rollup configuration here
     // Example: output: { sourcemap: true },
+    strictRequires: true,
+    plugins: [optimizeLodashImports(), commonjs(), typescript(), resolve()],
   }
 );

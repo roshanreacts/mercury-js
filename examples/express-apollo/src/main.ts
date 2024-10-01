@@ -2,7 +2,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { makeExecutableSchema } from 'graphql-tools';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 import { applyMiddleware } from 'graphql-middleware';
 import mercury from '@mercury-js/core';
 import { ApolloServer } from '@apollo/server';
@@ -52,7 +52,8 @@ const schema = applyMiddleware(
 (async function startApolloServer() {
   // connect db to mercury
   mercury.connect(
-    process.env.DB_URL || 'mongodb+srv://admin:forms123@cluster0.bvvpuvc.mongodb.net/newVersion'
+    process.env.DB_URL ||
+      'mongodb+srv://admin:forms123@cluster0.bvvpuvc.mongodb.net/newVersion'
   );
 
   const httpServer = http.createServer(app);

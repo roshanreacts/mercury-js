@@ -1,6 +1,6 @@
-import * as _ from 'lodash';
-const { mapKeys, startCase } = _;
-// @ts-ignore
+import { mapKeys, startCase } from 'lodash';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - graphqlFields is not a module
 import graphqlFields from 'graphql-fields';
 import { Model } from './models';
 import { TFields, TOptions } from '../types';
