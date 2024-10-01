@@ -60,7 +60,7 @@ const HeroBanner = () => {
         mercuryText.style.backgroundClip = "text";
         mercuryText.style.webkitBackgroundClip = "text";
         mercuryText.style.color = "transparent";
-        mercuryText.style.textShadow = "0px 12px 20px rgba(0, 0, 0, 0.5)";
+        // mercuryText.style.textShadow = "0px 12px 20px rgba(0, 0, 0, 0.5)";
       }
     };
 
