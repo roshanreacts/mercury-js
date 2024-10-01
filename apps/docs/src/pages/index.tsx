@@ -4,14 +4,16 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Heading from '@theme/Heading';
-
+import '../App.css';
 import styles from './index.module.css';
+import HeroBanner from '../components/HeroBanner';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
+        <HeroBanner />
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
         </Heading>
@@ -25,7 +27,6 @@ function HomepageHeader() {
             Mercury Js Tutorial - 10min ⏱️
           </Link>
         </div>
-
       </div>
     </header>
   );
@@ -34,14 +35,15 @@ function HomepageHeader() {
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout
-      title={`${siteConfig.tagline}`}
-      description="Description will go into a meta tag in <head />"
-    >
-      <HomepageHeader />
-      <main>
-        <HomepageFeatures />
-      </main>
-    </Layout>
+      <HeroBanner />
   );
 }
+    // <Layout
+    //   title={`${siteConfig.tagline}`}
+    //   description="Description will go into a meta tag in <head />"
+    // >
+    //   {/* <HomepageHeader />
+    //   <main>
+    //     <HomepageFeatures />
+    //   </main> */}
+    // </Layout>
