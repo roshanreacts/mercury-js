@@ -60,7 +60,7 @@ const HeroBanner = () => {
         mercuryText.style.backgroundClip = "text";
         mercuryText.style.webkitBackgroundClip = "text";
         mercuryText.style.color = "transparent";
-        mercuryText.style.textShadow = "0px 12px 20px rgba(0, 0, 0, 0.5)";
+        // mercuryText.style.textShadow = "0px 12px 20px rgba(0, 0, 0, 0.5)";
       }
     };
 
@@ -142,7 +142,7 @@ const HeroBanner = () => {
         {/* GET Started Button */}
         <div
           ref={magnetic}
-          className="absolute bottom-[18%] right-[20%]"
+          className="absolute bottom-[18%] right-[15%]"
           onClick={() => {
             window.open("/mercury-js/docs/intro");
           }}
