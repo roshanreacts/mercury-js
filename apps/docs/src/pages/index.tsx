@@ -35,15 +35,19 @@ function HomepageHeader() {
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
-      <HeroBanner />
+    <body className="flex justify-center items-center w-full">
+      <div className="max-w-screen-2xl justify-center w-full">
+        <HeroBanner />
+      </div>
+    </body>
   );
 }
-    // <Layout
-    //   title={`${siteConfig.tagline}`}
-    //   description="Description will go into a meta tag in <head />"
-    // >
-    //   {/* <HomepageHeader />
-    //   <main>
-    //     <HomepageFeatures />
-    //   </main> */}
-    // </Layout>
+// <Layout
+//   title={`${siteConfig.tagline}`}
+//   description="Description will go into a meta tag in <head />"
+// >
+//   {/* <HomepageHeader />
+//   <main>
+//     <HomepageFeatures />
+//   </main> */}
+// </Layout>
