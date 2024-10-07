@@ -77,17 +77,17 @@ const Footer = () => {
 
         <div className="col-span-3">
           <div className="flex flex-row">
-            <div className="mt-12 text-white flex flex-col  items-start transition-all delay-300 ease-in-out">
+            <div className="mt-12 text-white flex flex-col  items-start transition-all delay-300 ease-in-out  ">
               <a
                 href="/mercury-js/docs/intro"
-                className="hover:bg-gradient-to-t from-[#005AB6] to-[#0071E3] rounded-full px-5 py-2.5 flex items-center justify-start gap-2 lg:text-sm text-xl hover:text-white transition-all duration-300 ease-in-out"
+                className="hover:bg-gradient-to-t from-[#005AB6] to-[#0071E3] rounded-full px-5 py-2.5 flex items-center justify-start gap-2 lg:text-sm text-xl hover:text-white transition-all duration-300 ease-in-out hover:no-underline "
               >
                 <i className="fa-solid fa-file text-[#0071E3] transition-colors duration-300 ease-in-out"></i>
                 Documentation
               </a>
               <a
                 href="https://github.com/Mercury-Software-Foundation"
-                className="hover:bg-gradient-to-t from-[#005AB6] to-[#0071E3] rounded-full px-5 py-2.5 flex items-center justify-start gap-2 lg:text-sm text-xl hover:text-white transition-all duration-300 ease-in-out"
+                className="hover:bg-gradient-to-t from-[#005AB6] to-[#0071E3] rounded-full px-5 py-2.5 flex items-center justify-start gap-2 lg:text-sm text-xl hover:text-white transition-all duration-300 ease-in-out hover:no-underline"
               >
                 <i className="fa-brands fa-github text-[#0071E3]"></i> GitHub
               </a>
