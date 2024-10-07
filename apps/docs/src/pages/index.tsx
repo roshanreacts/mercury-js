@@ -40,7 +40,7 @@ export default function Home(): JSX.Element {
         <HeroBanner />
       </div>
     </body>
-  );
+  ); 
 }
 // <Layout
 //   title={`${siteConfig.tagline}`}
