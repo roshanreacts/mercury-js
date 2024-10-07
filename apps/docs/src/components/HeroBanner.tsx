@@ -124,15 +124,15 @@ const HeroBanner = () => {
       <div className="absolute top-0 left-0 right-0 bottom-0">
         <Navbar />
       </div>
-      <div className="bg-[#0071E3] w-full h-full z-10 bg-opacity-45 flex flex-col justify-center items-center text-white">
-        <div className=" w-[50%] mx-auto ">
-          <h1 className="text-[90px] mercury-gradient font-Manrope-ExtraBold bg-clip-text leading-[95px] tracking-tighter">
+      <div className="bg-[#0071E3] w-full h-full z-10 bg-opacity-45 flex flex-col md:justify-center justify-start pt-24 md:pt-0 items-center text-white">
+        <div className=" lg:w-[50%] md:w-10/12 w-11/12 mx-auto ">
+          <h1 className="md:text-[90px] text-[64px] mercury-gradient font-Manrope-ExtraBold bg-clip-text md:leading-[95px] leading-[70px] tracking-tighter">
             Mercury -
           </h1>
-          <h1 className="text-[85px] leading-[85px] tracking-tighter font-Manrope-ExtraBold">
+          <h1 className="md:text-[85px] text-[60px] md:leading-[85px] leading-[60px] tracking-tighter font-Manrope-ExtraBold">
             Develop at the speed of thought
           </h1>
-          <p className="text-[20px] font-Manrope-Medium tracking-wide w-[68%] mt-4">
+          <p className="text-[20px] font-Manrope-Medium tracking-wide w-[68%] mt-4 md:block hidden">
             Transform your ideas into robust backend services{" "}
             <span className="bg-[#0071e3]">in minutes, </span>
             not hours.
@@ -142,14 +142,14 @@ const HeroBanner = () => {
         {/* GET Started Button */}
         <div
           ref={magnetic}
-          className="absolute bottom-[18%] right-[15%]"
+          className="absolute bottom-[18%] lg:right-[15%] right-[8%]"
           onClick={() => {
             window.open("/mercury-js/docs/intro");
           }}
         >
           <div className="relative group">
-            <div className="w-52 h-52 bg-transparent flex justify-center items-center border-2 rounded-full group-hover:border-[#0066CC] border-transparent">
-              <div className="w-40 h-40 flex items-center justify-center">
+            <div className="md:w-52 md:h-52 w-44 h-44 bg-transparent flex justify-center items-center border-2 rounded-full group-hover:border-[#0066CC] border-transparent">
+              <div className="md:w-40 md:h-40 h-36 w-36 flex items-center justify-center">
                 <div className="bg-gradient-to-b from-white to-[#0071E3] rounded-full w-full h-full text-black flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-300 transform scale-100 group-hover:scale-110 group-hover:bg-gradient-to-b group-hover:from-[#005ab6] group-hover:to-[#005ab6] group-hover:text-white">
                   <GoArrowUpRight className="text-5xl" />
                   <p className="uppercase text-lg font-Manrope-SemiBold tracking-tight w-[80px] leading-[18px] break-words text-center">
@@ -163,7 +163,7 @@ const HeroBanner = () => {
 
         {/* Play Tutorial Section */}
         <div
-          className="flex items-center gap-3 absolute bottom-10 left-16 text-5xl play-tutorial group"
+          className="flex items-center gap-3 absolute bottom-10 md:left-16 left-6 text-5xl play-tutorial group"
           onClick={() => window.open("/mercury-js/docs/nextjs")}
         >
           <div className="relative inline-block">
