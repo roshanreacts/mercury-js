@@ -45,7 +45,7 @@ const FeaturesSection: React.FC = () => {
     <div className="bg-[#E6F1FC] rounded-t-[50px]">
       <div  className="lg:py-16 max-w-[100%] lg:px-[100px] rounded-t-[50px] px-5 py-10">
         <div className="flex flex-col justify-center align-middle text-start mb-12  ">
-          <h2 className="font-Manrope-Bold text-[#00284F] md:w-[95%] md:leading-[55px] lg:leading-[74px] xl:leading-[95.3px] xl:text-[85px] lg:text-[70px] md:text-[48px] text-[40px] leading-[41.34px] font-Manrope-ExtraBold tracking-tighter">
+          <h2 className=" text-[#00284F] md:w-[95%] md:leading-[55px] lg:leading-[74px] xl:leading-[95.3px] xl:text-[85px] lg:text-[70px] md:text-[48px] text-[40px] leading-[41.34px] font-Manrope-ExtraBold tracking-tighter">
             <span className="text-[#0071E3]">Powerful Features</span> to <br className="lg:block hidden" /> Supercharge Your Development
           </h2>
         </div>
