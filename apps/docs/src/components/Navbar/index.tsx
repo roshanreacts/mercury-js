@@ -39,9 +39,9 @@ const Navbar = () => {
           style={{
             textDecoration: 'none',
           }}
-          className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] hover:text-white rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-lg transition-all duration-300 ease-in-out"
+          className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] text-white hover:text-white rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-lg transition-all duration-300 ease-in-out"
         >
-          <i className="fa-solid fa-file "></i> Docs
+          <i className="fa-solid fa-file text-white"></i> Docs
         </a>
         <a
           href="https://github.com/Mercury-Software-Foundation"
@@ -49,27 +49,31 @@ const Navbar = () => {
             textDecoration: 'none',
           }}
           target="_blank"
-          className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] hover:text-white rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-lg transition duration-300"
+          className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] text-white hover:text-white rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-lg transition duration-300"
         >
-          <i className="fa-brands fa-github"></i> GitHub
+          <i className="fa-brands fa-github text-white"></i> GitHub
         </a>
-        <button
+        <img
+          onClick={toggleColor}
+          src={isDark ? offbar : onbar}
+          alt="Toggle Icon"
+          style={{ width: '45px', height: '25px' }} // Adjust icon size as needed
+        />
+        {/* <button
           onClick={toggleColor}
           className="rounded-2xl bg-[#0071E3A6] flex items-center justify-center min-w-11 min-h-6 transition delay-300 ease-in-out"
         >
-          <img
-            src={isDark ? offbar : onbar}
-            alt="Toggle Icon"
-            style={{ width: '45px', height: '25px' }} // Adjust icon size as needed
-          />
-        </button>
+          
+        </button> */}
       </div>
       <button
         onClick={toggleSidebar}
-        className="md:hidden rotate-180 text-white"
+        className="md:hidden rotate-180 text-white p-0 bg-transparent border-none outline-none"
       >
-        <MdOutlineSort className="text-4xl" />
+        <MdOutlineSort className="text-4xl transform scale-[130%]" />
       </button>
+
+
 
       {/* Sidebar */}
       {isSidebarOpen && (
@@ -77,21 +81,24 @@ const Navbar = () => {
           <div className="bg-[#0071E3] h-full p-5 w-11/12">
             <div className="flex justify-between px-3">
               <img className="w-[50px] h-[30px]" src={union} alt="Union Logo" />
-              <button onClick={toggleSidebar} className="flex justify-end">
-                <AiOutlineClose className="text-3xl text-white" />
+              <button
+                onClick={toggleSidebar}
+                className="flex justify-end p-0 bg-transparent border-none outline-none"
+              >
+                <AiOutlineClose className="text-4xl transform scale-[110%] text-white" />
               </button>
+
             </div>
             <nav className="flex flex-col gap-4 mt-10">
-              <button
+              <img
                 onClick={toggleColor}
-                className="rounded-2xl bg-[#0071E3A6] flex items-start justify-start min-w-11 min-h-6 transition delay-300 ease-in-out ml-5"
-              >
-                <img
-                  src={isDark ? offbar : onbar}
-                  alt="Toggle Icon"
-                  style={{ width: '45px', height: '25px' }} // Adjust icon size as needed
-                />
-              </button>
+                src={isDark ? offbar : onbar}
+                alt="Toggle Icon"
+                className="h-[40px] flex items-start justify-start w-[20%] ml-5 cursor-pointer"
+              />
+
+
+              {/* Documentation Link */}
               <a
                 href="/mercury-js/docs/intro"
                 style={{
@@ -99,19 +106,23 @@ const Navbar = () => {
                 }}
                 className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] w-fit text-white rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-2xl transition-all duration-300 ease-in-out"
               >
-                <i className="fa-solid fa-file "></i> Docs
+                <i className="fa-solid fa-file"></i> Docs
               </a>
+
+              {/* GitHub Link */}
               <a
                 href="https://github.com/Mercury-Software-Foundation"
                 style={{
                   textDecoration: 'none',
                 }}
                 target="_blank"
+                rel="noopener noreferrer" // Added for security reasons
                 className="hover:bg-[linear-gradient(180deg,#0071E3_0%,#005AB6_100%)] w-fit text-white rounded-full px-5 py-2.5 flex items-center justify-start gap-2 text-2xl transition duration-300"
               >
                 <i className="fa-brands fa-github"></i> GitHub
               </a>
             </nav>
+
           </div>
         </div>
       )}

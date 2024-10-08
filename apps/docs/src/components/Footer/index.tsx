@@ -7,34 +7,39 @@ const Footer = () => {
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      const footerElement = mercuryTextRef.current;
-      if (!footerElement) return; // Guard against null reference
-
-      const { width, height, left, top } =
-        footerElement.getBoundingClientRect();
-      const mouseX = event.clientX - left; // Relative to element
-      const mouseY = event.clientY - top; // Relative to element
-
-      const mouseXpercentage = Math.round((mouseX / width) * 100); // Normalize to 0-100%
-      const mouseYpercentage = Math.round((mouseY / height) * 100); // Normalize to 0-100%
-
-      footerElement.style.background = `conic-gradient(
-        at ${mouseXpercentage}% ${mouseYpercentage}%,
-        #FFFFFF 0%,
-        #CCE5FF 28%,
-        #0071E3 50%,
-        #D9EAFB 80%,
-        #FFFFFF 100%
-      )`;
-      footerElement.style.backgroundClip = 'text';
-      footerElement.style.webkitBackgroundClip = 'text';
-      footerElement.style.color = 'transparent'; // Ensure text color is transparent
+      const windowWidth = window.innerWidth;
+  
+      const angle = Math.round((event.pageX / windowWidth) * 360);
+  
+      const colorStop1Percentage = 0;
+      const colorStop2Percentage = 28; 
+      const colorStop3Percentage = 54; 
+      const colorStop4Percentage = 80; 
+      const colorStop5Percentage = 100; 
+  
+      const mercuryText = document.querySelector(
+        ".mercury-gra"
+      ) as HTMLElement;
+  
+      if (mercuryText) {
+        mercuryText.style.background = `conic-gradient(
+          from ${angle}deg, 
+          #FFFFFF ${colorStop1Percentage}%, 
+          #CCE5FF ${colorStop2Percentage}%, 
+          #0071E3 ${colorStop3Percentage}%, 
+          #D9EAFB ${colorStop4Percentage}%, 
+          #FFFFFF ${colorStop5Percentage}%
+        )`;
+        mercuryText.style.backgroundClip = "text";
+        mercuryText.style.webkitBackgroundClip = "text";
+        mercuryText.style.color = "transparent";
+      }
     };
-
-    window.addEventListener('mousemove', handleMouseMove);
-
+  
+    window.addEventListener("mousemove", handleMouseMove);
+  
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, []);
 
@@ -62,13 +67,13 @@ const Footer = () => {
               >
                 Mercury
               </h1>
-              <h2 className="text-[#0071E3] font-Manrope-Bold tracking-tight lg:text-2xl text-lg ml-0.5 lg:-mt-2 -mt-1">
+              <h2 className="text-[#0071E3] font-Manrope-Bold tracking-tight lg:text-2xl text-lg ml-0.5 lg:m-0 lg:-mt-2 -mt-1">
                 Software Foundation
               </h2>
             </div>
           </div>
-          <div className="mt-8 text-[#0071E3] font-Manrope-Light tracking-normal text-start lg:w-9/12 w-11/12">
-            <h1>
+          <div className="mt-8 text-[#0071E3] ">
+            <h1 className='font-Manrope-Light tracking-normal text-start xl:text-[20px] lg:text-[18px] md:text-[16px] text-[14px] xl:leading-[30px] lg:leading-[28px] leading-[20px]'>
               Scale your backend seamlessly as your project grows, with
               Mercury.js's flexible architecture.
             </h1>
@@ -76,18 +81,18 @@ const Footer = () => {
         </div>
 
         <div className="col-span-3">
-          <div className="flex flex-row">
+          <div className="flex flex-row lg:justify-end">
             <div className="mt-12 text-white flex flex-col  items-start transition-all delay-300 ease-in-out  ">
               <a
                 href="/mercury-js/docs/intro"
-                className="hover:bg-gradient-to-t from-[#005AB6] to-[#0071E3] rounded-full px-5 py-2.5 flex items-center justify-start gap-2 lg:text-sm text-xl hover:text-white transition-all duration-300 ease-in-out hover:no-underline "
+                className="hover:bg-gradient-to-t from-[#005AB6] to-[#0071E3] rounded-full xl:px-5 py-2.5 flex items-center justify-start gap-2 lg:text-sm text-xl hover:text-white transition-all duration-300 ease-in-out hover:no-underline "
               >
                 <i className="fa-solid fa-file text-[#0071E3] transition-colors duration-300 ease-in-out"></i>
                 Documentation
               </a>
               <a
                 href="https://github.com/Mercury-Software-Foundation"
-                className="hover:bg-gradient-to-t from-[#005AB6] to-[#0071E3] rounded-full px-5 py-2.5 flex items-center justify-start gap-2 lg:text-sm text-xl hover:text-white transition-all duration-300 ease-in-out hover:no-underline"
+                className="hover:bg-gradient-to-t from-[#005AB6] to-[#0071E3] rounded-full xl:px-5 py-2.5 flex items-center justify-start gap-2 lg:text-sm text-xl hover:text-white transition-all duration-300 ease-in-out hover:no-underline"
               >
                 <i className="fa-brands fa-github text-[#0071E3]"></i> GitHub
               </a>
@@ -133,7 +138,7 @@ const Footer = () => {
         </div> */}
       </div>
 
-      <div className="flex lg:flex-row gap-5 flex-col justify-between  font-Manrope-Medium tracking-normal text-[#0055AA] bg-[#002040] rounded-2xl px-5 py-5 mt-5 w-[100%]">
+      <div className="flex lg:flex-row gap-5 flex-col justify-between xl:text-[18px]  text-[14px] font-Manrope-Medium tracking-normal text-[#0055AA] bg-[#002040] xl:rounded-full rounded-[18px] px-5 py-4  mt-5 w-[100%]">
         <p className="text-start">
           Copyright © 2024 Mercury Software Foundation by Vithi
         </p>
