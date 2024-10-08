@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const { Schema, model, models } = mongoose;
 const mongooseModel = model;
-import { TModel, TField, CtxUser, PopulateSchema } from '../types';
+import { TModel, TField, CtxUser, PopulateSchema, MongoModel } from '../types';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import mongooseBcrypt from './mongoBcrypt';
@@ -274,7 +274,11 @@ export class Model {
     return true;
   }
 
-  public async get(query: object, user: CtxUser, options: any = {}) {
+  public async get<T>(
+    query: object,
+    user: CtxUser,
+    options: any = {}
+  ): Promise<MongoModel<T> | undefined> {
     // validate the access
     const hasAccess = access.validateAccess(
       this.model.name,
@@ -327,7 +331,7 @@ export class Model {
       .select(options.select || [])
       .exec();
     if (isEmpty(record)) {
-      return {};
+      return undefined;
     }
     await new Promise((resolve, reject) => {
       hook.execAfter(
