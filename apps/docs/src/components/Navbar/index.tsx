@@ -5,6 +5,7 @@ import offbar from '../../assets/Property 1=Dark.png';
 import { AiOutlineClose } from 'react-icons/ai'; // Import close icon
 import { MdOutlineSort } from 'react-icons/md';
 
+
 const Navbar = () => {
   const [isDark, setIsDark] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar
@@ -24,7 +25,10 @@ const Navbar = () => {
     setIsSidebarOpen(!isSidebarOpen); // Toggle sidebar state
   };
 
+  
+
   return (
+    
     <div
       className={
         'bg-transparent bg-opacity-45 flex flex-row w-full justify-between items-center p-5 md:px-16 px-5'
@@ -129,5 +133,6 @@ const Navbar = () => {
     </div>
   );
 };
+
 
 export default Navbar;

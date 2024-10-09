@@ -1,5 +1,6 @@
 import logo from '../../assets/Logo mercury.png';
 import union from '../../assets/Logo mercury.png';
+
 import { useEffect, useRef } from 'react';
 
 const Footer = () => {
@@ -44,6 +45,7 @@ const Footer = () => {
   }, []);
 
   return (
+    
     <div
       className="  w-full flex flex-col bg-[#00284F] lg:p-10 p-2 rounded-t-[50px] text-center lg:px-20 px-8"
       id="footer"
@@ -55,6 +57,7 @@ const Footer = () => {
         />
         <div className="col-span-5">
           <div className="flex flex-row mt-12 gap-2 justify-start items-center">
+            
             <img
               src={logo}
               alt="Mercury Logo"
