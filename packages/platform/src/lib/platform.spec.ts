@@ -22,7 +22,7 @@ describe('platform', () => {
           init: async ({ core }) => {
             coreAsPromise = core;
           },
-          run: ({ core }) => {
+          run: () => {
             console.log('run');
             return Promise.resolve();
           },
@@ -48,7 +48,7 @@ describe('platform', () => {
           init: async ({ core }) => {
             coreAsPromise = core;
           },
-          run: ({ core }) => {
+          run: () => {
             console.log('run');
             return Promise.resolve();
           },

@@ -1,17 +1,17 @@
 import mercury, { Mercury } from '@mercury-js/core';
 import { cloneDeep } from 'lodash';
-import { Config, TPlugin, PermissionsSet, ILogger } from '../types';
+import { IPlatformConfig, TPlugin, TPermissionsSet, ILogger } from '../types';
 import { Logger } from './logger';
 
 export class Platform {
   private _meta = cloneDeep(mercury);
   private _core = cloneDeep(mercury);
   private _plugins: TPlugin[] = [];
-  private _permissions: PermissionsSet = {};
+  private _permissions: TPermissionsSet = {};
   private _dbUri: string;
   private _logger: ILogger;
 
-  set permissions(value: PermissionsSet) {
+  set permissions(value: TPermissionsSet) {
     this._permissions = value;
   }
 
@@ -27,7 +27,7 @@ export class Platform {
   }
 
   constructor(
-    config: Config = {
+    config: IPlatformConfig = {
       uri: process.env['MONGODB_URL'] || 'mongodb://localhost:27017',
       logger: new Logger({
         name: 'Mercury',
@@ -43,11 +43,12 @@ export class Platform {
     this._meta.connect(this._dbUri); // Connect to the database
     this._core.connect(this._dbUri); // Connect to the database
   }
+
   run() {
     this._logger.debug('Loading plugins');
     this._plugins.forEach((plugin) => {
       this._logger.debug(`Initializing plugin: ${plugin.name}`);
-      plugin.init({ core: this.core(plugin.name) });
+      plugin.init({ core: this.core(plugin.name), logger: this._logger });
     });
   }
 }
