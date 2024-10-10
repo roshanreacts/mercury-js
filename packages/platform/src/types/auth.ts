@@ -1,3 +1,5 @@
+import { TPluginInit, TPluginRun } from './platform';
+
 export interface ISession<T> {
   token: string;
   expires: number;
@@ -12,6 +14,8 @@ export interface IAuthConfig {
 }
 
 export interface IAuth {
+  init(initParams: TPluginInit): Promise<void>;
+  run(runParams: TPluginRun): Promise<void>;
   login: <T>(username: string, password: string) => Promise<T>;
   logout: (token: string) => Promise<boolean>;
   register: <T, K>(user: T) => Promise<K>;

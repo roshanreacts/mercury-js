@@ -44,11 +44,18 @@ export class Platform {
     this._core.connect(this._dbUri); // Connect to the database
   }
 
-  run() {
+  init() {
     this._logger.debug('Loading plugins');
     this._plugins.forEach((plugin) => {
       this._logger.debug(`Initializing plugin: ${plugin.name}`);
       plugin.init({ core: this.core(plugin.name), logger: this._logger });
+    });
+  }
+  run() {
+    this._logger.debug('Running plugins');
+    this._plugins.forEach((plugin) => {
+      this._logger.debug(`Running plugin: ${plugin.name}`);
+      plugin.run({ core: this.core(plugin.name), logger: this._logger });
     });
   }
 }
