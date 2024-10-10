@@ -1,7 +1,9 @@
 export interface ISession<T> {
   token: string;
   expires: number;
-  user: T;
+  user: {
+    username: string;
+  } & T;
 }
 
 export interface IAuthConfig {
